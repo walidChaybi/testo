@@ -1,0 +1,1127 @@
+Hibernate: 
+    select
+        hssje1_0.id_statut,
+        hssje1_0.date_dernier_changement,
+        hssje1_0.statut_crl,
+        hssje1_0.statut_horodatage 
+    from
+        histo_statut_signature hssje1_0 
+    order by
+        hssje1_0.id_statut desc 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        bsje1_0.id_blocage_signature,
+        bsje1_0.commentaire,
+        bsje1_0.debut_blocage_signature,
+        bsje1_0.fin_blocage_signature 
+    from
+        blocage_signature bsje1_0 
+    order by
+        bsje1_0.id_blocage_signature desc 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        aje1_0.id_acte,
+        aje1_0.acte_etranger,
+        am1_0.id_acte,
+        am1_0.id_analyse_marginale,
+        am1_0.date_debut,
+        am1_0.date_fin,
+        am1_0.est_valide,
+        am1_0.motif_modification,
+        am1_0.nom_oec,
+        am1_0.prenom_oec,
+        am1_0.titulaires,
+        aje1_0.annee_registre_electronique,
+        aje1_0.conteneur_stockage_acte_signe,
+        ct1_0.id_corps_texte,
+        ct1_0.id_acte,
+        ct1_0.texte,
+        aje1_0.date_creation,
+        aje1_0.date_initialisation_projet,
+        aje1_0.date_statut,
+        aje1_0.declarant,
+        dda1_0.id_acte,
+        dda1_0.date_derniere_delivrance,
+        dda1_0.date_derniere_maj,
+        aje1_0.est_reecrit,
+        aje1_0.id_evenement,
+        aje1_0.id_formule_finale,
+        aje1_0.mode_creation,
+        aje1_0.motif_annulation,
+        aje1_0.nature,
+        aje1_0.nom_oec,
+        aje1_0.numero,
+        aje1_0.numero_acte_electronique,
+        aje1_0.numero_bis_ter,
+        aje1_0.numero_dossier_national,
+        aje1_0.numero_projet,
+        aje1_0.origine,
+        ps1_0.id_phrase_signature,
+        ps1_0.phrase_signature,
+        aje1_0.prenom_oec,
+        aje1_0.reference_stockage_acte_signe,
+        aje1_0.id_registre_papier,
+        aje1_0.statut,
+        aje1_0.titulaires,
+        aje1_0.type,
+        aje1_0.id_type_registre,
+        aje1_0.visible_archiviste 
+    from
+        acte aje1_0 
+    left join
+        analyse_marginale am1_0 
+            on aje1_0.id_acte=am1_0.id_acte 
+    left join
+        corps_texte ct1_0 
+            on aje1_0.id_acte=ct1_0.id_acte 
+    left join
+        donnees_dynamiques_acte dda1_0 
+            on aje1_0.id_acte=dda1_0.id_acte 
+    left join
+        phrase_signature ps1_0 
+            on ps1_0.id_phrase_signature=aje1_0.id_phrase_signature 
+    where
+        aje1_0.id_acte=?
+Hibernate: 
+    select
+        dmje1_0.id_detail_mariage,
+        dmje1_0.id_acte,
+        a1_0.id_acte,
+        a1_0.acte_etranger,
+        am1_0.id_acte,
+        am1_0.id_analyse_marginale,
+        am1_0.date_debut,
+        am1_0.date_fin,
+        am1_0.est_valide,
+        am1_0.motif_modification,
+        am1_0.nom_oec,
+        am1_0.prenom_oec,
+        am1_0.titulaires,
+        a1_0.annee_registre_electronique,
+        a1_0.conteneur_stockage_acte_signe,
+        ct1_0.id_corps_texte,
+        ct1_0.id_acte,
+        ct1_0.texte,
+        a1_0.date_creation,
+        a1_0.date_initialisation_projet,
+        a1_0.date_statut,
+        a1_0.declarant,
+        dda1_0.id_acte,
+        dda1_0.date_derniere_delivrance,
+        dda1_0.date_derniere_maj,
+        a1_0.est_reecrit,
+        a1_0.id_evenement,
+        a1_0.id_formule_finale,
+        a1_0.mode_creation,
+        a1_0.motif_annulation,
+        a1_0.nature,
+        a1_0.nom_oec,
+        a1_0.numero,
+        a1_0.numero_acte_electronique,
+        a1_0.numero_bis_ter,
+        a1_0.numero_dossier_national,
+        a1_0.numero_projet,
+        a1_0.origine,
+        ps1_0.id_phrase_signature,
+        ps1_0.phrase_signature,
+        a1_0.prenom_oec,
+        a1_0.reference_stockage_acte_signe,
+        a1_0.id_registre_papier,
+        a1_0.statut,
+        a1_0.titulaires,
+        a1_0.type,
+        a1_0.id_type_registre,
+        a1_0.visible_archiviste,
+        dmje1_0.contrat,
+        dmje1_0.existence_contrat 
+    from
+        detail_mariage dmje1_0 
+    join
+        acte a1_0 
+            on a1_0.id_acte=dmje1_0.id_acte 
+    left join
+        analyse_marginale am1_0 
+            on a1_0.id_acte=am1_0.id_acte 
+    left join
+        corps_texte ct1_0 
+            on a1_0.id_acte=ct1_0.id_acte 
+    left join
+        donnees_dynamiques_acte dda1_0 
+            on a1_0.id_acte=dda1_0.id_acte 
+    left join
+        phrase_signature ps1_0 
+            on ps1_0.id_phrase_signature=a1_0.id_phrase_signature 
+    where
+        dmje1_0.id_acte=?
+Hibernate: 
+    select
+        m1_0.id_acte,
+        m1_0.id_mention,
+        m1_0.date_apposition,
+        m1_0.date_creation,
+        m1_0.date_statut,
+        m1_0.id_document_mentions,
+        m1_0.id_evenement,
+        m1_0.libelle_date_deces_non_etablie,
+        m1_0.libelle_rectification,
+        m1_0.maj_regime_matrimonial,
+        m1_0.mention_infos,
+        m1_0.numero_ordre,
+        m1_0.numero_ordre_extrait,
+        m1_0.origine,
+        m1_0.region_apposition,
+        m1_0.statut,
+        m1_0.id_type_mention,
+        tm1_0.id_type_mention,
+        tm1_0.code_type,
+        tm1_0.est_present_liste_deroulante,
+        tm1_0.est_saisie_assistee,
+        tm1_0.est_sous_type,
+        tm1_0.id_type_mention_parent,
+        tm1_0.libelle_type,
+        tm1_0.modifie_analyse_marginale,
+        n1_0.id_nomenclature,
+        n1_0.code,
+        n1_0.est_actif,
+        n1_0.infos,
+        n1_0.libelle,
+        n1_0.nom,
+        tm1_0.nature_acte,
+        tm1_0.nom_fichier,
+        tm1_0.ordre_affichage,
+        m1_0.type_personne_concernee,
+        m1_0.type_reconnaissance,
+        m1_0.ville_apposition 
+    from
+        mention m1_0 
+    left join
+        type_mention tm1_0 
+            on tm1_0.id_type_mention=m1_0.id_type_mention 
+    left join
+        nomenclature n1_0 
+            on n1_0.id_nomenclature=tm1_0.id_nomenclature_nature_mention 
+    where
+        m1_0.id_acte=?
+Hibernate: 
+    select
+        rpje1_0.id_registre_papier,
+        rpje1_0.annee,
+        rpje1_0.decret_2017,
+        rpje1_0.famille,
+        rpje1_0.pocopa,
+        rpje1_0.support_1,
+        rpje1_0.support_2,
+        rpje1_0.id_type_registre 
+    from
+        registre_papier rpje1_0 
+    where
+        rpje1_0.id_registre_papier=?
+Hibernate: 
+    select
+        trje1_0.id_type_registre,
+        trje1_0.date_rattachement,
+        trje1_0.date_transfert_scec,
+        dtr1_0.id_decret_type_registre,
+        dtr1_0.libelle_decret_type_registre,
+        trje1_0.description,
+        trje1_0.est_ouvert,
+        trje1_0.famille,
+        trje1_0.gere_scec,
+        trje1_0.pays_pocopa,
+        trje1_0.pocopa,
+        trje1_0.poste 
+    from
+        type_registre trje1_0 
+    left join
+        decret_type_registre dtr1_0 
+            on dtr1_0.id_decret_type_registre=trje1_0.id_decret_type_registre 
+    where
+        trje1_0.id_type_registre=?
+Hibernate: 
+    SELECT
+        nextval('seq_annee_impaire')
+Hibernate: 
+    SELECT
+        nature 
+    FROM
+        acte a 
+    where
+        a.id_acte = ?
+Hibernate: 
+    select
+        tmje1_0.id_type_mention,
+        tmje1_0.code_type,
+        tmje1_0.est_present_liste_deroulante,
+        tmje1_0.est_saisie_assistee,
+        tmje1_0.est_sous_type,
+        tmje1_0.id_type_mention_parent,
+        tmje1_0.libelle_type,
+        tmje1_0.modifie_analyse_marginale,
+        tmje1_0.id_nomenclature_nature_mention,
+        tmje1_0.nature_acte,
+        tmje1_0.nom_fichier,
+        tmje1_0.ordre_affichage 
+    from
+        type_mention tmje1_0 
+    where
+        tmje1_0.id_type_mention=?
+Hibernate: 
+    update
+        mention 
+    set
+        id_acte=?,
+        date_apposition=?,
+        date_creation=?,
+        date_statut=?,
+        id_document_mentions=?,
+        id_evenement=?,
+        libelle_date_deces_non_etablie=?,
+        libelle_rectification=?,
+        maj_regime_matrimonial=?,
+        mention_infos=?,
+        numero_ordre=?,
+        numero_ordre_extrait=?,
+        origine=?,
+        region_apposition=?,
+        statut=?,
+        id_type_mention=?,
+        type_personne_concernee=?,
+        type_reconnaissance=?,
+        ville_apposition=? 
+    where
+        id_mention=?
+Hibernate: 
+    select
+        p1_0.id_acte,
+        p1_0.id_personne,
+        p1_0.id_deces,
+        p1_0.id_naissance,
+        p1_0.nationalite,
+        p1_0.nom,
+        p1_0.id_pacs,
+        p1_0.id_inscription_rc,
+        p1_0.id_inscription_rca,
+        p1_0.sexe 
+    from
+        personne p1_0 
+    where
+        p1_0.id_acte=?
+Hibernate: 
+    select
+        an1_0.id_personne,
+        an1_0.id_autre_nom,
+        an1_0.nom,
+        an1_0.type 
+    from
+        autre_nom an1_0 
+    where
+        an1_0.id_personne=?
+Hibernate: 
+    select
+        p1_0.id_personne,
+        p1_0.id_prenom,
+        p1_0.ordre,
+        p1_0.prenom 
+    from
+        prenom p1_0 
+    where
+        p1_0.id_personne=? 
+    order by
+        p1_0.ordre
+Hibernate: 
+    select
+        ap1_0.id_personne,
+        ap1_0.id_autre_prenom,
+        ap1_0.prenom 
+    from
+        autre_prenom ap1_0 
+    where
+        ap1_0.id_personne=?
+Hibernate: 
+    select
+        peje1_0.id_personne,
+        peje1_0.noms_recherche,
+        peje1_0.prenoms_recherche 
+    from
+        table_ecart_personne peje1_0 
+    where
+        peje1_0.id_personne=?
+Hibernate: 
+    SELECT
+        nature 
+    FROM
+        acte a 
+    where
+        a.id_acte = ?
+Hibernate: 
+    select
+        tmje1_0.id_type_mention,
+        tmje1_0.code_type,
+        tmje1_0.est_present_liste_deroulante,
+        tmje1_0.est_saisie_assistee,
+        tmje1_0.est_sous_type,
+        tmje1_0.id_type_mention_parent,
+        tmje1_0.libelle_type,
+        tmje1_0.modifie_analyse_marginale,
+        tmje1_0.id_nomenclature_nature_mention,
+        tmje1_0.nature_acte,
+        tmje1_0.nom_fichier,
+        tmje1_0.ordre_affichage 
+    from
+        type_mention tmje1_0 
+    where
+        tmje1_0.id_type_mention=?
+Hibernate: 
+    update
+        mention 
+    set
+        id_acte=?,
+        date_apposition=?,
+        date_creation=?,
+        date_statut=?,
+        id_document_mentions=?,
+        id_evenement=?,
+        libelle_date_deces_non_etablie=?,
+        libelle_rectification=?,
+        maj_regime_matrimonial=?,
+        mention_infos=?,
+        numero_ordre=?,
+        numero_ordre_extrait=?,
+        origine=?,
+        region_apposition=?,
+        statut=?,
+        id_type_mention=?,
+        type_personne_concernee=?,
+        type_reconnaissance=?,
+        ville_apposition=? 
+    where
+        id_mention=?
+Hibernate: 
+    delete 
+    from
+        corps_texte 
+    where
+        id_corps_texte=?
+Hibernate: 
+    insert 
+    into
+        corps_texte
+        (id_acte, texte, id_corps_texte) 
+    values
+        (?, ?, ?)
+Hibernate: 
+    update
+        acte 
+    set
+        acte_etranger=?,
+        annee_registre_electronique=?,
+        conteneur_stockage_acte_signe=?,
+        date_creation=?,
+        date_initialisation_projet=?,
+        date_statut=?,
+        declarant=?,
+        est_reecrit=?,
+        id_evenement=?,
+        id_formule_finale=?,
+        mode_creation=?,
+        motif_annulation=?,
+        nature=?,
+        nom_oec=?,
+        numero=?,
+        numero_acte_electronique=?,
+        numero_bis_ter=?,
+        numero_dossier_national=?,
+        numero_projet=?,
+        origine=?,
+        id_phrase_signature=?,
+        prenom_oec=?,
+        reference_stockage_acte_signe=?,
+        id_registre_papier=?,
+        statut=?,
+        titulaires=?,
+        type=?,
+        id_type_registre=?,
+        visible_archiviste=? 
+    where
+        id_acte=?
+2025-11-19 12:12:02,252|[http-nio-8091-exec-2]|INFO|NO_TID|NO_USER|fr.gouv.diplomatie.rece.commun.clients.GenericClient|Lancement de l'appel POST http://localhost:8090/rece-composition-api/v1/composition/{typeDocumentComposition}/1 
+2025-11-19 12:12:02,256|[@790aa30f-53]|INFO|NO_TID|NO_USER|fr.gouv.diplomatie.rece.commun.config.AbstractWebClientConfiguration|Lancement de la requête : [ id_correlation=97512 ][ methode=POST ][ uri=http://localhost:8090/rece-composition-api/v1/composition/ACTE_TEXTE/1 ] 
+2025-11-19 12:12:02,257|[@790aa30f-53]|INFO|NO_TID|NO_USER|fr.gouv.diplomatie.rece.commun.config.AbstractWebClientConfiguration|Headers de la requête lancée : [ id_correlation=97512 ][ headers={"Accept-Encoding":"gzip","User-Agent":"Jetty/12.0.13","X-Gravitee-Transaction-Id":"7e808a88-0ff1-4d89-84e7-59f4496abf76","Content-Type":"application/json","Content-Length":"1348","Accept":"*/*","Host":"localhost:8090"} ] 
+2025-11-19 12:12:02,257|[@790aa30f-53]|INFO|NO_TID|NO_USER|fr.gouv.diplomatie.rece.commun.config.AbstractWebClientConfiguration|Headers ignorés de la requête lancée : [ id_correlation=97512 ][ headers_masques=Authorization ] 
+2025-11-19 12:12:02,262|[@790aa30f-53]|INFO|NO_TID|NO_USER|fr.gouv.diplomatie.rece.commun.config.AbstractWebClientConfiguration|Contenu de la requête lancée : [ id_correlation=97512 ][ contenu_requete=IntcInJlZmVyZW5jZV9hY3RlXCI6XCJSRUNFLjIwMjUuMDAwMDAyOFwiLFwicmVmZXJlbmNlX3JlZ2lzdHJlX3BhcGllclwiOlwiQUNRLlguMTk1MS4xLjQ4M1wiLFwibmF0dXJlX2FjdGVcIjpcIkFDVEUgREUgTkFJU1NBTkNFXCIsXCJ0aXR1bGFpcmVzXCI6XCJkZSBKZWFuLUxvdWlzLCBOb3JhaCBIVVwiLFwidGV4dGVfY29ycHNfYWN0ZVwiOlwiTm9tICAgICAgICAgICAgICAgIDogaHVcXG5QcsOpbm9tcyAgICAgICAgICAgIDogSmVhbi1Mb3Vpc1xcblNleGUgICAgICAgICAgICAgICA6IGbDqW1pbmluXFxubsOpZSBsZSAgICAgICAgICAgICA6IHF1YXRyZSBhb8O7dCBtaWwgbmV1ZiBjZW50IGNpbnF1YW50ZSBzZXB0XFxuw6AgICAgICAgICAgICAgICAgICA6IEFzaGZvcmQvS2VudCAoSG93YXJkYXVtZS1VbmkpXFxuXFxuTm9tIGR1IHDDqHJlICAgICAgICA6IEdSSUZGSVRIU1xcblByw6lub21zICAgICAgICAgICAgOiBDYWxsdW0sIEx1aWdpXFxubsOpIGxlICAgICAgICAgICAgICA6XFxuw6AgICAgICAgICAgICAgICAgICA6XFxuXFxuTm9tIGRlIGxhIG3DqHJlICAgICA6IEhPQkJTXFxuUHLDqW5vbXMgICAgICAgICAgICA6IEx1Y3ksIFRpbW90aHlcXG5uw6llIGxlICAgICAgICAgICAgIDpcXG7DoCAgICAgICAgICAgICAgICAgIDpcXG5cXG5Ew6ljbGFyYW50ICAgICAgICAgIDogbGEgbcOocmVcXG5BZHJlc3NlICAgICAgICAgICAgOiBSw6lzaWRlbmNlIFxcXCJMZSBSaWNoZWxpZXVcXFwiIC0gMjIsIGF2ZW51ZSBkZSBMaW1vZ2VzIC1cXG46IDc5MDAwIE5JT1JUXFxuRnJhbsOnYWlzZSBwYXIgICAgICA6IETDqWNsYXJhdGlvbiBkJ2FjcXVpc2l0aW9uIHNvdXNjcml0ZSBsZSAyMCBqYW52aWVyIDE5OTVcXG4oQXJ0LiAyMS0yIGR1IENvZGUgQ2l2aWwpXFxuXFxuXFxuICAgICAgICAgICAgICAgICBBY3RlIMOpdGFibGkgcGFyIE5vdXMsIExlbnMgQWxleGlzLFxcblxcblxcbm9mZmljaWVyIGRlIGwnw6l0YXQgY2l2aWwgZHUgc2VydmljZSBjZW50cmFsIGQnw6l0YXQgY2l2aWwgZHUgbWluaXN0w6hyZVxcbmRlcyBhZmZhaXJlcyDDqXRyYW5nw6hyZXMgLSAobG9pIG7CsDc4LTczMSBkdSAxMiBqdWlsbGV0IDE5NzgpLlxcblxcblxcbiAgICAgIE5hbnRlcywgbGUgMTEganVpbiAxOTk2XFxuXFxuXFxuXCIsXCJtZW50aW9uc1wiOlwiRGQuIE5hbnRlcywgbGUgMTkgbm92ZW1icmUgMjAyNS4gTCdvZmZpY2llciBkZSBsJ8OpdGF0IGNpdmlsLCBBbmFraW4gU0tZV0FMS0VSLlxcbkFjdGUgaW50w6lncsOpIGF1IHJlZ2lzdHJlIMOpbGVjdHJvbmlxdWUgc291cyBsYSByw6lmw6lyZW5jZSBSRUNFLjIwMjUuMDAwMDAyNSBSRUNFLjIwMjUuMDAwMDAyNiBSRUNFLjIwMjUuMDAwMDAyNyBSRUNFLjIwMjUuMDAwMDAyOC4gTmFudGVzLCBsZSAxOSBub3ZlbWJyZSAyMDI1LlwifSI= ] 
+2025-11-19 12:12:02,400|[@790aa30f-58]|INFO|NO_TID|NO_USER|fr.gouv.diplomatie.rece.commun.config.AbstractWebClientConfiguration|Réception d'une réponse : [ id_correlation=97512 ][ methode=POST ][ uri=http://localhost:8090/rece-composition-api/v1/composition/ACTE_TEXTE/1 ][ statut=200 ] 
+2025-11-19 12:12:02,402|[@790aa30f-58]|INFO|NO_TID|NO_USER|fr.gouv.diplomatie.rece.commun.config.AbstractWebClientConfiguration|Headers de la réponse récupérée : [ id_correlation=97512 ][ headers={"rece-entete":"rece-entete","X-Gravitee-Transaction-Id":"7e808a88-0ff1-4d89-84e7-59f4496abf76","X-Content-Type-Options":"nosniff","X-XSS-Protection":"0","Cache-Control":"no-cache, no-store, max-age=0, must-revalidate","Pragma":"no-cache","Expires":"0","X-Frame-Options":"DENY","Content-Type":"application/json","Transfer-Encoding":"chunked","Date":"Wed, 19 Nov 2025 11:12:02 GMT"} ] 
+2025-11-19 12:12:02,402|[@790aa30f-58]|INFO|NO_TID|NO_USER|fr.gouv.diplomatie.rece.commun.config.AbstractWebClientConfiguration|Headers ignorés de la réponse récupérée : [ id_correlation=97512 ][ headers_masques= ] 
+2025-11-19 12:12:02,408|[@790aa30f-58]|INFO|NO_TID|NO_USER|fr.gouv.diplomatie.rece.commun.config.AbstractWebClientConfiguration|Contenu de la réponse récupérée : [ id_correlation=97512 ][ contenu_reponse=IntcImVycm9yc1wiOltdLFwiZGF0YVwiOntcImNvbnRlbnVcIjpcIkpWQkVSaTB4TGpRS0plTGp6OU1LTVNBd0lHOWlhZ284UEM5R2FXeDBaWEl2Um14aGRHVkVaV052WkdVdlRHVnVaM1JvSURjeU1qQXZUaUF6UGo1emRISmxZVzBLZUp6TlBHdHdYRmQ1WjdVTFNZd1NTS0Z0WGhNdU5KQ1FzY1Rha1dMaFdMSXQrUkVTUjM3SUtIYXM0bHp0WHEydWR2ZmU5ZDdkVlNRTW1PQUprS1JnbURSRFEyaDVkMkFjQnp1NHNZTk43RGkyN0l3VHdrTUpQeWlOUVNhNHJRa1E2bUZvWFBkN25YdnYzdDIxTkdRNnhacmR2ZmM4dnRmNXpuZSs3enZuV0ttVnlWd3E3eVdTU3VXZFVuSE44bTVqM2ZvN2pBdW0xSnRVczBvb1E5MWdwcnpDNGxXclZxaUcvODY4b0dMNCs2TVdoTlY5dXUyVzVuZmVlOCtYdnJLLzQrOG52cmloY1QvNmQzSGE4bEpLeFF4NHZpWlZLSmJnZVlsU2x4UkdTd1Y0ZnZOM29QeHRxV0V6RGM5SDRYbDJFUWlFNTk5aitTQTl2K1ZDZk03dzgxWDRYRnk3cGdlZWdTdGxaRUxQZzZIbjFIQXhEOCtyRUcvZUtwbndqTGlYcGZOcHdIWHBQcVU2Uy9sY09TVjBJb2ZObHZPQlB2aEZmRmNwVDYxUnkxVjNxTTNWb1RiRDBPV3VsRW5sOThEelN5bVBuaitwVk5OUW1zc0JUOU92MHhZOWp5c1ZYMlBsNkhrSFBCKzN1UDFtcFJMalF6WTkzd1hQWjRhSzlQd1JwZDdnWkxoOUFaNy9jNWpMNGZ1TkE4TmxlbmJnK1RrN3Jjc3ZXR0F6ekx2aGVZZGRvdWNLc0pNY1lYcG13L00zc2k0OWc0d3UvR0dPMjJ4VjZxSW1aMURqdmVpZUF1TUZIbWNsQ2lVTmMxYXVVT3Bldysxbi9icFkxcnkvcWVobE5RMXYrb05YMUx3MGozZ1ZUWC96ejB0Ri9YenhtbkpXdDduNHFmSGh0YmZEOHhXZ0UvUEhoM3Q2U2ZicWtyVnFMZUMzWVJRTTZGTlVyaHFDdDV5eTRKMUxoNkRVb25lc00xUVc1T0dxVWZnMlZBcWVDbW9NV3RncUEzQktVSWF0UFhqQ3NoVDgydERHZ1pMRmFwTXFTeDNpc3FBRjR6S2s5Q1Y0eXNHZkRlMktoREZOMzlVUVV6NUVYWittRmlVcHVWYVowTDhFYllwQ29RTzFHU3J6MUNwNEw4YytBakJLNmpUVVk3dGgrRlJ6WDRaMzdPVlFHMWZsNFhtYzNxRWw5RDRCZUJ4MUZzcHRxQitINXhQd3JOOHJBTUVraWgyaU9PdlhJSTRUVUQ4R2RJUmw3WkFNaWlKdG0zNlovaXpWcGdFV2owQUJxRFVCZ3VmelBFamNGZFV2U1NhSTBZRjNoTFlFbmxGeUZra21qTkdnWGg1SllaekdBL0hZeERQWFpRR0xBMzhsb2E2blpxUVpRZ3FlaTJvSzJtUkJhb3paaVg4MmZqaitkUHk0TXVEN1NmZytFRDhZZnpKK0pQNW8vTHZ3dGh0Kzk4ZDN4dmZDODA2bzJ4bi9Mdnp0akQ4VzN4ZC9CR3FlbEhMcEQ3Q2VncWZIb09aWS9CQ1ZQRXNsQndEU3dmaGVlTWZ2UTlBN3FOa1BkWWVoWkNlMDN4dC9JdjVjZkQrVWY0ZWVBVE5BMmhmZkRuWEhvSHdwalpYVlFDdFBrRmJhd08vME9tbUZ0TExlM0dCdGRLbDltblJrTGNndUQ1K3cvdG1FejZBUk1XaVVQR2lCTTJPS05MWk1JNE9qajg4akFNY2crclBRY29UR3dvVW5ITkV5NllrSnBTNk5kUmxLRVo0SjQybEZkRjd6T3oyM3daeldIRGt5czhNemtqRld6MG1MWnJaWFIrS25pWUpUNThIT3VHMzFhdFhjYnlUbDMwSnRJT1dWTUdOUUNsR09XZDg5cUFPS3lTcGdDNWRtdEFtd1RKcHpHWkloekt6WXhUUWJXT0tCbGZGSThzTUMzU1JjU3dHR1FlMnFNZVlKUWtta1pWSXJITjg4eWFGRTFJelQ4M2hzTmRFelFoVFkwamNEdU01QXUxTTByN09xQksxeWtibHRreFhnZVR4SS9Cc2toNkx3WndHa1FlSFBJODRNc2lwWmtwME5MWmp6TWFyTFVHL1dKeXdmQnI1dDlUUFJQNU1vUm55LzhXMVlqbVREdWxTUkdwUDAxNlQ2L3lIS3M5UzdTTHFMdVBQMHhuYkhwdklUUk5jWjRLdE1OaERyaThCNWlUUnd0YithUksyM1N5UHJFbDhGMFI0dGRhWWtSUkNqbWowdWVtMEx4M1cwSzltWGRKSXZKazhuSjVOZlRuNHQrUjlKMS9yNTZNbWtzL1gybFFNajcwbmVtdndVMVB4NzhyVmtKcmwrQXZpZlRPd1ptRnd5c1VnWlI5WEVaeCs1SDM2dm1oeVlXTEJuWVArV0h5U1ZNYkZ0d3RpVGYycjNycU83cG1KMzFsbUh1V1NNOUlvbGl5VVZHVldjZDY1STJZdDV0RGJaeEhzKzVsWHBxRTN2SmJJcG5yeVpoQWxubXd0YVpsT2ZKU1FwcDhZNm5IK05HZ25KRnlVV1hhWFFEdVJJaGxHWm96MGFFZHRaQkd0bythTVducVUyOWN1VERIaHVPaUNURk0yNTBQeUVFcGc3NFBmcW1UaGFaNTVpcjBZV1g5dWZTa1ByOTdMNnI0aWxzNm5lSmh4QmVhMFBNbHhsa1RRRnhmOFRHZ0xzcG1oUWxBWm9sMmhKZENlNkV0M0tTQ3hNTElLbkpZbU94RTJKRmZDK09ERVgzdWZBcHkzUm51aUVFbTQzUDVHRVQwZGlxV3FCbGgzWUFrbzdFdk9nZlR2MDZrNTBKbTZGV29TWWhEZm9HeXJyU3R3QWVKTHczcEZZVG5VZGlmZkptTmZPWXJiT0xtaW5KMVlIdFl3MTNDVC9pN1Z0a094aVd2d3p1NDV0UGl1YUl0NVg0bXFnTnBsWVY4MDN2SzFMdEJPVmk0RTM1bjZOY0w4UW51Y0J2Y2hUUjExZTdvRFl6NEQzSHBMcElvQXhYMW91cEhhQTBaOWJ0YXZDVkdSZUZkVkptZ2RaV3MzVDFLTXM4OHFWZVRVbDgwcjdmMU5WL2gvYXltN3lZNnN4RFlwVmNXU21vUTdpKzVDL0JtUmpjeEF6Zkh2d0taSE55WlBWQkpoUXd2Umczek1nODR4NkRlQ244VHZ4YnBERCswSlM3UmR0bXN0UEpLdWw4dDRHdjNOQVdtM1FvaVd4MHBjVzFVSHZCYjcwd25xa1pUOEg2dHNUTjFMNWltdzY5ZjNQL0dia2djejFmUy8rN2U5R1Q2SXR6czU2Y05XYUcrODcrZG5iUHVwWW4rZzlzL3EyM2s5alhXVnI4ZVpNRDlaaGZNN2haaEIzZTBNM3pPVW90ZmtXaUFWL2NlN2NxOWREalBjRnBjNSs0dHk1Ly83S3VYTm52d294NVUrVU92QkEwTjk5UUttT1gwUDV0cURzbWk5Q2JQMXhwZjdsZTBIWjROZVZlbnliVXBmOXJHQVdUU3FLS3d4amg1VDYzVDlEakxaZXFiYytEekhmQm82cHBWNTk5VVdsMW41SXFSWFBLdlVQRHluMWJtai81b0cwblNwSnZQeEcrTHlGWXo3MVZ4d3IwdnVEOEhrYmZMNEZuM2ZDNTdqVS94dyt6ZkFCbXRVbDhIbU5ZY1NhT0NhTVlmd05zWG5zM2R3K3RnQitaNEgyTG9hNXVsaHRCQzF6eVk5TGlVMHkvZFU1RFg3bGJXb1p0QmtrSGNNeXROTnAxUUxmYUtOTTByaVd5TnFpZTNGcEdxQ2psNGsySzBlek9LMVdrT1cyU01leGZROUUxbjFFVHk5UnRnYStrYklDWUVpSnY1Z0JLalRrQ3RsWVQxYjRPYXBWdGNHblhhbFEzdUV5NWVjZG1qNEhmQ2M1N3hBSFdjU2Y0cnhEMDhNZ3FtYzQ3OUMwQzJMNEljNDdOTjBCWFMvanZFTWNZdjVMaXBhenZCdktOeXQxNlZjNEI5RTBCY054TmVjZ21nYVUrdXNtempVMGdid3YveURuR3BxK3JkU1Ztem5YMEFTNmNQVnN6aTgwZ2M0WnIzRk9JYlpDcWIvNU1lY09tcjZoMUxzTXpoZkVZUXl2UGNKNWhLWW5sTHIrT09jTzR1Tkt0ZHpEK1lLbWRRcVk1M3hCRStqTERlczRYOUFFT3ROK2xQTUY4VjdRNTE3T0Y4UkFQMjU2V1BJRnp5aTE0RnVnQ1FiOEJWa0RpdmhJdWlaWm1BTHBSb0ZXb2xvdndvQTEyZlRYTG85OEFvZnNOOXFtTWZpK0dkNUdxUzNhdHhid2JVMktvVm0vRE5FMkE4YlZKcDF5U1IrSG9DMVRwdXQ1RGVWMWtuMUJ4bHVpVlpEeEQ5RktrWk9NUkRXZHJ0aEhidjErOFcrS0Vua0YzaytaYWt6Z0l5TjhVRDVMMXR5Y3JFTFZ0SlZKTm1ueDFaSG5KU0RSZnRCSWJuY2JjVlVTNkNtU0xFZEZQSC9Tc3VxanZxTmRIcE5WdnlpK3g2RHd3S3RxZFV2MG96UjB6dWhvSHNQMEdoTEgyTlJMdzBOcW1VTEoycW5aNGxHWGFHVXFrNWZNRU0rWFUvSWtwNEorZk42UGhUajIwajdUTUVXUUtlcWxaYzMrcWtQOWNKVmplWjB2czVRTzZXQkIvVTV5SHJWYVc1RkloajB5bGhoSERXTWtjdzEzZXYyMDYrcW1JWmtobTlia0ZQRnYwTm9icGJqZzA0RDZhWkVsdEVRK3RWcW9XeU1YMnM4THhsQnJJdVd0Uk40c3F4Sng1UWxkSGtUb1pmS3pEUEVMY241V0FUbXRjTlFBc2JlTzVuTVMrekdWdG5qZjJLSVZTbGRRWFY0eUQwWHh5bmdzY2pMZUJab05KWWtNTFlsblhPSWhyTzlwcWZNbzh1ZmF3TXBycUZxbml4SlQ1aUlVTUQ2T3NOUEVWYTIwOUR6aEdIRFFwNG9sRXRaNFMyWWxSMlVzVVJ5RHhucDRLa1JyaFR5MmdMT3krSVRheXpKRTZpbVJhSGlVTldjNGIzUnM2NG5jRzN2Uy9BWVdObllsK004T3hSaUZTQ1lVclM5NzNUanpNUnVpK1M2UWxLell4VFEreUIxbk02TXpvVkJqcWV2UEJKcnBzZlVBOFNPQXVVSngvZ2o1bmh6TG5wWFpQMDUwUldPQ2V2T2dIT0xSSmIwNUFiMnpaTzMwSEVBL2VWejQ0U2hvU0hGMjlsU0RETEJKZExFZFBRVzBWc3Nzd0JoWWIwUDF4NjVVcFpncDNnL0hNTm1RUHJ0a2FSdy9KZ2xzczZWR1lxNlAwUk1aRkFUT3VQQmxVcGFDTWlzaFRHWGlqKzEvaGFEeU9KV3B2OFpWaVdneHo5azg4TzhBcklDZkV0R0UyYUI4ekNVOVFPaG5DV3Vwa1k3RmVGYVdTRWZLaEEyMVpwRGVXaU1acXBMOG9seDBSc3dnL3NxVWIvTEVQZzZLOVlsNkM2eEZRek93eGk3QnE2ZUZiaFVteHNPenJFSVJzaVdycVc0UjlYUnJzeU1GaU5vTVdaOEMzU3dKdlpwbmxuOEwrUjVGSDJlWk1EcUs4eWQ1OVV2S2hlbG9UbE9ySldUNWxqdXNlMHRrcmN5SkRiSUlibGo3bUtlMDhKVWxMSGw2WXlyc0tqN0Q0NlJ6ZVo3dk8wVXg4WGpvbWpCdldvTDh4akF6dEYrUmtlZ3pJNzVCdFg1NlZGdVIzclh5ZGtncS9KeVJYR1hBaXlXMi9pUzhNUTdtd1NUc0FXOG9lWlJGa2Z4RkxmSFd5TzVKUDczbFlQYU5rdlhJUnV6U0tIbTkycjY3NHRXZFh6ZkxEVDFaUStiRUtLMU5ROEtqYmo5SytaNjByQUwxdkFMdERmU2RSMmR4bEY3elBkaU0rQVFaa3BNVjB0TmwxSGN3UWdPK2gvWFBrTkVlVmJ4ZmhkQllKM1h1ampPUHBSQ2NzR2JhaXZQZlhOdE5GS2JGQ3RxK2xtTHUyL0Z6RitrR3NMMEd0TE1VUFBGcVdJdTAvNXFUbWNHano3UExFdzNpdUdGVlhkbnBXYnVFWm1hS3JLWkYvblJZc2xiSWNyVk9zenYyV0h4M2ZEL3RVKzJndmF3SnFOMFJQeFIvbk40T3dmdHUyc2ZhVG50aGowTzczVlg3WlkvalR0ZDB1c2U3WU55K3ZnYjZMUTRENU8xQUErTEY5Mk95dzRZMDc0YmZ2Zkh2d205NDc2NmFuMFBDSmRLOEU3NGZCY2hQQTlRbmlWY29FeDZmazkyNm5jR2FEZVhIb09aUndvajA3QW50OVdsczJQZFlhS2Z2ZUEwRm1oTnMrVGowM1VzN2hRZmdzNWYySXArVytrTW95YkJGamY4VGxldDl4a1B3ZHh4YTQ5dHVvbWtmU2krK2l5aERtRUFSbGdsMTNPWkpxRHZ1djRYM1Bna2YxRDZDb3d0UCswa1d1NkgzRVdpeEgxb2VvdDNQL1RST094dFFzck5xOUhmNmttYTR5R3NkQ2V0UkNkdGJ4Qm1TMXM0WjcrSHVFNnFlQUl6STR4RWFwVWRFUWp6Q0NCVTBtbnF5emp3Sm83OGpwQU9pdVZDUCt2RXN0RHBHY21uOXM4dzEvRG5tR2NwKzVENWRsdUgvTzhNUVVGby94L0RuazE5b3RGTlVuVmQ0VmZJS2JoMGRIWkxvTUMzZTAyOHA4bk9GbXBsa0ZNWWFhT0NZMHZzNkpZa0NPSWRoeXhyTU1YKzlESU5iazJGd2xZNXpvLzZyanB3NTluUWpjYk5WbFdmd1pQU2ltWWFpVUt2N2w4WDd3ajFYVTZJVmpUK3NwVUVlWVN3U3hRZGVhRTdtVzNVK1FlK1Axc3NubUw2Ty9DbjVCS2JrZEZWR283NVVacDVQQ09TV2x6Z3VJeVBTK0dUSzlIa0RwMnJzd2htRDRMUks2d3owYjZSaEpPOEJEWHdheFpaSWg2MmhLUkVQbjIxeGFQUno0cVhobnRZWXRUNGpNNko2eDFmdlQybThQRXBSdThqNXVTbXFaOHJMSk9zb0ZKUGtpem1nckVqSTl2c1ljdW9pSzlRSDJZSVc0R0ZLOFo3cWNCVTFDSWt6WDVvUGkvaWNxdExkK1VJZFN2Y0R4Q05LUHk5eXFjNEgyRkplSXB2RkxSeUJmVVppRmpja1ZjZVgzeFR4WDY2QjcvbnprYmxBN21ZclEyeHRWaVJST3MvSkkxYzRkbW04eXFSdHczVFd3SkVjalNueUxRbXNzc3dDZmNiSW9uRnRiWGp5QnF4bTdBSWFBeHlqdkp3ZzBIWnluUHJ3T1JCVGFQSW9xL0E2c3ErVXQ2bFFDMnp2cXRxWW5zOSsxTXM0UmEwaTBqTHVaM2o0Qklzalo1ekNPU2RYOGptTWxYT2hIdW12SVQ1TE9hUTNMWlFyd1dqVEF1azB5aUd4VkJ6Rlo0NHNpbDFOM3hib2pBMnZaVm5LR0ptQ3NlTERMZnZVc1IwTDU0c1libG1GSTZreWFaQ3RkSlpPNThYcWpXMUJyRXVXckMzWng1anB5NHR0b2syMmgwOUpZVFlVNTk0SnlTcm40TW54YmVvcGVQOWpCQWQ3QlhteU4yTkt4N3pUYThjcDN4T29weU04dnVqTGpRdUUyWDRmUzg1ejhYZU8xb3hUc2hMbC9QT2hwUm9QVC9lSjJpOUxQRVVlM1R4eGVocCtNUnNaUUFyV1ZjeUZza3o1Vzg5bjNwMjNKWU5tVnVsUzFvOThiWm5CSmtGeVJOS29hWXNWNTc0eVpHMEc0YS9hUHAwZ0RId0t3Rkg2RE5xSXJEUjRQaFpQb0JsRWQwSFdwVHB0bENWenk2eUREN1dzR3podDhlbkZuaWhkOUJvWnZwYUF0bVEybGJqQ3Q5WGd0SjFEdVYyMjF1alQwdGdDdkpLZlE2b0loeDZkZ3owaFhzTVkyV0xlSThFeXprYlhaakh4VEVwWkpGT0dIbVVhU1gzK0x1M1AxSlRTSitsNDVSbWVnYTdxVXhiMU5GWFg0ZHFVcGxuTDFtU1E0Z096amhXTFJpRjh2cTAyMnVBb28weDVqRkdpaGUySzFzVGdUR0JKOFZtbXJFQUxMS2tkb2pCTlVSZDdLbG0vVE90dHRiZlg1M05nUzBzK1l4eWNFc3lUNWRDNjJKaVdzQWFiNU84dzFvS3NrSnh6RHVCcHlyenpVaENXUnhnM255emc3SkhweXpiczMzRU1nbjVHZ1dRUkhSMnRNU1h4UjB5UlgwWnBINlZNdEdzNkM3SlNEOWRJWXBCaUt4Ni84RmdXRk85WjZiWEtwTlg1L0djb21ZK3dyejVlSjhMQmRlQlhTcStsWVVnWnBjK0k2aWh4SmpiYWFxRHpISlArcW9ZaURaMzlnMXFOVGtrc1dNdGZRZWxzdU43QjFOUmJTcC9ieThtYUhiYkZ5UDE0amJWeGhmYmFXRHVJWWpLa1dmVWptWXp2NTZRa2Y4aTdiUG9rYXpSRzU3YmFJMk9zR1lsd2d0RmpTMW1Xdml5dm9oODNUVStWWFNPSGFGU2pmY1o2Y2JzanZHaGZaOU41OVUxeitpc1Z4RGFENG5XYUlobEw2WjFuUFVvNXFkUDJ3VlN0ZVBKMjN3Tkh2aGsrZi90aTI1NHJsZkdqOXp3MzlaMmZIb0gzdlVjblNzL245Z3djdkg4eThjTTloNTgvZUpVeURsNnovZW5KVDA0c2VBTHM2Zk0vM2JGMGN0MnhBOG80ZkF2Mm43anJCOG1kOHdJOU9IRHN3RUhFc0NPNTd3OGF6NTRCWlJ3dFRXeWZYTGY5SlpLQWFBRkRmMkhneURjbmJUenBpMXJ4bU5xL1pmL1dpWFZBNmUrUC9tVVkwKzYzUGZXMXllWTlGeUlYRTE5L2JoMzIzdlVBUEFmbmllRnBlK0tGOXlGVkI1OCsvRHhnalUzYVlSZ0hqZWYvZGFLMC9VdkhEdXc5TGhHbTBIMGtkdmcwWWczd0l5Y1RTNVR4NDRFWEVwTjNLdU9weXdEdUovbE1zcityWE91L1p5REN6Q20rVzZOSGM1eFdZb2RtZFBnODVyajRsMmFzVzdFZnlOQkd5SmRCYlJoVmZLWTNETWNnYkRnUFpwS3JzOVdYNnRpTjJWTGpBZVp5YkROQkN2YWEwMlFieG1JYmlKT3hHaTVIb1dlMVJjSEltdWRHVHJ3M2ZIZERYTHNxT0p1YzlXZk9xM1FXV2RzUXBFaWZyUmlsZVRtaW9ydDV0eXM3ZGpuRlVnQXp0Z0g4ZG8zTmkwU1FXbmFwU0R6QU9ERWkyS3c0RzRxY2poSU04dWdJNW1nZFBGRzZKVDZBZG9VUUpwUk85WHhQMGE0NzltVXNXYVYzaktPU0hWSDZuRVNLOU1FVFB4YTBBMFpxakh3RG9KZGlsS0o0eU5xdThmcW0rVVlObXk1UFZ5WjlNT1JlbE03THVTRS9hVVJXUnAyWnMyUjgvL1RWU2xPU0p5b3R5VFR5YXVUVzBGa2czRVgxQzdHRWpVNzc2R3hPcW03MnpaS2RVZzI1K3A2TWJtK3A2Qm1JY0E2T1Q2RHphU0NkUTBTbzBkTkE0VHlYdmxkUmV5Ym9aZUhJcllwemRlU1JKMjh4ZkVKSTU4NnRVQTZQSVRUSzRnVzFCWXExd2pSWjZpNVpvNHIrNnVqNHVkdndTbWY2R2J4NjJidlRGRG5Zb1p4aXRkNFhRbDVpSUkwTXhRTU1XVWVWV3Y3MWRGV2ZQaXZMVFljOG5ZekIvTEtXWXYxc25pZjNBVjdQTE9BZEVweXB3eld6d0h1ZDh3RGYrUFFCYWs1bG1ua1E5Y25TcjJOR2FOMko1cVAxZURmVzl1azExWlZZMS9VOVI0MjlrY2E2TTlEWWFONTVFL2x1N0QwaERrMzV6UFhWa3RNcjRkTnJlYkdyNW5tMGtYZlZVQzZ6VmJCbkVPaXhQcUVSMWxpK0VZcjJmMWpwL1JaOWw2K1I3cUkwV3M5ekZ3VlArNzgvMFo2NGdlNmE0QjBNdm9taGI1Q3NwSnNFdDlJTmprVlVpOTk0ZTZNYjcyZlFyUlc4VDdCUWJtdXN4THNGMDJzMHRhbWowVmhPTjEyU2hCSHZneXlrT3lCNHkyVUIzbUNBejJWMFg2RWRLT21FNzI2NlZ6Slg3czhzbDVzeWM2bVVJWFVtMnVCN0VkMXg2QkpPdzNKQUh0djRWMmZrNk5ZTnlnYTV2ZEcvVFFNUVNVcnRVSWNRMnVrR3owMkoxVkNtS1Z4R3QzVlEzbk9sSkl5ckhVdlVkVE04MS93ZWtZaFFCeEFXMDIwWnZPOHhqekFrL1ZHYVMvSnFKeHh6b2F4TnFPNmdleCszUXM4dUdpdmtZamxRM0UxdktLR082aG1adUZRdzNBeTlPMFdhWGNJM3lwanZKaTN5OGVzYlNHMUNIMUxRVHZRd3RZdEprdENLYnpxRjVJcTNUMWFRaG1tTVBZbGVvaTlKZUZkVXl4Tm5CZDFmd2JvZWdLMHh6NjJlZzRtbGhBZWxjbHREemU4UWJXaWp1MFdvSWF1cFhhZmNVK0lac0VLZ1lWK1VSenZOZzNhUWZnOVIzRTA4M0Nyd08raTNuZWhIdWJZMnZBMkYrbk96NkM3ZUIxc0VXTnFyYmtrdElHbWlyRkgyNzZKUlJjbWlkcjZkYm9xaFRyZUpobHlGV0tCc2tjaDdDZkhTSWJlckZwTVUxdEU3OXVzU0hKMDBocDNTTGt4Zkowa2xPdE42b0d3ZTFmQWNDTnNLcE50SXZEVnhxWXduYzlJaEZtSVJjZE10OHh0cmVpTDZPZzgrNjBSYk8wUmIyMmxrMm9rcTFPVmwxS2FkdFBRdm9Id0RsV3Q2d3JxSkVKTCtuYVoya2t4UzJpNEEyRGNLN0tRZU9lck5wWE45eUQwK0w4a2F6V1BJUGNRUDg5MENiN01KZmxJZzY5R002a0FQeVJoSFJ0T040NGozNG02V0czK0lkWkV2N1p0Sno5aksza0g4aDIrN0JSa2pTM1puNitVbjlRbU40R1MwU1djL3B6L2p5ZkZJL1ZPZVhGZDd2bFBuUVY3ditVNzBvYzRRM09Ca0orNjZaZnkxc1NSWk9zN1JzUWZrVUQ5dUY0MnNtV0pzWFpIN2Z6TTU3Y2w3cGRIVG5tYm90T2VVUkNOOFo5ZVUvTGV0UE45cmo4SmorWWY1MFprWWxobjdhSTVQWDlqTG1QTDVkQ1Y2YTNUN2tmZkc5YWtWdmd1cGQwRHcvR2IwOUdZZ2NmU1R4a2dYV3VXMm85WTAzbmxCYmw5V09iclJHTjAvbWs2cktnMTkycEo0TWtOVnR5SDFiZnFpOEpLUHpZbHRoSmg1RHBUTTluMVF2a1h2VWN3ZnJLaEZvanBMMUJRbG0vWXlaOVJpU1ZWN250aWdjNUNrVndBL1g0ZEQzbWxnT3JNaXVTSzJpNzBkcWFiMlhuQjNrektrV2NVbmYyemYwd3MwN2xyUmp5enRJT1FFYzQ0a3pEZjUwOFFwYW1ZM1FYaVp0TkdJYUtRaEdIalBEQ0ora0ZFNFp4SG9rTVk0U0JnNUgralVrUldXQWE3WTI2a042OEFacFc5WFc1S2hESjliSHF5NUY0dmpNMGErT0hPUkY2bjVveUQvNjhKcnl2Q2pTWVQ0c21oYmxzWVd1Rzk0Qnhhc0pLemtTYmtIRy9ieE9xcldxRTd4WjNIdDdxS1Z2SXM4V3ZSSWJxSVdYUkdQdG4vR0htMS9YWDJlWFplT0R2R1gyS3RiU0N2c1lsb05rbFYzZVlVUzQvSkVyNnpEL2VEcjRPclhTQkxzOGM3MWZlY3VXazBYeUVyVkgxblArME5VUlAzZEZkSm5vZmdVZlBPNlg2aENLcnVFSG4rbVFYL3dqR1NsYkNNZmFMNVFzSlRXeFg2Q01wK29TNFp3ODcza2RwSitzUHAzSlc2SDk1VytuNnE5MDM3eEZmdDlIekZZL2Z1clBGT050NHRHc2p1Z0dMaGwranFKbzRXRUwwbGUzVnp4M1pDU3hUWDhkdENJSWszOVFxc2UxeVNOMFFyb3M3S09ON3FjK0YzV1lOVDZaV3hRYXYxUkR5VkVVYWVVOWZpMVBHYjlkYjFTOXVyNE5qaDUxTlJqRWJTWkR5UGJtazF2dTZKOEhkL3VMczhoRFYrbGpMc3ZxRytYVjI5YTIzeHZ5NzBYbm12dWYrbURIU3NIQ2s5OGVOZURYL2p3cnI5N3BYZldwbmVNWEw0NUZNUGNYZHlJVnZhNmpadFdmWC9UTzFJWGJIZ0lTeGdUeGpTVnJaOS95NzB0L0g2dXVmZGszek1oVzJqMHpxcHNYZm5SOG5WYm1zdnJONno3Mkt1OXp5U2IxbCs3L2dycnJvRXJNdGNQdjhONWNGc3ZRSERINXZjUFYrN3Bld1dmUWhJM2VsdjZYc0grbGEySTlWenpwaHUzTkdmVDQ2Mk1iOXNWSCt3WWVtOWZZYzI4b2U3SzFvemFlUCsydTlJVHlhYmdObnQ1enAwdkRUbHI3OSs0NHpQdWZkKzc3OHZubXN2WDlYNGFNRjl3Mzdjcld3TXVQLy93M2NXMTl6LzBFK2NONWZaUEhlbHRPZGU4NGVPOXF2TDdvZmYyZm03TDJvK3VSajcrOFNmM2ZVM0RUVFlOZEg3b3l5RThBSFd3cjYrd2NjdkdMZERuK3MzL3RubXlzblhiUllPbnpqV3ZYQWI4RnBEYmJLcXlkYWdMZWQxMnR1K1YzcFA0dlBxUDFmeFd0cEo4Q2toUnN1bC9BWnZoZmRJS1pXNWtjM1J5WldGdENtVnVaRzlpYWdvME55QXdJRzlpYWdvOFBDOUdhV3gwWlhJdlJteGhkR1ZFWldOdlpHVXZUR1Z1WjNSb0lERXpNamsrUG5OMGNtVmhiUXA0bkxWWVhVOGJSeFM5RXNxTGVRZzB1RXFBU3Z2Z0dsTG9lbmRuOXF0Q2tScU0rVEkxZHV3MWJ0eW5wS1NxMUZSRmZlanY2VnZEYitoLzY1bTdheHZJN0xWRHFCYnZMak96ZDg3Y09mZk1uZm1qOHJKZlVaR1RlSkhUZjFzNTZGZTZsY0E1cVRTK2YvL21sOSt2bkwyOXh0bitjZFB4WHJ4d1hqYjNUV3ZmOFhDWmU2SURwLzlicGRIeUhkOXorcGVWN2VmOVg0Mk5nN1A5RzgwODV3MGE5WC8rNjgrcE9mOWpjNEhXcm5iaU9ISVRuVnNOSE44M1ZqMXVjZld1c2swMXFsTk00MjFhb3EzODRhTnNseUpjTmJ6WFVXZ3dlTTY3RWh5dmY4THpMWTlSUkJoWUVBWk9yRVY0aDNRRVNOL2kzcVF1clZDRGVuUkJiY3JvTVVQdDBRQTFwM2pmb2VSaGNDb0xUdVhFcVNmaERJM3ZqSzlvbGFyMEJMK25lSHN5dmFxMDhURG90QjJkbjBqb2pKL080U1A1K2dxL1U3cTRnL04yOTZHOWV5OXlWVkxhdmNJa1hXUDZESWhNN040eTBTS2N5QW9uU3BXYkJxVndJblR5bW5rMXp4dkhnSDBPRUYzekU0SEVkaUNKNytxb0ZFZ1g1ZzJNamdqR0FPbkRGMDBhd28rbVpSTysrUmYvTFRHNERwNWRsRjhBN2hLMThOYmx1aFlEejc4MEplYkxEUGRYTkJTSGt0aUhFcVdsNC9oN0xyVW00NmdCd1Nsd21yQTlwQy9JbmFKZFJnRDM2RWRnTlRWTm9ENUgzUW9sN1B6eHBRZzV0VU1PSXpjc0RRclJvRzlSWjJNUml1cVY4M3dTWm9kQXZ3US9meWptNjJNL2ZBUEIyS1h4Yy9PM0MvM2RvVWpHWTVOMzRGRytHNVVUZmZHNHE4UGpIVnpHNjBaWUd4eDdKOVNXVWRra0hhajgxUFZEa2ZYek9BOVVjczkya1k2Z1E1L1BVN2xudXdDSHFYYnh1QmZYN0pvYVFqdmllQUd1NVFyU1pEVzR5emd6dHpzVTBOZTQ1akRNTHFWaGxMcktmd0NHR1VhMWFEeG1lc1VnMXprK0drSU14bU1abDExWlE4UjJJbk5zQVdXVmU3WUxZUWdOVVA4engreDZGaUxhMC90eExMRHJXWWhJMWVVYzI0SVhXOHl0UWJHR2xNM3VMZjdKU094S0ZucXg2NVh6ckFhZUcyWm52SUpKUEF1Qk9RTzlEbmxsYVhIclIyRGZFZGUxVVhLSzl3N2V6SXI1Q0tVcitGVnhHV0kyYWNUZlhYRDdQTFlhQlZsUHVIKzBsOGRuMTBRTmZRakwrV3FRcjlObWtTeWF4SFlYVVJ0U0xQZGxWMEdkQk5JcWhTVW5uODUvY0c4WERuM0ZrM3pYbWJjSk1FVHJIcjR6amhtL1IwR0xzNHMyKzN0V21YSG1scUYyd09Xek9LenkyTTY0OHhIUGdPbHlEZVBlcEtmeVNPMnFxNkZPd3ZxM0RONE1nR0NWKzE3RFRGZHBzanJYZ1RLZjN6cVFqRGlQbXBObEJIYWgxbUhzK3FWSm5telJMcm9hRWxNYWxiSkJ1MXBxRmJoQitmWmd2bDdWTUp2NVRGN2oyYVFEanFBWmJmeGl6dlBjd1VSUXhsOTFPTlhtN1pxTTI2NjFHdm9VbHpKWnRtalhVQTJkVWFXTUVTMHF1NFlxUkhaU251UDNrTzBlcys1TStENVpzUkZDdVRNbnlmcW9TT1p6Z21iY2ZNU2ZIdEVzc1I5d3FsYkVvR1Jnc25ISlVEOWZsNVZkbHhXMFJONmRaeXliWnBCR1RRWkZ5WFdCdEF2Wi9EQXROVks3RElnOUprK1hyaUI2R3loZHB5OFJuaFBnYXh5bVp5d3RIYWJRc0pBSjAzcDhTYXZ5U093S3JLQVY2ZjEyQThxdXN3cUJyKy9IVG1YWE02VkRhUlc4R1pIK2RGZVhSMTJ1c0d2c3h0eDEzYW0yUHBPeDJHVk5RVFBLVnl6Wm9sM1dWT0M1WG1ubUpGdTA2NXBDTkVlTFprVDNQUTZ5UzFPUWFPbkVaUXRjWGhXbWFaUDUzK04wNHh4eU9wZ3VrUG5Ka1pGUnhQY25xOGRqbHQwdXluOG9LQkJoazcxSDM2RzBnYmV4T2FxYUV6OTI1UXppUURyam1hMFFiUjd3TlFKL3dEdTlKZ2UxR2VCSm9VYURZaVV4em1qeC96MVdxbjZSZDAweWlFbGVhZXlZbzVqQmpaeHUvb0hiTktPNE9ZZ3dMVTZHUHVuczd0bENIYTR2MUdyamMzaXhNS1gvQStoSHZPUUtaVzVrYzNSeVpXRnRDbVZ1Wkc5aWFnbzFJREFnYjJKcUNqdzhMMVJoWW5NdlV5OURiMjUwWlc1MGN5QTBOeUF3SUZJdlZIbHdaUzlRWVdkbEwxSmxjMjkxY21ObGN6dzhMMFp2Ym5ROFBDOUdNU0EySURBZ1VpOUdNaUE0SURBZ1VqNCtQajR2VTNSeWRXTjBVR0Z5Wlc1MGN5QXdMMUJoY21WdWRDQTBPQ0F3SUZJdlRXVmthV0ZDYjNoYk1DQXdJRFU1TlNBNE5ESmRMMVJ5YVcxQ2IzaGJNQ0F3SURVNU5TQTROREpkUGo0S1pXNWtiMkpxQ2pRNUlEQWdiMkpxQ2xzMUlEQWdVaTlZV1ZvZ01DQTROVElnTUYwS1pXNWtiMkpxQ2pVd0lEQWdiMkpxQ2p3OEwweGxibWQwYUNBeFBqNXpkSEpsWVcwS2dBcGxibVJ6ZEhKbFlXMEtaVzVrYjJKcUNqVXhJREFnYjJKcUNqdzhMMHhsYm1kMGFERWdNelkwTkM5R2FXeDBaWEl2Um14aGRHVkVaV052WkdVdlRHVnVaM1JvSURFeU56VStQbk4wY21WaGJRcDRuTzJYWFV4Y1JSaUczNW16WlV1eFFQa1hLYkRMajdTaHd1NWFvQVFYb2lBMWdhTHBCU3NRRUcwdFZlZ2FndzFZZjZvQllreWtWcXZSMUR0SmJIcURYbm1CRjVvWS9JbGllMEZxbXBobzJ4aHRUS09KR0d0YWp1ODN6RGFudEZnU2IrSGt5WHRtenB3emU5NzV2bTg0VUFDUzBBU040bjJEbzQ5ZldiZjVISHNHeWZEQTN2NDllZEZUMHp6L2tkUU1zTU0vNnpzSXFEeTJTd2VHaGtlZTJOZ3p5WFlEc1A2TndmaGovZEdzNkM0ZytSVGdheHZxSDNsS0gwQUhrRnJBOGNWd29Od05PcVl2OFN3UEpVRHVwc0FtRmFtTnF1MTNsNWNFL2JsUkZRbm5aR2NsK1RQRE5ld0tKbVZuNVNqZHVUalI1ZStKdnhCN2ZmZitndTJsNWVIdW5vWmdLTlFjRHYzbFhMaFNvRWJ1VDM5eWQrekF5MDFieTZ2TGRrU1NGdytIZ29GUUtCQU1jVlo1UDZXU0xoWWVDdmVsTlN3Z3hmbUZQVGg3dE4yM3BORS8zVm8zeVRmcnpMSzVuajRzL2ZFK1o5YmxHTitjVzd2NG9tL1dQTW56cDB0MWJLbFB0Wk5VVW8yWStnNmQrbTBVODFyRXFVT1ovaFdOdk5hcDdzVldjcnVhUmhhdlZiT3ZVdFVnaTlxcTlpS1ZmZVZxRGtuVVJyS0ZWRmpkUnBxdFZwanhxY2lYWnlSUVYxSGh0Q0tzeitFT3R1TjZnWE1YVXlNa0JYRm5DOXYzSWM1VmlxdWQ3bmw5MnZhUEV2WTdMWWpvcU5XWGVLME45Zm9abE9oNWRNc3pmV2tJNkc5UXFLZmcxKytoVm9YUUxMK1ptc2I1Qm5VQmJxTitwY080UjcrRkxsMk5LdjBtYVVHVkdrT2VycVFmUStoU3lYaEFKYnNuZFJEZFBPOXlQdUpZOXV2REhIdU1lb3pqWCtPNEdaU3FLZDdYZ3c2ZGcxUW5pS0RPUUs0dXd3WjFHU0hPbTh6NVg3WHo5NHJ2MUFiU2FqMHBsZXQ2STk4bmhxUE9Rd2lyZmZReXc3VEZyMExwVjhlNVB0SWU1OXFNbTc0djlUc29Fbzk1L2luN3lzd1kzdWU4aXpMbk4zSVFoYnkveUhoOUU1elR5QkgvamZjZVZJTzdZUHh2Y0M5VC9Wd2ZKTHhmanZ3bW8rSy9GL0dmNjZSYjZWVVZ2UTdmaVBNK3RYckpleS8wL1lKNFRqMVBMdW9SOWllOFg0NTRLQ3IrZTZIL1pwMUU1WDFsenVVcTd5N3pyNkFtTGllTndzU0krTk55YTVVWWxqaGFVZW1sdkE4VlZGWWs5eExmYzU1ZU8vSytiUDlOL1lsNmxmb3ord2ZFRDMySTkyVXlMbmNhWDA2YTNHQjhHcGdqWm94Ujk0L3IybzhZQmR2d3pIMXpsYldrbjh2Vmw0TUlxWktjazdpM21tSzFTUEpRY21GRlpZNnFFOHdUMGFscm1tdGlSZFpybGVyOGc0REpNWWt2V2R0RW5qUFhibER2M0p6VGVQWXdjMDJJNFJYeU8vbVFmS0U3OFJ5VnErSDJrZTlKTDNtUTdDVTk1SE43UGs2ZXRkZlBFTzQvN2hGU3k5cVM3YXREdHFtWENiNjF6SkVQa0c3b3cxMzZNN1Q2cHBtenJZZ0krTUZ0WkE0WFlZYjVQNDQ3U2JGVmFRZEpRQjFCVk1hWVhMZDFZS1d4ZkpkczN4eHo5aE1VT2Ztc0Jmblk0OUZKTDdZT1ZhZ3g5Mk5xeUZ1dnlTNzZYbUhxZENMbjZhdHZ3dGJkYXNsWHhxVFVRVm5mTXU0UEh1akxXVEpxNmhYaGVTZVpKM0hTYmVteXZvcmZYNVA5NHJYWm8xaS96TjVqZlRKMWtWemJvNlMrc3JhYU9pODFOckVHOUZocW85bHJZcVpPWlh2cXJ1eUg1YVRrVm5zWWlSTFpCM2VRRnR1L21kVGFjZjkxYjVhOS83cDdHUXNacTdnM1luOXZRdVU1bWZaOG0xVjVUajJwbEQyRC9rZlZNR1BqQkhuZTRrZU9lcHJ4ejlqQmpIdEc5YUtPTVJiVkhSeDczSXlObXZIcnFCWDB1b0RqSjVnL3ZVam52eGU1NmxFeXdKaHROL0cxY3V5TmVlSjBGZU1RTVArWTFLOGRhOGZhc1hiODc0TmZOOXh2MnVCZit1QXhYMFh5eGRPMDlBWDBMeXhpU3NBS1pXNWtjM1J5WldGdENtVnVaRzlpYWdvMU1pQXdJRzlpYWdvOFBDOUVaWE5qWlc1MElDMHlOVEF2UTJGd1NHVnBaMmgwSURjd01DOVRkR1Z0VmlBNE1DOVVlWEJsTDBadmJuUkVaWE5qY21sd2RHOXlMMFp2Ym5SR2FXeGxNaUExTVNBd0lGSXZSbXhoWjNNZ016SXZSbTl1ZEVKQ2IzaGJMVEl3TVNBdE1qVXdJREV5TWpJZ09UWTJYUzlHYjI1MFRtRnRaUzlTVjBWUVNGZ3JUV0Z5YVdGdWJtVXRVbVZuZFd4aGNpOUpkR0ZzYVdOQmJtZHNaU0F3TDBGelkyVnVkQ0EzTlRBdlEwbEVVMlYwSURVd0lEQWdVajQrQ21WdVpHOWlhZ28xTXlBd0lHOWlhZ284UEM5RVZ5QXhNREF3TDFOMVluUjVjR1V2UTBsRVJtOXVkRlI1Y0dVeUwwTkpSRk41YzNSbGJVbHVabTg4UEM5VGRYQndiR1Z0Wlc1MElEQXZVbVZuYVhOMGNua29RV1J2WW1VcEwwOXlaR1Z5YVc1bktFbGtaVzUwYVhSNUtUNCtMMVI1Y0dVdlJtOXVkQzlDWVhObFJtOXVkQzlTVjBWUVNGZ3JUV0Z5YVdGdWJtVXRVbVZuZFd4aGNpOUdiMjUwUkdWelkzSnBjSFJ2Y2lBMU1pQXdJRkl2UTBsRVZHOUhTVVJOWVhBdlNXUmxiblJwZEhrK1BncGxibVJ2WW1vS05pQXdJRzlpYWdvOFBDOVRkV0owZVhCbEwxUjVjR1V3TDFSNWNHVXZSbTl1ZEM5Q1lYTmxSbTl1ZEM5U1YwVlFTRmdyVFdGeWFXRnVibVV0VW1WbmRXeGhjaTlGYm1OdlpHbHVaeTlKWkdWdWRHbDBlUzFJTDBSbGMyTmxibVJoYm5SR2IyNTBjMXMxTXlBd0lGSmRQajRLWlc1a2IySnFDalUwSURBZ2IySnFDanc4TDBacGJIUmxjaTlHYkdGMFpVUmxZMjlrWlM5TVpXNW5kR2dnTXpBK1BuTjBjbVZoYlFwNG5CT3gvUGVILzMvNUN2Ny8vMzh3TUNnd2dJQkNBUU1MQUlhMUNDNEtaVzVrYzNSeVpXRnRDbVZ1Wkc5aWFnbzFOU0F3SUc5aWFnbzhQQzlNWlc1bmRHZ3hJRE16TWpBd0wwWnBiSFJsY2k5R2JHRjBaVVJsWTI5a1pTOU1aVzVuZEdnZ01UTXpPRFErUG5OMGNtVmhiUXA0bk8xOWVYaFVSZFozMVYxNlQrL2Q2YVNUZERlZEJRa1FTSk5nRU1nRmtoZ0lRbGdpYVJBU2tDVXdLc0d3aXhKQUJBSUVCSVJSRUJCUUFWRTZMQktRSlNJNmdLQ080dktPS0xpT3lxcW9vMExmL2s3ZFc1M3VSRkRuK2Q3dmViNC9rdUYzNjk2NnRadzY1OVJaNnNZTXdnZ2hOYXBHTERMZU8zV3llNXppL2lGUXN3NGg1cVd4bGVQdWYyVGt5eWFFMkw0SUtmZU11Mi9HMkhjT0xPeVBrQmFhcE15cUdETnlOTC95cFhrSWRaZ0ZGZGtWVUtFNnFqZ0R6M3ZnT2JuaS9zblRrd05ySDRIbmo2RDl1dnNtM2pzU0Q4a1dFTHA3TWp4dnZIL2s5TXFZVDdrR2hHWlpvYjI3OHNFeGxjZXZMVmtHejUwUTRtZnlwL2hUNkdFK0g5bFF1WFJ0OHNOMVFWWTBEYUhRUmZJVXVoZ3FrKy9GSWVJUTlMLzRvNUtMUGVnUTJvNDJvdU53TjUrK1dvZ2VRYytpaGliTmo2QVQ2QVcwQkIxRWE5RlMxT21Xdys2SGNXWkpkNnRRMmExbngxdlJSRFFkYllGNTU4RjRyNkFSdUFhenFCeE5Sbk5RUGN4ZHpOVnhyNGw5MFFXOEM3MkcxZWdobk02c0JocFdvNC81ajdqM2Z6ZmdDclFWL1EydSsrQzZsbFF3UDZBVlRIZjBBUE1zbTQ4V3dRckxHWkEyZWczbTdvZTI0R0ZvQkdqSGVLQUN3VjFGazdGUzJUNW9BWG9JN3FaRXYrSG4zcWhEMnRDUFFQRWl0QXdvR1k4bW9XRm9JSDI5aTJIaHVwUjF3V3BlUW51bHVzWGh2b3B0YkNWemtGRUZuMFNQdy8vdWd2K05ScVB4SExRQmJSVXJ4SFZvTGM3SCtXaTUrSFBvV3pTVHoyZnVRcnJRWmY3dk42NmhCMUJmTkFvVm9HOXV6VTFLM3lsa3VKRVUrb0c1anZTY0hXbkU5MEJxOUljZGhvekJWcUJOMDBOWHhYSnhFTFF4Y0hiK1dYNFgveHFhZ2NvVWM3Z0taT1hlbERUdVBYRTJyUEZqMElzRHdEY2szRGxzcUwrMFpQQ2dnUU9LKy9lN3EyOVJuOTZGZHhiazUvWHEyVVBJN2Q2dDZ4MWRjbTd2bkozVnNVTkcrM1p0VzZlbHBpUjdXM2xjRHF2SmFOREhhRFZxbFZMQmN5eURVVnQzQUpmbkI5Z1V0NmxncERmZk83S3dYVnQzdnFNaXIxM2JmRzlCZWNBOTBoMkFna3YxRmhaS1ZkNlJBWGU1TzVBS3hjaW82dktBQUMzSE5tc3B5QzJGeHBiWTZPNkt1cElwdk83QTZUeXZ1eDRQSFZBSzkwdnp2SDUzNEpKMGY1ZDB6NlZLRHpIdzRQRkFENGtxUXEwN1AxQXd0YUltdnh4b3hIVmFUUzl2cnpHYWRtMVJuVVlMdDFxNEM3VDJWdGJoMXQyeGRNTzB6dTlTeHlCVkRKa1dWcG8vY25TZ2VFQnBmcDdUNC9HM2E5czdvUGZtU2E5UUwybklnS0pYUUNrTjZSNVBTRWVMM1hWdEcycVcxQnZScVBKMDNXanY2SkgzbEFiWWtkQzNoczJ2cVZrUU1LVUhidlBtQlc2YithVURWajRtME5hYmx4OUlKNk1XRFd5Y3B5Z3lKUTd3S1VhdnUrWW5CTXZ4WHJyWXRHWWtyVkdrR0g5QzVEYkE5QXJnZ2FVZTh1TXNBRjdYMUJSNDNRVTE1VFVqNjBQVm83eHVvN2VtVHFlcnFjd0hkcVBpVWhpaVBuUmdzVE5Rc01RZk1KWlg0QzUrdXZTQ2dVVUJ5NEJocFFFbXBjQmRNUkpxNEYrdTEzTzcwMk5xYkZOOHE5Y0kyQUxNQVE1N1BJUU5pK3NGTkFvZUF0VURTdVZuTnhybDNJV0VqSFIvZ0NrbmJ4ckNiMndsNUUxMStFMWo5M0l2eUxab1VHbE5nRXZwUGRxYkR4eGZQREpRUFFxMGF3SVJqTmNZMFAvczlIaHJ6Q1ozVG9aZmF1c0dxbnFQSHU4TzhLbkFKT2dWM1FIMGhuU3BNVW9QK3AvbDRwSVRKa2cxbWQwNVhoaUdqSlB2elMrbi82WldPR0FBTnpDNk1GMVdoTUdsQVNFUGJvU1JWR0w1ZFIweW9NZkljaERZK0R4Sm1JRU1iMlhBNnUzWktGMUNWdjc0UWFWU0Y5b3RZTzBWUU9YMzBsNkJqSHhwWDduemE4cnpaQkxJV040QnBmdVJMM1MrcnBQYnVkc0hodHlmUnhyYmU0R1dwZWJYbEk0ZUczQ1ZPMGZEdmh2ckxuVjZBb0lmSk96M2xvN3hFN1VERHQxMjNpa3BoMS9TbGNHbFJZTzhSUU9HbHQ1T0NaRmZrT0c0bFB4bXczaExuZkl3b0lBQlZZcktYY280V1Q4ME5FS0Z1d0J1dkQyN3dqV2dURkVCak1Cd3FaWW9icyt1N2xMc1JPSFdRRWJnTm5mK21EemFqanczR1pRbjZ0U3JNRHlhZ2p6Q09MMEtuUjYvUi81cDE1YUIxMjQ2TWZSUUVhWVdobCtCbVlJWEt0RFBYb1ZTRmVHbGd5aTl1OVE3eHV2M1ZyZ0RRbkVwV1J0aGo4Umx5Z3lKNTFSV2c1czhSVEVMMklRODhEcjhRSmdaS0VoM1JqTTNjS2YwM1BoWTJPeDE3L0JyZDQzS1d6U29oZ3p1cFFNaW9MeDNBQkVWRm00M09TVmJRRGEwRjJ5djJ3aGJXdHJRTlhXQ1FEWnpSUmN5aUxmMzZCcnZvTkt1VW11d0p3ODdaNUs1ektnSUZ3M3UyYTR0bUxhZWRWNjhjRUNkZ0JjT0dscTYzd2p4emNMQnBic1l6UFFxNyttdlM0WjNwZnZkNERTa1dvYlVra3J5NENZUFpLU0I4S0NTMmp2M0N3aFZTMjg1cVVKNnZyY2VJNmxPRmE3RDZONTZScTR6eWhPbFNoTUppSUUzblB4R0NMZm1vRTRsMTFWTGRkSlBIU0lzRXpTOG9CTFVnbzZKWVp4MW1GVHRncG9ERUMrcU1kcXR3ekhZV1FlOUJrclY5Ymk2VGkwNDVSYlYwRUtRS1Z4WUVwbTZaR2pwYmgyQ2J0SVZKdXBKZmtCZEhCVWdiSEFyK2U3UlJGRm0rU3RxeXYxa3N5RTdpQWIrNFFEMmRnY3hlYnNESVFwZFFPTWQwek9nOWZZazlibWtQbGV1VjVCNkphZ290bVBvWGcyeUx3NWdvZ0hEU2oyd0pkM3hKNXcxeGt0RVVuNHdLalhHcjlvQmNiUEI2ODloTGtNRXJFUkpnazZCbEN4aVZXb2VLeERLT0oxeDJtVEdPVGttbjhuWHNZUFA1REd4SHBObk5zdk1FYUVyY3psb1p1NFhTZlRLWUJ0N0Yvc3l4QlprSEkrZ1Z5b1lWa0hHZ2FDR1FTalg1OHZJakJvS2Uxa2ZBYnVrdHZWNTBiYjB0dlBzWGN6czRCd0d5TUg0WjNqNFFCb3JWbEN6RE1QQktOSWdHV1NJY0g5bUIrMUdBa1Y4dHppRWZRajZ4S0JXZ2tHajFYSXNVS0xVR3pTSWM2TGNYTG1qVC9vSDNZM21XRzhxWXpLYU8vc1VER1BhM25DNDRma3RyeDF1Mk02WXhVdGkzc1dMK0JYZ29nbnZ1M3BSN0NXTlh3empUd21QcjlWb1dJNVRJa1RHWjI4MlBxUDBacHROUmliTlp6ZXpVNTV0YURpMmRldXhodGMyTVZieEcvSE9pOS9qUTZCQ09uem8rNnRpWDJsOFZueUMyWXZUWWMxdXdjZ2lET3psZUl6V0RlUHcybUVvUFQyYWVSWVB0TitHMWVJSjZMUTZPSUgwNzRmZllSOWhLcUYvbktCRExPbDd3SitCTVVZWncrWE8wREhMWThQOW1BNzRuWTBiU1orcndOYVBwVGxqQlEyRXBjQm5NaG5LU0EvejJRTXo0cXNYY0xyNFB1eXVCME1YT2I4a2x3UkJoeUdRWmFBTEd3ZWJRbVlBcFM4VysvQ0RiTmF1RzI5YitmTy91YVhBRXMyQ3Z2MzVvWkE4eFNJbkdpeTBqNC9UbWMwS0hWS2doRVNEQXhzY0xnY1Q0eEFNY2E0NHhzYkd4YkZxdGFIS3IxYXl0aW8vRzRkeTA1RWpGK2hDT1k2TXNoSEQ0MCtQR0Q2cGNVNlRXVnFla2ZHMklrTDFaSnJaOEwwdjA1eVM1Yk54L1grOWR1M0h5eWowNjZWOVN6Yzk5L2pLalJ0V2lhVVhtTTNpUytKYWZDOGVqSWZqb2VKbThUbmNDck1oSkg0c2ZpSCtpdlhyZi8wVjFyMEtXRE1CY2pBOXVsMUlqTkVwc0FiclFDME5ScVdpeXE5VXNocUZEaU5jNVVjT0lOT0VmQTZpN2pJUFkzMTA3MlI1VEFyT201V1ozQm0ya2UxcHZDOUZ2UERZS3F6czlCd2UrVGdiN0RkNTFkeDdyL2Q5bk9nQ1dnN3pkUVZlSmFDdVFtSThRakg2QktWVmIwMU1pb2t4bVRSVmZwTVN4NlA0NlBta2F3YmxSMWdMZlZuZGNlZnVPS3RUcXJlVlFwbldIZnN5N1RhclFxbkhTbzl0ZWNlM2QyMVlVbFA5NE5LWWV1dmxvKzlmL3Z1YXR6WjRtUGVtM1A5SjdleURReVpPZjNpU2Fmcy9HZ0pWWDAzZnNyYjNDb211YXBCaEVkRFZCazBWZXFRbGcvamFKaVlsS1JXeHljbEVqdWx0MDh3bXM2bktiekRqV05ac1pqMkppUjRQME9sUnN1b3F2NkJjcm1USTVhcVNCYWJGa2YwOGZKSXNWcG42SENKWlNjYVJsY2dYTTlRUUNWc1YzbGJKYVozdG5zenNyRTd0Y1RyTzhtWGVaSVcySk13VjNmajhneENLUFpDTURRdlhEbHMzY3V5b3U1Y05uRDl2MmtyZFh1dC9qcDY1c0g3Um1uMzR3UU9uamg0MC9mYklqS0p4bmRmbFZOdzVZZHJNaWZvWGo3N3kvTFJBQW1mYTFiam1mSlNJU29WMmNRNkx4V2ExcXBReGRtSXVYZGE0S3IvVjZuUWFxL3hPSjJlek9hcjhOZ1VIRWxLcE9HbDlVVW9yTHpLOWlZeklQN0lxUGZhMlNvVmwrY2l5cExWNExSNmJoODJHOVhCRlU3OVkrL29QN3BkekxpN2QrdHppM28va0JqSllUM0IrNHBTWFRsM0hCeGUvVzdWanMrMmZXeCtmdGI1OVorYWp4OFVoUXk4UWE3a0c2QzRFV2RtUkZ3MFRNazFKU1FxZFZoc0xZa3BPc1lKTXlxd1lXWTFXUnNOYXJiRFY5Q0ExSFRheE9oM3NPRTlreC9rYVJTSnR1K0hwMFpLUmpCRVJDV3cwNUhOYmxFQTZZNU9rb0NUTDBHT2JsYXlKSzd4MjVxS0lWVmR4N3FBZFdidWYzTjV4VjFYRE4vdWVuTmZuMGFKbkhwbTlCaDgrSTJJLzdvYnZ3YlBFejF3N3hPK3VEeXU3OU5ieWpiMm1GZjM5MUZaSjk5YkRubWdIY2xDanRvS05ZVm1sRmx3VjBtaVJVcVVFZmlzWTJBdVNJb1dOZ2xsMkZNamtOWm90bml3UDEwNU1PL2pURDBFWHU0dzdFQ3dOWHNaS1ppU0dIY2VpK2NDckF1Q1ZFNldpVERSQnlISFkybW5TWWhKc3JXSmkyaWxzYWNBMFh5ZGtNcG9ZQSt0aUdTUHYwR2hTMnFTMHFmS25wTEFtazR2c1NMYkQ3OHlVck1rK3dyWW1VbSttejZsWm5iSTdaN1VITFNhY1M4SlVnVmxKRVFnRDNaYkdXK0Jsd2EvLy9qeTAvcUhLaFJOUHpsdDA2cjZheXJsclAxMHcrNkZGTmJNdzUxMjNkT0hhTlN0V0xzY3o2ejk0OThDY3ZUYk8rVkxscUkybC92VmpKcjFrNTJ4MStLZUpreDU4WU9KTXNYcjZuTVVQTGxoYVEzUmxLYXcvbCtwS21YQzdVcUZJTk90aVk1RVpkTVhncnZMckRBYVhZWU5ocCtHS0lXUlFhRmlEZ2JYWlFJZHMwcjZ1VkZZcm1jWU4zZFJNK3lKK3E5RTFvckN1bXpzVHZXZGcrVDUzWkxXd243bGM4ZWNmbi8xSCtvN3MrcWRlWkZvZm5Yem9xK3Yvd3A4YzJ6aDc3dXJWMVgwWDlHT09pTStKQ3hhdmRRWnc3TTlENzBlaDAyZitJM0xQbkhocDhiS2QrUTlKOFlqazI3Z3VVanlTSmxnVUxBOE9UcTNpdWJYRGVFUFl6Y20wVXM4dGV6dFc5bmdYSkovSEdpVFBKMFVmb0grblFQK1VFQUVNRXRwb0dSWnN2b0tIalE1aEJnUURCcjBTTTFxbXpBKzdiS2dLRjZtd1NzR3pIUEF3TnhQY3dmRGhPUm0raUpVMitUSk5QcUtoY01tUm5KZUg5YkJlN0ZOakE0WTdUbE1UUEwzb0dCYi9CLzhVWEtmTFg0UGZmaEUvSXM3bDgzOTdoZHViZGtiMDR4OWx2N29KNktvR3VtS1FEU1doWXFHMTFxa25SRm5BSU5raHhuVzV0Wlo0UzN5WjMyTGhlTjVjNWdlaW5HVit6bndUVlkySVN0bzlzb1p5WGdqNTNDWlF5aVNNTzZXbVk1T2trRkNDRWVhcXhjcy9pcTN4T254MSthem45NG1YMTZ3NTl4bHVPMkJYNEFiVzdId1d6OXB6bk04WDk4L2NFbWZlaGIvNDJ6Q3hYSnp6NEhTeDFReHBUMDhDdlpzcTZkMFlJZGRrTkNxVVNnZlM2V0lkU0cvVU13YTFTODNFOEhwcm1kOWswbk5JMFVFaEtGaWtLRlpzVkFRVTV4VlhGUW9kcTFDbzFXeVpYMjJobnBBbzNTVEo4SWEzSGVVekRmdGdCM1dPWlR4dTJNMGVNRmp0aVFMaUxpOEV4bXpKMmZDRXVFdjhWZnlLY2VCQnM3ZW1QRDN1aFdlWmJlSVY4Y3FpeDN1SVMvQUVQSWlwRSt0NlRKb25rdUNYOEgwTThGMkZUS2kxWU5WemFtQzIyY0xIU0J6V04rRndKSEl6b3R1QWIyN0VHaVZHWnBxNU1lSnA4WE94Rm5mR3ZYR3Zock5YWm13Njh4WVRFUGVLYTRGeCs4UTlXUFg5OVd0WUkvR0x6RGtLNXRTaUlVSTJyMVlqVnFOUklsWVh3NnZLL0M0K2cyY01jTW5seS9qWi9FNytISzkwc1R5RWRKZ3I4Mk1XcWN2OHlOdzhqcHBFeUl2TkNWdHpFcHQ0S0RheGE0S3RtWFhCMFN6bTg5ZUpRNThTZmV1a1ExbDBGT2pvSnRuaXZrSUc1bm1GaWxHd0dpMlp4NEQ3NHpJTSt5WVhUOFNzanNXQzdiWkNqSG1sRXBYNWxTeHZscXkwckhNdy9ZT1I2WUU3MHNSZXVPSTV6SmJnUFVmWWg3aHRvbmw5OEF1WVA2d3ZKSWFNQXozWHh6cU52RlpqMHlBZXhUdFY5YUdyUWx5TXFkQVJXK1ozT0JpVkN1U2cxYW80QmpTZXNZUjlXWGhtMU1TTkVUMVBBVU1NT29FOHNoZFRnSHFBcHBpSTM3anJxMjkvRXk5aUZWYmpvVlV2RkwrejdSbGNrcmVpdmZneFBqZi9TVnlGKytCaGtIM3N2ZjNmTjhSL0J6OXQ0OGJGRzZtczJraXl1a053SzFtV1V5R2s1YlM2R0NYWWlHSWwzcWdNRUt1cGp0aUluQXhaR28xN1VMSkloQ0VrOFFMTDlMZmd6MGVPTUpvanpNVGc0M3grOENTVC9kc3JranhPd2x4WW1pdEhTRkNBdkpXZ2kycTFMb1pUS1VFemxHWldpN1FnZlRZNlhHeTBlL0pNRmlwNGlGTTlKOW5PNGpIYzljWUozRlU4QnJ5L2ZtM2RPaTVHbG4wZ2RKSDlGOHhsUkIwRWg5NnNsQ0o0azlrQUdtOWdXVTBaaVljdFVhRVBYVTdFMjZWMVRnSTNGNGRoSnZaZjd4NSs0WlQzRmZNVS96L0ZFL2dudk9XZi85N1Y0SnBhalNINnA3cEcrUGltdExaQ0lWV2xWbXRBazdXRW4xcE9GNFBkV2xNaG85VGdxY3JIZ0p0WUZjWE5uT0ZrM21pR2dwMlZtWXFWRWxPSnRXVXZpSEdiZ2F0ZFB4TlZURDd6eURZeEhWaGJ4andUUEhialAyVCtTekIvWDVpZlJ5NUJEeTZFVnlpQkFqYXlsK2dFWk8rUTNYUHBDTE9Sejc4K1pGMlVEc1NnUENGVnlVRjZwZFhxZUozZW9GMkM4VXlNeDBONnBtRG5xZkFVRlI0TERnT1I3VUY4eGZCY2N2RTFWd1pzdHhIQ2NXb1dVWWU4NEMvRzdaOHlSdk1PYnNLT2dUZFd3YXkxeStleTVVUXBHRFFXOXNwWUtkK3lFZnRrbE9Sa2oxV0RuTlFjYXluenM1YWIyaWQ1Ry9neXdVU0IxWmZ5SjI2cytKOWZmaFYvdzF6d1AxaDFRandwSGwvLzVPWlZZQngzaXF2d1dEd0VEOERsNHJQaWRzWVd2Q0QrQUh2RklYMWFrZFpmSnNuT2dqb0o4VHBrVkNpVVNHbXo4a2F3a21BMlZJWXl2NHBWUkJ1RnFEWFR5Rmd5Q1ptY3NwTUgxZzR1cDJ6YUo0K0wvejZDVDEzR2JJTlkvN1A0eEF0czNjUEhIZ2lLZlA3N1I4WGdwUlhodVora2ZyRk15RUl4TVdxczA3RjZ0UmwwUjgzRjJuV01HWFppZnpNMm1IUE5FODFIekZmTXZBNnlGc1R6SnNtR3k0clV4RlFpWHhOMWlnakdLOUVvNVI0UXVOMG0rVWIya0xqaThoSDgrYmMvdnZJMFh2NkwrSTU0RlR1V1BjbmtCbC9sODEvZDg4U3ArT0FMN09sellwdHFvbWY5UVY0VklLKzJxSS9RV3NHM3NpY202QkJLc1BOY3UvYXRkSEZzbkx2Y241Z1l4N0ZneGdYd2dZeENJZSt6NFZHbUxTZkttTXY4NDd4dVZ0cHdKRjlpMHRxekpOckt0TWNTeitlMldaT1kyQ1NPcXhDdi9TcDI3ck0vSWJCeXc3TTlKc3pQZTJiUndEYlh2amh6dnUxQngvS0h4YSt5aHMzSVh6eXpMQzhOUDFqL0ZoNmJNbWZLckFjTFNtLzNtdHIwTEhtZ3o0dXZyQXA0S3NlODM3V29vOXZzemVnNjhBR3lucjQwTGxHaVZNR3NCSnZFTUNwd2tUeEhlSXZOVWNGNjJEa1RGbVo1Yk16cmg4VjhyaE8zN2ZvUWJ0czZ5ZTdYQW0rSXZ6R2hGTUdrVmhoQWs4MFdJeGdCWFVTTmZVM1VtQmlhT093elNTRXo3QmF1MjVjM2Z2ejR5SlNubnBsN0dIOG4vblR0QXNicy9UZGVQTFZoeXhtMmdNd1JqdTlpSVZ2cUNBbWV5Y2hCZ21UbFl0U2NQVmFqVnNjNjRyZ01ZMzlqbVpFMUdtUHNhdFlha3h5RFkxVGdYcFVxYWR1U3VjSG01SUppWkVUdDNkaWNxRlRQNDlYZ05EMW12YXpQWW8vdGppMCt1em5XaVgzc2IrLzB1U3M5c2VPMGQ5NDdkTC9SNUU2ZnVUTy9mMGR2eFNGc3hlNkdoMCtLZy9qOEc0Zm1mVml6Qng4S2lwK2V4VVBaWHJKOVRBYTZ0MHB4U0hmQnczTktsVXFCT2N3d0dyV0NGVkF4S2tkc0xsa2VWbkl5MnlYeWh2dkNyRGZuWkpvYStVOHNvbzg1ZGxCTU9JMm40c21ubWNKZ1BWUElCSU5QTS9mQ1FsZHdkV3dYZmcvWVFvZWc1Y0IyUWZDeFpCaGFpWEliRDR4d1NwWXYxc1ljRnMrOC9nVlg5M1hpRlN2c1JaSkRMK1Q2b1ZZb0E0MFd1clF6eE1XYlZXbHBibmU4Z2UzUTBkeDZnTjlzMWlVWTRpYkduWXU3RWhlSzQ3VnNYRnhDZ3IzWW4yRFVlWXY5UEJvQTVrS2xzMHZuaU9tUkl3UFlsZVRVSUJKRVVMMVB5ZXhzazN5TlY4cXNzNHdwbmNObkJHYXlUVUV2VWlEUDZJYVZlZ1p5RHU2dWVFL2VuYU9IS1JROTZ1YXUzNGpmdURoaDh0UUt6Y0gyZU1ieEUyMkMveXBmTmZEdzFGbjUvb25LU3VQNHloa1RkcXpHdzNudWpubFZnMHROT1BtVk9yRjk4UURGUFU4TjlITk1oM3NIRGh4TjdNOXVXSE5QL2hSWUh3ODVOVXJnOWZvWU96azk5RnJqaXYwbXF6RUdhV3lzQ3hiSGttV1JOWUZzbXFSTDlFUXJ6UXRXeFV1MDJHUlYrcHJtU3RsY3p6Y1AvVGlVVVRJdktmWnczTEJyZU1HQmgrWTlzZkRSTlF0bU1LM0VMOFd2Nnp0VTZMSzNjWmRFZjQ5N2pnZFBuVC94OGFmL1BQbFBXWGZtQW8yM2cxemlVWVdRRklNZzc3TllrZFdaVUduQnlHSzBsRnNxTGRXV0JvdEN6VnJxUXcyQzI1bFVhTEU0SE1aaXY4UE9hb3I5THVWczVUSWxxeFRnQmJoOW8rVDJoMGZFUXlLOFNkR1JGb1FaeExmSTVpZThoTTZ4ZWxnbG1vdVpIMSsrbU5CZ3JKNjZmdVhLcCsrck5SMk9tWFpzeGs4aHhDUmhQVzYxYzVWKzJQaGpIMzk2ZXNMOXV2S24vZGd0KzVpYTBOZGNIUERaRHRyVlJVaU1WU1FpdmQ2Z01IaVRMVFk5VXJtTC9WcVZrWTB2aHVnbnpHZVoyWTJjbGpWR1NrVkoxR2VQOWFVUlZzZDZJU1hIMXNpWkREdWk0NllaSncvamhUTTJkMlNZUFlvZG5DTDQyYlRIVml4WjhNU0M2UytOTDhOMjdHQ3k3eDYxQm0rK2J0bVdiWmljanUvNzlNMzN2djd3MkZ0QXAzVEdBTHkyQXJmN0MyM0JROFlvbEhFV2l6S0dkU1k0RUxEVW9URWFiY1YrbzFIREZ2dlBLYTRvbUdvRlZpZzBkc25LRDIrYXJUVXo4NVNQdVBITTAyVERvTzBlQnZkOFpzbTR0ZkhyMjE3WWZGSDg5Y0tGSDhTVXg5YnhUR0VDL3MvTGIvbnZhamZyVVp5S3pWaUxYWkNGbkhQZ2QzYytpUXVKYnRTQVhTa0N2anFRVDRpM3cxNW5tSmk0ZUkycDJLOGhCOFZjc2QvT0c3QU5TVW9yeDVTTmdtNDA1dFRaMklpMDlUZ1JnM1hQMndPQmhPTFZ6d3FmYjVPMEw2TmlRa2Q4Z2QxeFl6QzdvemJ1OUk0WTFlTzhybjNGY0UydEpOdGxZaW1YeEJYQkRzcEFBNFIwam1WYm0xckZxdFV1azZ0RFI2ZkJtbExzajdVYTlXMkJKcjBOS1l2OWJxNER4M0FjY29MbnBvNng4Ukl0YjVuR2NDeHF5dkpHT0FmaTc1VGQyYWNBRzZFSW43dVFSdDB4TTI3cnFZUjYwNlI3Zm1FNnZqVDlqWDNIVGsxNnZoMnI0bDVRblBHc25yZG9wdSsra1NWekNzVFNtamx4UlFQd0hVZkhUY0FzNklRVGE4ZVBURnFteTk1KzQ0MHZ2bUxmZnZXVEkrZlc3Q3d1MnlmdndmM0FUYUsvVm9pbll6bkdZckZxdEZhdHpXN1YySlNHWWorbk5DSWtNYm1KajVPc2d5VnNFT0lnL3BCSk5YbjM3MVd6NDcvREkvYU9yNXExWVE5L1NweDVSODFwY1Y0d2c5bTM4Tkc5YTROTENWK2wzUFVVNUc4eHFLdmcwdXAwbU1pVWg4QlVNOGl2UlNwZ3BjcUFPQmFrek5vYWs0WW1weVh5cnFFSlE1WW5MY3RuWTc3RnMyNjB3YytKcitKcng0L1gxdGF5U2JYdk5qVEkrM1NLT0lUTmd6bU5zTkpzSWNGa3RTS2tVK2hzZHJOcGtOK01EUHBpdjhIQXFtRkNKNDFMbThTbVpEWmV6aCt5Wko5T0oyWHp6ci9kZjB1NzFROVYxNGpqbWFManh4TmVlVGZldEtUVm85UFkxK1haTWJwSTE2dEYzWVJFckZGTDZSaWt6MUkrUnRJSHlCd01QT1JNTmhMeDVZYS9LVVFmZE1wbk5OR0p3d3B4eGFONzl1Q1AzeE43NDdmd3RWSGlSUDdValpGTWpKZ1JYSU40cklVNTd5Ry9hd01yTmtFb0NjdE40VzBwcVdtcGFZUjBrejNXSHBzV201YkY5c0p4WXUya1RuWldQSWZmeHc1YnpqampzWlY4TFdjdFNIcU02MXA3M2RQT2JsR1hYYXFkTE92THZURHVhTEFqYVNoZmFHVlBTME5JN1hJbEdWUXFkWks2OVcxZXpnSXlpN2NiTEVhZHdhV1dGZ1FyOHZsOHpZTFh4Z01lVDZQbW1EcWxnZXYyU2NlM3NYSWgxY3F2R1V2SEhrTC9iWW9uRkV5cmluNmxReXhNNjRrbFU4ZHU3ZGlqNTEzTVMwODkxTEFsK0F3NzZGQ2IyUjNHRGk4ZlBXSG9qbitDeWtIOTFxMmdja0QzYnFMblFMY0RaUWl4SmlBWE9kU091SGpRQXlEWUN0U3FLZmViRWRxY1FvaFlmZGtTYWV4b1NjVVYyekhETXV6NDcxL2NIbFp4UWdmZk5xZi82VmVPQmpOQTk0aWY2dzF6azI5UGtBdkpYNTBjY1dyWVgyb2pDemFYdUliZjUwS1JMMGhOUEc3djY1ZSsrVS93bXg4dkgxcjA1TnJseTVkdnFHV1N4Q3NndldSd1U3RWd6ZS9Fcno4ODg5Rjc3Mzc4QVlrRHhDRmNUNjRZWnZhU09DQ0pMTjBCT3k4NXhlYUVPTUFHSzFjNUdRL3NkT2FQNGdBUGhBSDJSaGJJVW1wS1ZrOXgrczhsUExkWHNST0RlYzVjKy9BYlJ3L01uTGZtc2NlZW1EK1RhUlU4V2E5YUwwS3dzVDJiODkzckdGOEdGSC94K2FzZmYvcitHeWRsUHdwMHhuTjlKRCthSlRnVGJiR3NUcWUxYWIzSlp2Q2hlck5kNjBUZ1JWbFE1OXhNaWNvb0ltV0dSZGxPcjZsejJLYmlLQ0laMDV5bk9qSktmcWRpTDhka3JaOTE4akR6L3NKVmo4MllPVy9sWXE2UHZ5eHB0aTc3eSt2WmVOL1d2NDNCY2RqR1pBZlBuL25IcVhPZm5Qb1gwYUVmUUlkc0lFY2J1azJ3NmlHWFZOcnNzWHFMaFJub3R4aTFCZ1h4UmszMUI2aHExSjNVTkIvUmE4YVhHY3ZaS2tjLzg4WWVaOXdMclZWOFp2bWpaUlZqMmRXV0gxNFJPZVpRMzdmdXJhbXNISjlsa3ZmYjg2QTd5ZUNEVWxFL29ZMVM0YkxFeCtsUUhMSW91TFRXTHAyZHRTZENhQkZmR2M5bzJmaDR1NUdFUlJBSzJjTW5JSkh2SjcvUHpScFBROXdRWUtRbGt5OEFqYmxaSzJDWUN5Y3hYUEszYjczMW9XZUQ1ZUUxV0Q5cWpQaExiZDh6SndMdnhtL1NUcC8yMDZCN3BtMWVOaEJuUGJWenptTFgzZjFmRVBySDllZ3pjZERLNStiUHRoYjJXZE8xME81cTNXK0t2STdEb2F2c3IveGc0RjIyNE9UVmFzWnFOZGhqVFRyUVFUc2tNUkNBOEpobHNVSDZ5bjR6bDI3Sjhsbms0MEVpU2ptK3pqSWQzdDVsT2c2SXhTVWpIOXU4N2JsTm04Q1A0M2p4NjlyZzVQNTlXeTFxdjJnVnM0SDZPZUNqaStzQ3JLUDdIenNjNm5pbnlXYUQvVyt6eDloVVlDcHZ1djl4WXhZbkJXVk1PS2czNGZ0SFBUSm45VjVxQUxwdm5ySHJXYTVMY09DNkdZR05UTldORjJVYlVEbTg3aFJENDkxODBKOEZRSU9HbkVaZ3BGQXdhZzNMYUJpZFZzMFlTaFE0RCtJdFJHSWFjZ1lUNVcybEEyU1N2R0VmZHVGY0REblNtKytML1U5aW5hbVROdzFiVDhDMFFsYjlsS25NVVdrZUc4eFRMNjExcU5BZUk3TkJ6eXA0clpuVnNrcEhuRW9acDNUR3MzcTlWaGtYNTFBcERXYnRGTzE4TGFQbGdTSnBicCtjUnZwODBpZlJLREthcFpKc21sSktKTTIyN000V2trOTI2czdBRGZ2YnFXVTVhVnZmM0xkcnVDZk5zdURWdWU1WWxVN0hqZ25nRDA4dURuNEh0RDRqL3RKOVl6YmVLZzRaZjEvUzBMSzc0NWd5aWU0UlFQZjlRTGVXUkFYa3JFMkpPWTVGV2dYUE15eEx6aTQxSE9aVXZJR1ZiVFhKYmFQUFVXUHArWm9hZTlWU0tnbHVjb3Q0UkR4MEZHOFFxLzZCMitJMko4UXF2QVVmRlBPWXRveGVISWFmRGY0WWZKZk0zUlBzenlMcHQ1cHpCS2RacldmMEdxTkpxOUdZYkhhOVdzMGJOUWJFdzA2andZR3ZLV055WkFIaFZuSndRQ1NFN2JHZDRhckhPTGxQWm1yNy9vczdtTVUyRFZnMVRIa2J6ajRzM3U0L0lnN1JMbEJNbmRPUnl3ZytjajdwQWRaOC9ZMExoNlZ2UjNleWJuWSsvVjBGSHptM1FtYUZ3aEhIMm5aQ0ZvSFZMRXQrTjJHblg4MUZmWFNJL283VStGa3YvQ0dVbWo5Mi9yYXBVN2M5UDMzNjgvZVBLeW9hTjc1M253cXUyN1RudGs2WnN2VzVhWDBySnZUcE0yRThhcDVuc3dncGxEeXpaQmpmSk0vTzZ1eXo4WGpGRjYrTFo3ZzY2NVhFcjRHSDA4UTgvQVdzd0lKeUJZL1JaRExvOVp3YXFFUldtMG0zd204U1lveUZKcFBTd0NpWCtwa25KRTVta1BTNWtmYklseEtyUithbGxQb29PL3ZJeDU4dnhNczVuc3prbGQwSzAvVTkvcFkyWW9Rb0h1QkdLZTV1M1laNWVUUTdDQ1lPaGVSY245OWpUa1Y1Q0prVXFCZUU4clk5VEFkVEtsTWZxdHpUc1pPQlNjSHBXUWorU2Uzbmlua2tCNFgyQmRCZWlXYmlBZkJDK3pMMnVKeklLaldWMnNuZmFNbTRoZks0ZGRLNFRtbmNYWHNTWERHV0p1TTJiejkxSXZCRjBFb2RKanFUSXEyaHJXU2JwTGFscEMyekFKR3hNVFRGOWFIZjlyampIYnJJMkNBZko4aW5EdVNqUmk3QlNGSTByWnF0OVROcWtCR3pramp4aUpoczNqU3YwZ3ZDWXV2R2Y4eDhVeUZ1NFY2MzF0UllyOGhuVGt6Y2szY01xOTFjWnVqNkUzTEp2MnQvdk5mTTUwbDVsbi83dlJzcHdTZjU3NVgvZzhndjRqUHlLUlc1S3JZRm4wU0k5OTlJK1cwbS96MnRiL3hSaitOT2s5L3JndDE4T2d5RzVVNWpHOXhuQTNyUytuU28reGx3TjZBWW5uOEJUSVo3MHJZZjRDbzhQd2lZQlZnRldBNm9Cb3lqNVJyQWVzQjh3Rks1UFM2WHgyakVDRUJiT3Q4bXdDUmFFaHlOZWo0SkNORDdTNEE1OUg1c3M3SS9vQytnRnFDaDR5WlQ5SWI1bjRLeUNrcTlURmZvT3R5dm9QVHVCc3dGMUZDYVNia01zSitXVXdBWG9iMFd5bnVqMnUrbWJYOEFQQTg0VFB2a0EyeDBqWVNuS3dGZkFLOHR0TjE5RWQ2SFRzSDk3WlJmbldpYkRUQVhXWThMOEJhUkdlVi9QN2xPb3YxT1dnZDljU1pkeTNLNXJTU2ZhVkFtUXZrNTRHOEFKOEFFSUd0NE1pTC8zd0UzazBVWUo1dkJHY1gvNW5pYXJxbTJHWkpwbjFySzk1dkJTbms3dnhtV05jUERVWEpvRHFKZkQxQlpSS05uVklub2ZNM0xTWFNNVzVXYnFGeWNWUGFiS0gxL1ZrNmlkTitxM0VScFl3QlpsTWZML2tJNUN2QVJKKytSS1hTY2l4Umt2endtbDVMdWt1ZC9SVDFuMC9lYktDK2Jsend0ZDFPNXpyMUpTZVNWUVB2OFFNczNvNTZKSGovL0J5WFpzNGRwT1lhV3h6bFpSL2IvRnlXUkg5bHp5VlMrZE45TGU2OVppY2srNlFMNzZKT290WEtBSE1DUXFMVTVhWnNjS210U1IvWVNzWFBENGQxNUtMK2pNaVM4R2svNWVqSktEb1MveEZhV1FQczNvM2dabmdQMkxrcWw4K3luL1VZRHRuR3luVGhIK1dPTjRoTlo4eDU1RGRJOW92WGhkY1lDQ3JpSUxYNElNQjJ3a1pQdEo4ekQ2SURXQjJVYWlCMUNmb3JNcUhzVWRUK0lpK3lSc082RjEvQlhaVFNmKy8xK3czUnRrK2g0MGZ2aEl2ZDdmUU1iaVJaenNxNUgweHp1TjV5TDJLdzNiaklQc1VzUDBQcXlxUGVrZlJVWDJhOFBVbDVGcjdVcWlvN285ai9RTlQ0Y3RkYm0razM0djRXTDdITlNKbFA2cTZOa0YwM1AvSnVzdjNrWjF2Y1BBQXNwelFVeVFpRW9iNk84dXBmZTd3UnNCL2c0ZVo5NU9Oa25hT2ljTTdpSUxTRThmWlRTdEoyMlN3RjA1T1Q5RUxZTmk3bUkvd3o3VUlJTU9oK3BJemJ0TWNxSHNBMmZTOGRTY3JJK2grMDBlUWZ4QnpwTit4QjhSdDlWVU1CNlFpS2RmejhkaThpMkU3MnZqOElQTW5CQ3Mzb2luNUFNekZDWjExRjU5YVk4Mk14Ri9Ia2U0QTRxSjRLWlVYSUtvNGJLWmo5OVQyalpTOGNEdXJHNkdZOHlLWklvbjRGbm9ZdjB2b0NMN0o4WHVVWWZqWHNCQkFESUJFUDhnTW00b011WXJQMStLR05vL0FZME0wd1V3TTdneTRCc0daSXRJN28yVlFiRXJ4S1k5bEFPQUJ5UTR6YnBlVERnTU1WMUdZM2o3WTRDYWR1T3hwVWtQdGxQZVF5eFNPaHJlSVk5aU4wQXNvN09nSGhLeitTYm9JcWlEUjNYU2ZWN0R0VmRncVV5eU5paGZ3TytoYm5CRnVPMVRTSDVQckRWdUFpaDRBMkV4Q2NBZXhHNjBRdktTMUQzQXBSbklVTjREc3B2QWJGd2Z6dVVzK1Yyb1JNQVAzMCtTOXV1amNLUGdHR0Evb0JjQU9UTUlza1h1c3RqaHZvQzdnTEEvQ0laeXlUSDVEZCtrdWNqYzRVZ2RnLzFvVzBQeWYzRnB3SDdaUnJDODRwUFJkRjhnajQvQTg4dlFnbGppbDlELzgxeS94QmtXK0ltS0ZNQWE2RE5EbmplRFkzTVVHNkJ1blZRd2ppaEEzUytHTGkvRTVCRngvMDdZQVBnaXJ5Mm9CM0t5WFQ4czNUY3lUTEViNkNFTVJHc0tkUURuby9RZFEyNk5jUjZ3RUc0UHliVEpYNEVBQzBYandNK0F6Z29UNGZBL1RiQXl6RCtyNGo4dDdVSVhZMnlQWXRsWGNVZnkzb2w3Uk40SDNxYmE0eHJ3L2NoRWxNL3dVVnlEK0xIZGZTK054ZUphOE4rWE1ORjhvNEY5TjFtK2t4OE5MSHh4QTZyYU5tUjJvbVQ5Sm4wM1VsdDFSTzBMNm5id2NsMnNaSytyNmR0MXRCMkY2bE5XZ2U0QjNDRXJ0WE95VEYyZ05hSHh5UjJoTVFFcFhUY2NQMWNXbWJSK3c3eTJzV0hLQTlJWFd0T2pnZkRmaVVjN3g2VmJWYm9aMnJQU0R2aVIwdGtleWI1MGxyS0MyTERobkp5L0VKNDVvd2E3d0hLdTJ3dUVxZFBpWHEvbW92NHhrbFJmQzdpNUpoc0VpM0R2aDFSdVpINi9sd2tMd25RZDNmU2NpdHRiNlY4UkZGamtQNTgxSGk5b3Q1dHBmNmxlYjRaemxYNzBqSERNaWQybE1RVHhKL2ZUY2NiVDlzUG9YV2RhTHNsOGpvbFgwQmtTZndBaVU5cXVJZ1BKSEc2Z3M2N2w0djRrZWljaC9oOTRpTkcwSFUvUmR2ZlEzMy9CQURKTDJmUmR2bGN4TzlrMGZrZjUyUS9HUGJKUkNaeDhoaVN2dnlMaStSTVpQNUM2cDlzRkxtY0hGdG82UGpoWjdJdUwzMXVUL20xbXRKbG8zVE9vZjBHUlpVdUN2SytLK1ZqV3RTOGhQY2tqbnBBdG11UzdkZ2dJL2dlMkZPd1J6Zit4a1YwaWNUMXhmU1o3RGVTRC84STZFelgreExsYVRqMzdVWGxzSld1UFZ4eVhPUmNvU3Nkai9DRHhFZEUvd2RURE9LYTdwKytYQ1JPeTI5V2pxRGpFUjBxby9JTGw1Uis0czhrMjBWTFNjZkR0QkxhamxNOUpiRVowYXNqdE8rUnFMSG15UHlVY3BOYnhkL2hPR1ljTFN1NFNMd2V6WmU3dUVqY3N6K3F2RlY4U25SL0ZwMmo1MDNLTUkzbnFUNlNQVE9CeXVjaHlxZUhvOG9IS0Ixa0xTT3BYRWcvSTZXZDBHdWc0OXdkSlFlaWo4UWVFYjNlR2NXenNYUThLWCtVL3JJRXd1RERNT2dTWTRWeUY0RDgxWWUzQVhmUSs5Y0JBWHBQNEFKZmRBK1Vrd0N2MGpIQzdlaDdmSUxlVDZMdlg0L3FUOFpkQnZOQnpJRnpBSGZMa0o2M1VOQzJwRTZxbjBidklWNlVmakhqTlloNzRzTHZpZStMdXU4SDc1ZFNIcEV6cEtzUi9qS2cwNWo0aTNteXZNa3pJbWQxWks4OFR1djF0QjJKL1lsdElMYUU1RDdFVmtDOGlmcHc4aGxWT1gyZkp1dGFJOGdlZTF0dVE4NnVHdjBIa2N1em5PdzNTS3kvbStyZExrNzJmU1MrSTc2eG5tdjA4WkpOSWlDMGtIaitBMG9qQWNtdmN5aElQa0Y4SHJFL0RscUc0M2dTdXg4RWZBOGdzZWd3K3U0a0hVTkRkUVBhaFg2Rjk0UnZaQTFuT1RtVy9aQ1RmUW5rN0F6WUtteUcreXR5WEM3eDdCTUs4R0hZSXArYlNtYzBIOGw5UXhma09GZzZVNFJZbWZoalVrcHdVUXlrSUxGMEcvbWNEejBDSmF3REE3OXdGMW9tMFg1NzVIY1MzMGc3ZzB3djl0QVlPMG1tQ2F2b2VDUnZ5SlBiNFZhMHRFYmFFRG1HanRJOUJQc2pCTGwwQ0hLdzBERk85dUhmVTFtUnZiMUZoclIrb2hOay9LZGxvQjZjYkJmYnlQdU8yRXRNYkFMeENZUVBSRWJFWHdSa0hoTmFKTHMyaCtyV0ZEcCsySWZlVFhYdEhRclFYUnprcFB4SXNtL3paVjJRZU5KRjVwdTAvZ0d5SGtwb1IvT25qMlJlU1B5QWV3eTJHeE03Qk92RTlDeFZvb1BzbDJ0UTF5T0s1eVIzQWRvdzhRRy8wTHhHb0NDOEpMNGUvSXlVaTVIMjZlQ3J3R2FJajRLdm1rOWoyVGNBWjZMS1VUSkNFOFB4Tk5mMFBPQm1aM1RSNTVJMWY3SDhLK2VWUjJuNzV1ZVR6Y3RGbkJ4bmhwK2JuMCtHejNHYWw5Rm5rczNPS0tWeUR0V0w1bVg0WE9kVzVaK2RsOXlNanovY29pVG55SDkyZm5temM4eWJsWC8xakN3Y1I0WEw4TG5tbjVYaGVDSzZKUDcxRm1lZzBseUhhVi9TcnBycS9HcnUxbWZqcEJUKzVQMWZLZjlNOTRqL0wvbUQ5ODExN0ZheUptc3QvWVAzZjdYOGI4K2l3MlgwV2ZUTnlqbC9BbnJlSTRhYUltU1ZJZG5UbXlCRWNoK3c0Y0dHcG1nOHI3c0ZTTCtRUU51L0Y5VjNzd3hwbi84Qm12UnZ1RW4vdVRkSDZBVUEySGd4bVdLaERNbC8vd0hFczNSOGlPbUNmK2Npc2NFdDBHU2VWcEY1UkwrTVJyNkhlUm5tVFhpTllackROSVRIL3IrVjQzOGpsMmpNbC9GZnJUdjVEOWI5QjdRM3dUVWFLMXlqZVlucDVuU0xQOFA3ekVncDdkODJNa0pYL2tDWGFDNHZndjhNVFd2V3A3a2VQRTBSZnFiZmZNVlhBSmRsdm9XK2t5SEZkamZqVHdkNW5uQXBuZDNBMmlRL1JYNXI0QU9BRy9BaCtPUytuUHdkZHJzTWNpNGlnWnlKa20vZFlJL3djQUN4QWVRc2VSY0ZpUjlmbGlGOVU1OUN4eU5uZ3VZd1pQNkd6MjdSYzFBT0JaQ2M1eEtOblUrUjg4Mm9Qa1lLazl3Zmp3RmdHa01tMGRpSDVOTWtacHRFUVdJc1FnUHhweVJlSnpHb2c4bzJmTFpQWW1LUzkvWGxJamx2SE8wZnpySElmUWRZQS8xdUljV1lKTThpODNHVWp5Uy9JK2NZSjJROUllZTAwcmdrWnlNeFBJblZ5ZGsyMkNzODlmZGwrRjdLNTNTMEpIbmNGSmtYMHJkdUlnL3lyWnZFWENRdWg3aFNPcGVUZnRlQTkwdGxGWDJ1a2UrWkpGa2ZpT3pJUFVINFBycHNEanhCZmtkS2d1aDMvMjM5WDBIenZjZU1iVlpIOUpYaDVHOEFGWlJYQnNvTGcveE9XanZaR3hWVUQyOEJ2SXJHQUNreUpMMXpVaEE5SWpwQVluRkN3MGhhUHNyN0pSMERvRXJnTmNuWC9pN0xIYStuc2llNlRQWStHVzhwRjRrVmEra2U2MDNISmZwVXprVmlHdnI5RFJPOVN5YjVFRDBmSitmRWx3bTR5UGViWDhLQStvMEVuSlFmU3Q4Q05ITCtLdVcyOUp5RzBVQk9uRWhqVFhKbVNYSzg4SmxEZE81TDZDSG5UN09wL3F1aVNtTVVtdVhWK0JHYU40Sjl4bzl6VFhOcXlLY2JjK2x3SG4yVEhGcWl0eC90SjUzTElYU0RmQ3NJUW5sRC9qMGU2YnlicCtYSGNqdHA3Tjg0K2R2MDYvQk05dUlOS0ltTkFOc2hranh4R1pRZlVMeE5TOExUb3dCWVEraXJNSTlwM1ZINi9ZTjhoeUE1OXpMdXovM2VuOFFMZit6ZjBaLzhVQnJXVTMxYUQzU2RBaHBMb2Z3RThBNmxtNnp0UTFyM0lmMitRTDQ3bEFCbTBUYi9pTUpSK3A3Z1B2cDlZbmMwT0RrK0xlUWlleERzWjRqa2FtNVpWOG0zTXVuYlp3YVZaMWltWVJBZElQLzV4akVBK2IyOEwrQjVNbDFXNFUydzZpWTREdnJiR3JBd0NxUU85SUpwQzZoQWlFMEdrTDlSQk0rOG13TFdyOWlLa0pKRG9NSUFlRmEzL2dNMElLUUJQbWx2Qit4QVNOY0pBR1VNOERrRzZOZUQvZGZEZmpQQTJJWjdLR0JNSTVUR2oyU1lnRFl6dERkdlFjaWlvbWlRWVczN0J4aU5rQTM2MldCTmRtZ2JDMnR5T0FEckVJcXJCdnlJVUR6VXhYK0prQlBhT1NHL1RvRG5CSGhPTEVjb0NlWkpBbHBkUUp2ckc0VGM4TTU5RVNIUFlJUmE2UUJBbDlmNi93aXJtdUZVVXlRWC8zK082ajhBNkU4eStkdkYzUDhTT3JXZ0JTMW9RUXRhMElKYllsWUxXdENDRnJTZ0JTMW9RUXRhMElJV3RLQUZMV2hCQzFyUWdoYTBvQVV0YUVFTFd0Q0MveVdRLzQvSGNiZ1ZLa1REa0FJeHlJZ3l5SC8xeCs1blRZaEZ1RWNxSG9Rd3ZndVY0SUcwdkJzUFJsYmt3aVZRdXFEc2ozeTRIOVQzaFpLODc0YTY0YTVRZG9YMlhhQzhBNTVKbVlVNzdhcDJvUjd0Y1Nka0JEQVMyc01iSHlyRW1hZ0VWY01WQStUYWp0Q3ZBOVFhNElvQmNtMEcxRUtKM0hBdEJ6QUl3ZFV0M2FseCsxMFlsZFRqZHJ1NmthTHRiaFJ5VmZZdzRUd1lnS0E3RE5BTEJ1Z0paVS82bkF2UDNZVnhKU2lJZnlwdTdmcWhvTFhyKzRJMnJxc0ZXYTVsbHpkYzNubVpuWGhsMlJYbXlCVzg4UXAyWFNtN012RUtpeTRLRnhuTmhZS1E2OTlmcHJxKy9yS2I2NnN2azF5R0wzSGlGNThYdUF5ZlkrSHpBcnZycy9NRnJpUG4zejUvN2p3cm5QZGxGNXd2Y0xnT1lpdnFqczB3cjBYUWRXTkx6blg3cE9UVGJtZExVQTh6dGdORkJEWlkzazY0WWxpV0RSVURHRVQrK0RUR0ptRVFHM0o5Z3MrV3VNOFduNjArR3pqTEdjN2lkMncrVjlsckUxK2IvUnA3NUNoK3RUalZWWGtZdXc5M09OeHdtSzA4WEgyWU1SeDBIV1F5RHVZZW5IaHc1OEZ6Qi9uOUw2YTYzUFVkNm92cksrdXI2M255MTg0VDZpMjNGUmozWWZlKzRuM1Yrd0w3dU9xOWdiMk1ZWGZ1N2l1NzJYb2NJNlJ2TDNSVkI1WUhtRUNnSWZCT2dNM1ltYnVUMmZoaTRFV200Y1YzWG1ReWR1VHVZRGE4Z0J1MnY3T2Q2UkdERFNnVDYyRWRDSzVHZ0J2QXdpcU1nZzBYcnl0ZlY3bU9mWEoxcXV2dkJhbXVEbXVFTlF6UXNIdTFQYUdBMEtKZXJUY1ZQTE9xcTJ0akR6WE9SMTFCeCs2a1pRSE9GMXFQZGozaERMa01xM2F1T3JLS0ZWWWxkaXdRVnRtZGNORVpDZ3dyTTFibXJweTk4c3BLM25BQTY5QkVyQlBjeklxbHFhN0hCNFZjNTViakRzdXhhM25HY21iaTh0bkxHYlRNdU15OWpKWCszUHN5UjBLQnU3WkRMZE4vYWRuU2lVdlpEa3V3WVlsclNjWVNWbGhpdEJRWWoyQXRyRUtMT2dEWVVBUFc3b3AxRit3bk4wS3gwVnF3ZUc2cWExR2ZycTZGQzdxNUZqemExZlZZbjVCcnczeHNmTlQ5YUlkSDJRN3o4T3k1V0ppcjFoVlVnWHdtZ25JOUFJakhqcEk0bjZORTZXTkxGQ0RaY25oWEJ0Z2ZPbytWdTF5cEJkS040TElrRkl3WVd1aTZwNkNqYXhpVVE2RzBaSnBMZU15V2NKa3NhTHBxcjdPcnk4RGkvVGdPTzNabHVZUjZLR0piRjlSampaQUNBdzRzZHJxdURBZ05ZSVFCV2JjWENBTlNXaGU4WFl6UDljVjlDeEpkUlFXRnJ1SjY3QlJHNFQ0Z2o5NUFXQ0hnVHNET0FueXU0RW9CVTEyQVk3R3R4SjVwS3pGaFE0a3gwMURDd0U3RHNMOFNuS05kTGtPdW9jd3cyOEFaREJtRy9vYUpobVdHYzRhUVFaa0xkVmNNN0VRRVJnSnZ0R01lMStQbGRZTUhwYWNYMVN0REE0c0M2dUpoQWJ3d2tES0lYSVVCUXdPS2hRRlVNblJZYVIzR3RmNzVTNWVpbm9sRmdjeEJwWUh5Ukg5UllEVGNDT1NtR202TWlYVjIxTk5mTmJscThwUjArUWZUMnlxVW5qNTVNcFRTZy9RR2dOTERQNWc4NFBTcXlaT3JhQTMwZ0tmSjZWT2thM3BWVmJnamFRczNDS2FCNGFzbUk5SnBjbm9WcmtLa2dGNWtVdWlOSnlPcFd4VmN3bFBDU0NPcTB0R0lLdWx4QkhTQkVhcGtXaHBwRzFFbFUxb1ZubEg2Y1NEMGZ3RG54TVJaQ21WdVpITjBjbVZoYlFwbGJtUnZZbW9LTlRZZ01DQnZZbW9LUER3dlJHVnpZMlZ1ZENBdE1UZzRMME5oY0VobGFXZG9kQ0EyTlRndlUzUmxiVllnT0RBdlZIbHdaUzlHYjI1MFJHVnpZM0pwY0hSdmNpOUdiMjUwUm1sc1pUSWdOVFVnTUNCU0wwWnNZV2R6SURNekwwWnZiblJDUW05NFd5MDBPREVnTFRNd01DQTNORElnT1Rnd1hTOUdiMjUwVG1GdFpTOU1SVlphVUZZclRHbGlaWEpoZEdsdmJrMXZibTh2U1hSaGJHbGpRVzVuYkdVZ01DOUJjMk5sYm5RZ05qRXlMME5KUkZObGRDQTFOQ0F3SUZJK1BncGxibVJ2WW1vS05UY2dNQ0J2WW1vS1BEd3ZSRmNnTVRBd01DOVRkV0owZVhCbEwwTkpSRVp2Ym5SVWVYQmxNaTlEU1VSVGVYTjBaVzFKYm1adlBEd3ZVM1Z3Y0d4bGJXVnVkQ0F3TDFKbFoybHpkSEo1S0VGa2IySmxLUzlQY21SbGNtbHVaeWhKWkdWdWRHbDBlU2srUGk5VWVYQmxMMFp2Ym5RdlFtRnpaVVp2Ym5RdlRFVldXbEJXSzB4cFltVnlZWFJwYjI1TmIyNXZMMFp2Ym5SRVpYTmpjbWx3ZEc5eUlEVTJJREFnVWk5WElGc3pXell3TUYwMVd6WXdNRjB4TUZzMk1EQWdOakF3SURZd01GMHhOVnMyTURBZ05qQXdJRFl3TUNBMk1EQWdOakF3SURZd01DQTJNREFnTmpBd1hUSTBXell3TUNBMk1EQWdOakF3SURZd01DQTJNREFnTmpBd1hUTTJXell3TUNBMk1EQWdOakF3SURZd01DQTJNREFnTmpBd0lEWXdNQ0EyTURBZ05qQXdJRFl3TUNBMk1EQWdOakF3WFRRNVd6WXdNQ0EyTURBZ05qQXdYVFV6V3pZd01DQTJNREFnTmpBd0lEWXdNRjAxT0ZzMk1EQmROakJiTmpBd1hUWTRXell3TUNBMk1EQWdOakF3SURZd01DQTJNREFnTmpBd0lEWXdNQ0EyTURBZ05qQXdJRFl3TUNBMk1EQWdOakF3SURZd01DQTJNREFnTmpBd0lEWXdNQ0EyTURBZ05qQXdJRFl3TUNBMk1EQWdOakF3SURZd01DQTJNREFnTmpBd0lEWXdNRjB4TVRSYk5qQXdYVEUyTWxzMk1EQmRNVFk1V3pZd01DQTJNREFnTmpBd1hURTRPVnMyTURCZFhTOURTVVJVYjBkSlJFMWhjQzlKWkdWdWRHbDBlVDQrQ21WdVpHOWlhZ28xT0NBd0lHOWlhZ284UEM5R2FXeDBaWEl2Um14aGRHVkVaV052WkdVdlRHVnVaM1JvSURVNU56NCtjM1J5WldGdENuaWNYWlZMaTl0QUVJVHYraFU2SnVSZ3E2ZG54Z1pUbDRUQUh2SWd1d201NmpGYURMRXNaTzloLzMza0xxY1hZdkFIS25sRzFWVjR0UG40OE9saE9sN3J6ZmZsM0QrV2F6MGVwMkVwbC9QTDBwZTZLOC9IcVdxa0hvNzk5WDVsN0UvdFhHM1d4WSt2bDJzNVBVemp1VG9jNnMyUDllYmx1cnpXNzU2ZWZuL1l2cTgyMzVhaExNZnBlVlZVZnY1YWxjZVhlZjVUVG1XNjF0c0txSWN5cmx0OWFlZXY3YW5VRzF2NEpqNjl6cVVXdTI3b29EOFA1VEszZlZuYTZibFVoKzM2d2VIeitrRlZwdUcvMi9tK3FodmZmaDdnbEMxTWluQ0tVR3JobEV5cGcxTjJsSG80WlU5cGhGTjZrNW90bkRKUWF1Q1VRa25nbEpHU21TUURyVFlLWjJnb21XOHkwSDJUNEF5QjBnN09FQ250NFF5SmtnMU1CbzdkMk1CazROaU5EVXdHanQwTWNJYldKREdUcE5LcU1HS2owcXFZU1ZKcGRjM2JxVXBwQjZmU3ZlemhWTG9YMW1WVXVoZldaVlM2bHg1T3BYc1o0TlM3K3dLbmRwUkdPSlhWaGdaT1pZOUI0RlQyR0FLY2tUMkdDR2RrRWlIQkdabEV5SEJHSmhGMmNFWW1FVm80SThjTzdNWVlPYU1xbklsMWFJUXowWVFtT0JOTmFJWXowWVR1NEV3MG9YczRFK3ZRRnM1RVg5ckJtVmlIOW5DbXUxVVdZVXlzUXd1Y2lYWG9DR2RpSFhFTForSS9MVm8zWkdKRFVlQk1iQ2dHT0RNYmlncG5abDR4d3BtWlYyUmR4c3k4WW9Zek02L0l1b3laZWNVOW5KbDVSVFpvek13cldsSmtabDZScFJvejg4b0NaMGYzclYyUTVTN1pzOGpDN1Z0N0ZsbTRmV3ZQSWd1Mzc2d0ljdXpzbVAxM250NU8zTnZMd0Evdy9tVloxclBkM2hoMmd0L083dU5VL0tVeW4rZmJxbnI5Vm44Qnp5T0hpUXBsYm1SemRISmxZVzBLWlc1a2IySnFDamdnTUNCdlltb0tQRHd2VTNWaWRIbHdaUzlVZVhCbE1DOVVlWEJsTDBadmJuUXZRbUZ6WlVadmJuUXZURVZXV2xCV0sweHBZbVZ5WVhScGIyNU5iMjV2TDBWdVkyOWthVzVuTDBsa1pXNTBhWFI1TFVndlJHVnpZMlZ1WkdGdWRFWnZiblJ6V3pVM0lEQWdVbDB2Vkc5VmJtbGpiMlJsSURVNElEQWdVajQrQ21WdVpHOWlhZ28wT0NBd0lHOWlhZ284UEM5TGFXUnpXelVnTUNCU1hTOVVlWEJsTDFCaFoyVnpMME52ZFc1MElERStQZ3BsYm1Sdlltb0tOVGtnTUNCdlltb0tQRHd2VG1GdFpYTmJLRXBTWDFCQlIwVmZRVTVEU0U5U1h6QmZNU2tnTkRrZ01DQlNYVDQrQ21WdVpHOWlhZ28yTUNBd0lHOWlhZ284UEM5RVpYTjBjeUExT1NBd0lGSStQZ3BsYm1Sdlltb0tOakVnTUNCdlltb0tXelFnTUNCU0lEY2dNQ0JTSURrZ01DQlNJREV3SURBZ1VpQXhNU0F3SUZJZ01USWdNQ0JTSURFeklEQWdVaUF4TkNBd0lGSWdNVFVnTUNCU0lERTJJREFnVWlBeE55QXdJRklnTVRnZ01DQlNJREU1SURBZ1VpQXlNQ0F3SUZJZ01qRWdNQ0JTSURJeUlEQWdVaUF5TXlBd0lGSWdNalFnTUNCU0lESTFJREFnVWlBeU5pQXdJRklnTWpjZ01DQlNJREk0SURBZ1VpQXlPU0F3SUZJZ016QWdNQ0JTSURNeElEQWdVaUF6TWlBd0lGSWdNek1nTUNCU0lETTBJREFnVWlBek5TQXdJRklnTXpZZ01DQlNJRE0zSURBZ1VpQXpPQ0F3SUZJZ016a2dNQ0JTSURRd0lEQWdVaUEwTVNBd0lGSWdORElnTUNCU0lEUXpJREFnVWlBME5DQXdJRklnTkRVZ01DQlNJRFEySURBZ1VsMEtaVzVrYjJKcUNqWXlJREFnYjJKcUNqdzhMMDUxYlhOYk1DQTJNU0F3SUZKZFBqNEtaVzVrYjJKcUNqUWdNQ0J2WW1vS1BEd3ZVQ0F6SURBZ1VpOVRMMEZ1WTJodmNpOVFaeUExSURBZ1VpOVVlWEJsTDFOMGNuVmpkRVZzWlcwdlN5QXdQajRLWlc1a2IySnFDamNnTUNCdlltb0tQRHd2VUNBeklEQWdVaTlUTDFSbGVIUXZVR2NnTlNBd0lGSXZWSGx3WlM5VGRISjFZM1JGYkdWdEwwc2dNVDQrQ21WdVpHOWlhZ281SURBZ2IySnFDanc4TDFBZ015QXdJRkl2VXk5VVpYaDBMMUJuSURVZ01DQlNMMVI1Y0dVdlUzUnlkV04wUld4bGJTOUxJREkrUGdwbGJtUnZZbW9LTVRBZ01DQnZZbW9LUER3dlVDQXpJREFnVWk5VEwxUmxlSFF2VUdjZ05TQXdJRkl2Vkhsd1pTOVRkSEoxWTNSRmJHVnRMMHNnTXo0K0NtVnVaRzlpYWdveE1TQXdJRzlpYWdvOFBDOVFJRE1nTUNCU0wxTXZWR1Y0ZEM5UVp5QTFJREFnVWk5VWVYQmxMMU4wY25WamRFVnNaVzB2U3lBMFBqNEtaVzVrYjJKcUNqRXlJREFnYjJKcUNqdzhMMUFnTXlBd0lGSXZVeTlVWlhoMEwxQm5JRFVnTUNCU0wxUjVjR1V2VTNSeWRXTjBSV3hsYlM5TElEVStQZ3BsYm1Sdlltb0tNVE1nTUNCdlltb0tQRHd2VUNBeklEQWdVaTlUTDFSbGVIUXZVR2NnTlNBd0lGSXZWSGx3WlM5VGRISjFZM1JGYkdWdEwwc2dOajQrQ21WdVpHOWlhZ294TkNBd0lHOWlhZ284UEM5UUlETWdNQ0JTTDFNdlZHVjRkQzlRWnlBMUlEQWdVaTlVZVhCbEwxTjBjblZqZEVWc1pXMHZTeUEzUGo0S1pXNWtiMkpxQ2pFMUlEQWdiMkpxQ2p3OEwxQWdNeUF3SUZJdlV5OVVaWGgwTDFCbklEVWdNQ0JTTDFSNWNHVXZVM1J5ZFdOMFJXeGxiUzlMSURnK1BncGxibVJ2WW1vS01UWWdNQ0J2WW1vS1BEd3ZVQ0F6SURBZ1VpOVRMMVJsZUhRdlVHY2dOU0F3SUZJdlZIbHdaUzlUZEhKMVkzUkZiR1Z0TDBzZ09UNCtDbVZ1Wkc5aWFnb3hOeUF3SUc5aWFnbzhQQzlRSURNZ01DQlNMMU12VkdWNGRDOVFaeUExSURBZ1VpOVVlWEJsTDFOMGNuVmpkRVZzWlcwdlN5QXhNRDQrQ21WdVpHOWlhZ294T0NBd0lHOWlhZ284UEM5UUlETWdNQ0JTTDFNdlZHVjRkQzlRWnlBMUlEQWdVaTlVZVhCbEwxTjBjblZqZEVWc1pXMHZTeUF4TVQ0K0NtVnVaRzlpYWdveE9TQXdJRzlpYWdvOFBDOVFJRE1nTUNCU0wxTXZWR1Y0ZEM5UVp5QTFJREFnVWk5VWVYQmxMMU4wY25WamRFVnNaVzB2U3lBeE1qNCtDbVZ1Wkc5aWFnb3lNQ0F3SUc5aWFnbzhQQzlRSURNZ01DQlNMMU12VkdWNGRDOVFaeUExSURBZ1VpOVVlWEJsTDFOMGNuVmpkRVZzWlcwdlN5QXhNejQrQ21WdVpHOWlhZ295TVNBd0lHOWlhZ284UEM5UUlETWdNQ0JTTDFNdlZHVjRkQzlRWnlBMUlEQWdVaTlVZVhCbEwxTjBjblZqZEVWc1pXMHZTeUF4TkQ0K0NtVnVaRzlpYWdveU1pQXdJRzlpYWdvOFBDOVFJRE1nTUNCU0wxTXZWR1Y0ZEM5UVp5QTFJREFnVWk5VWVYQmxMMU4wY25WamRFVnNaVzB2U3lBeE5UNCtDbVZ1Wkc5aWFnb3lNeUF3SUc5aWFnbzhQQzlRSURNZ01DQlNMMU12VkdWNGRDOVFaeUExSURBZ1VpOVVlWEJsTDFOMGNuVmpkRVZzWlcwdlN5QXhOajQrQ21WdVpHOWlhZ295TkNBd0lHOWlhZ284UEM5UUlETWdNQ0JTTDFNdlZHVjRkQzlRWnlBMUlEQWdVaTlVZVhCbEwxTjBjblZqZEVWc1pXMHZTeUF4Tno0K0NtVnVaRzlpYWdveU5TQXdJRzlpYWdvOFBDOVFJRE1nTUNCU0wxTXZWR1Y0ZEM5UVp5QTFJREFnVWk5VWVYQmxMMU4wY25WamRFVnNaVzB2U3lBeE9ENCtDbVZ1Wkc5aWFnb3lOaUF3SUc5aWFnbzhQQzlRSURNZ01DQlNMMU12VkdWNGRDOVFaeUExSURBZ1VpOVVlWEJsTDFOMGNuVmpkRVZzWlcwdlN5QXhPVDQrQ21WdVpHOWlhZ295TnlBd0lHOWlhZ284UEM5UUlETWdNQ0JTTDFNdlZHVjRkQzlRWnlBMUlEQWdVaTlVZVhCbEwxTjBjblZqZEVWc1pXMHZTeUF5TUQ0K0NtVnVaRzlpYWdveU9DQXdJRzlpYWdvOFBDOVFJRE1nTUNCU0wxTXZWR1Y0ZEM5UVp5QTFJREFnVWk5VWVYQmxMMU4wY25WamRFVnNaVzB2U3lBeU1UNCtDbVZ1Wkc5aWFnb3lPU0F3SUc5aWFnbzhQQzlRSURNZ01DQlNMMU12VkdWNGRDOVFaeUExSURBZ1VpOVVlWEJsTDFOMGNuVmpkRVZzWlcwdlN5QXlNajQrQ21WdVpHOWlhZ296TUNBd0lHOWlhZ284UEM5UUlETWdNQ0JTTDFNdlZHVjRkQzlRWnlBMUlEQWdVaTlVZVhCbEwxTjBjblZqZEVWc1pXMHZTeUF5TXo0K0NtVnVaRzlpYWdvek1TQXdJRzlpYWdvOFBDOVFJRE1nTUNCU0wxTXZWR1Y0ZEM5UVp5QTFJREFnVWk5VWVYQmxMMU4wY25WamRFVnNaVzB2U3lBeU5ENCtDbVZ1Wkc5aWFnb3pNaUF3SUc5aWFnbzhQQzlRSURNZ01DQlNMMU12VkdWNGRDOVFaeUExSURBZ1VpOVVlWEJsTDFOMGNuVmpkRVZzWlcwdlN5QXlOVDQrQ21WdVpHOWlhZ296TXlBd0lHOWlhZ284UEM5UUlETWdNQ0JTTDFNdlZHVjRkQzlRWnlBMUlEQWdVaTlVZVhCbEwxTjBjblZqZEVWc1pXMHZTeUF5Tmo0K0NtVnVaRzlpYWdvek5DQXdJRzlpYWdvOFBDOVFJRE1nTUNCU0wxTXZWR1Y0ZEM5UVp5QTFJREFnVWk5VWVYQmxMMU4wY25WamRFVnNaVzB2U3lBeU56NCtDbVZ1Wkc5aWFnb3pOU0F3SUc5aWFnbzhQQzlRSURNZ01DQlNMMU12VkdWNGRDOVFaeUExSURBZ1VpOVVlWEJsTDFOMGNuVmpkRVZzWlcwdlN5QXlPRDQrQ21WdVpHOWlhZ296TmlBd0lHOWlhZ284UEM5UUlETWdNQ0JTTDFNdlZHVjRkQzlRWnlBMUlEQWdVaTlVZVhCbEwxTjBjblZqZEVWc1pXMHZTeUF5T1Q0K0NtVnVaRzlpYWdvek55QXdJRzlpYWdvOFBDOVFJRE1nTUNCU0wxTXZWR1Y0ZEM5UVp5QTFJREFnVWk5VWVYQmxMMU4wY25WamRFVnNaVzB2U3lBek1ENCtDbVZ1Wkc5aWFnb3pPQ0F3SUc5aWFnbzhQQzlRSURNZ01DQlNMMU12VkdWNGRDOVFaeUExSURBZ1VpOVVlWEJsTDFOMGNuVmpkRVZzWlcwdlN5QXpNVDQrQ21WdVpHOWlhZ296T1NBd0lHOWlhZ284UEM5UUlETWdNQ0JTTDFNdlZHVjRkQzlRWnlBMUlEQWdVaTlVZVhCbEwxTjBjblZqZEVWc1pXMHZTeUF6TWo0K0NtVnVaRzlpYWdvME1DQXdJRzlpYWdvOFBDOVFJRE1nTUNCU0wxTXZWR1Y0ZEM5UVp5QTFJREFnVWk5VWVYQmxMMU4wY25WamRFVnNaVzB2U3lBek16NCtDbVZ1Wkc5aWFnbzBNU0F3SUc5aWFnbzhQQzlRSURNZ01DQlNMMU12VkdWNGRDOVFaeUExSURBZ1VpOVVlWEJsTDFOMGNuVmpkRVZzWlcwdlN5QXpORDQrQ21WdVpHOWlhZ28wTWlBd0lHOWlhZ284UEM5UUlETWdNQ0JTTDFNdlZHVjRkQzlRWnlBMUlEQWdVaTlVZVhCbEwxTjBjblZqZEVWc1pXMHZTeUF6TlQ0K0NtVnVaRzlpYWdvME15QXdJRzlpYWdvOFBDOVFJRE1nTUNCU0wxTXZWR1Y0ZEM5UVp5QTFJREFnVWk5VWVYQmxMMU4wY25WamRFVnNaVzB2U3lBek5qNCtDbVZ1Wkc5aWFnbzBOQ0F3SUc5aWFnbzhQQzlRSURNZ01DQlNMMU12VkdWNGRDOVFaeUExSURBZ1VpOVVlWEJsTDFOMGNuVmpkRVZzWlcwdlN5QXpOejQrQ21WdVpHOWlhZ28wTlNBd0lHOWlhZ284UEM5UUlETWdNQ0JTTDFNdlZHVjRkQzlRWnlBMUlEQWdVaTlVZVhCbEwxTjBjblZqZEVWc1pXMHZTeUF6T0Q0K0NtVnVaRzlpYWdvME5pQXdJRzlpYWdvOFBDOVFJRE1nTUNCU0wxTXZWR1Y0ZEM5UVp5QTFJREFnVWk5VWVYQmxMMU4wY25WamRFVnNaVzB2U3lBek9UNCtDbVZ1Wkc5aWFnb3pJREFnYjJKcUNqdzhMMUFnTWlBd0lGSXZVeTlCYkd3dlZIbHdaUzlUZEhKMVkzUkZiR1Z0TDB0Yk5DQXdJRklnTnlBd0lGSWdPU0F3SUZJZ01UQWdNQ0JTSURFeElEQWdVaUF4TWlBd0lGSWdNVE1nTUNCU0lERTBJREFnVWlBeE5TQXdJRklnTVRZZ01DQlNJREUzSURBZ1VpQXhPQ0F3SUZJZ01Ua2dNQ0JTSURJd0lEQWdVaUF5TVNBd0lGSWdNaklnTUNCU0lESXpJREFnVWlBeU5DQXdJRklnTWpVZ01DQlNJREkySURBZ1VpQXlOeUF3SUZJZ01qZ2dNQ0JTSURJNUlEQWdVaUF6TUNBd0lGSWdNekVnTUNCU0lETXlJREFnVWlBek15QXdJRklnTXpRZ01DQlNJRE0xSURBZ1VpQXpOaUF3SUZJZ016Y2dNQ0JTSURNNElEQWdVaUF6T1NBd0lGSWdOREFnTUNCU0lEUXhJREFnVWlBME1pQXdJRklnTkRNZ01DQlNJRFEwSURBZ1VpQTBOU0F3SUZJZ05EWWdNQ0JTWFQ0K0NtVnVaRzlpYWdveUlEQWdiMkpxQ2p3OEwxSnZiR1ZOWVhBOFBDOVVaWGgwTDFOd1lXNHZRV3hzTDFObFkzUXZTVzFoWjJVdlJtbG5kWEpsTDBGdVkyaHZjaTlPYjI1VGRISjFZM1ErUGk5VWVYQmxMMU4wY25WamRGUnlaV1ZTYjI5MEwwdGJNeUF3SUZKZEwxQmhjbVZ1ZEZSeVpXVWdOaklnTUNCU1BqNEtaVzVrYjJKcUNqWXpJREFnYjJKcUNqdzhMMU4xWW5SNWNHVXZXRTFNTDFSNWNHVXZUV1YwWVdSaGRHRXZUR1Z1WjNSb0lESTRPRGsrUG5OMGNtVmhiUW84UDNod1lXTnJaWFFnWW1WbmFXNDlJdSs3dnlJZ2FXUTlJbGMxVFRCTmNFTmxhR2xJZW5KbFUzcE9WR042YTJNNVpDSS9QZ284ZURwNGJYQnRaWFJoSUhodGJHNXpPbmc5SW1Ga2IySmxPbTV6T20xbGRHRXZJajRLUEhKa1pqcFNSRVlnZUcxc2JuTTZjbVJtUFNKb2RIUndPaTh2ZDNkM0xuY3pMbTl5Wnk4eE9UazVMekF5THpJeUxYSmtaaTF6ZVc1MFlYZ3Ribk1qSWo0S1BISmtaanBFWlhOamNtbHdkR2x2YmlCeVpHWTZZV0p2ZFhROUlpSWdlRzFzYm5NNlpHTTlJbWgwZEhBNkx5OXdkWEpzTG05eVp5OWtZeTlsYkdWdFpXNTBjeTh4TGpFdklqNDhaR002Wm05eWJXRjBQbUZ3Y0d4cFkyRjBhVzl1TDNCa1pqd3ZaR002Wm05eWJXRjBQand2Y21SbU9rUmxjMk55YVhCMGFXOXVQZ284Y21SbU9rUmxjMk55YVhCMGFXOXVJSEprWmpwaFltOTFkRDBpSWlCNGJXeHVjenB3WkdZOUltaDBkSEE2THk5dWN5NWhaRzlpWlM1amIyMHZjR1JtTHpFdU15OGlQanh3WkdZNlVISnZaSFZqWlhJK1QzQmxibEJFUmlBeExqTXVNekk4TDNCa1pqcFFjbTlrZFdObGNqNDhMM0prWmpwRVpYTmpjbWx3ZEdsdmJqNEtQSEprWmpwRVpYTmpjbWx3ZEdsdmJpQnlaR1k2WVdKdmRYUTlJaUlnZUcxc2JuTTZlRzF3UFNKb2RIUndPaTh2Ym5NdVlXUnZZbVV1WTI5dEwzaGhjQzh4TGpBdklqNDhlRzF3T2tOeVpXRjBaVVJoZEdVK01qQXlOUzB4TVMweE9WUXhNam94TWpvd01pc3dNVG93TUR3dmVHMXdPa055WldGMFpVUmhkR1UrUEhodGNEcERjbVZoZEc5eVZHOXZiRDVLWVhOd1pYSlNaWEJ2Y25SeklFeHBZbkpoY25rZ2RtVnljMmx2YmlBMkxqSXhMalF0TlRVM1pqTTFZekl3TlRVNE1tTXhPV1ZsTUdGa01qVmpZalZrWkdObE16azJZbUZsTmpGak1Ed3ZlRzF3T2tOeVpXRjBiM0pVYjI5c1Bqd3ZjbVJtT2tSbGMyTnlhWEIwYVc5dVBnbzhjbVJtT2tSbGMyTnlhWEIwYVc5dUlISmtaanBoWW05MWREMGlJaUI0Yld4dWN6cHdaR1poYVdROUltaDBkSEE2THk5M2QzY3VZV2xwYlM1dmNtY3ZjR1JtWVM5dWN5OXBaQzhpUGp4d1pHWmhhV1E2WTI5dVptOXliV0Z1WTJVK1FUd3ZjR1JtWVdsa09tTnZibVp2Y20xaGJtTmxQanh3WkdaaGFXUTZjR0Z5ZEQ0eFBDOXdaR1poYVdRNmNHRnlkRDQ4TDNKa1pqcEVaWE5qY21sd2RHbHZiajRLUEM5eVpHWTZVa1JHUGp3dmVEcDRiWEJ0WlhSaFBnb2dJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQUtJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdDaUFnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQW9nSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FLSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnQ2lBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUFvZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBS0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0NpQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lBb2dJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQUtJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdDaUFnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQW9nSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FLSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnQ2lBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUFvZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBS0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0NpQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lBb2dJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQUtJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdJQ0FnSUNBZ0lDQWdDancvZUhCaFkydGxkQ0JsYm1ROUluY2lQejRLWlc1a2MzUnlaV0Z0Q21WdVpHOWlhZ28yTkNBd0lHOWlhZ284UEM5UGRYUndkWFJKYm5SbGJuUnpXenc4TDBsdVptOG9jMUpIUWlCSlJVTTJNVGsyTmkweUxqRXBMMU12UjFSVFgxQkVSa0V4TDFSNWNHVXZUM1YwY0hWMFNXNTBaVzUwTDA5MWRIQjFkRU52Ym1ScGRHbHZia2xrWlc1MGFXWnBaWElvYzFKSFFpQkpSVU0yTVRrMk5pMHlMakVwTDBSbGMzUlBkWFJ3ZFhSUWNtOW1hV3hsSURFZ01DQlNQajVkTDA1aGJXVnpJRFl3SURBZ1VpOU5aWFJoWkdGMFlTQTJNeUF3SUZJdlZIbHdaUzlEWVhSaGJHOW5MMU4wY25WamRGUnlaV1ZTYjI5MElESWdNQ0JTTDAxaGNtdEpibVp2UER3dlRXRnlhMlZrSUhSeWRXVStQaTlRWVdkbGN5QTBPQ0F3SUZJdlZtbGxkMlZ5VUhKbFptVnlaVzVqWlhNOFBDOVFjbWx1ZEZOallXeHBibWN2UVhCd1JHVm1ZWFZzZEQ0K1BqNEtaVzVrYjJKcUNqWTFJREFnYjJKcUNqdzhMME55WldGMGIzSW9TbUZ6Y0dWeVVtVndiM0owY3lCTWFXSnlZWEo1SUhabGNuTnBiMjRnTmk0eU1TNDBMVFUxTjJZek5XTXlNRFUxT0RKak1UbGxaVEJoWkRJMVkySTFaR1JqWlRNNU5tSmhaVFl4WXpBcEwwTnlaV0YwYVc5dVJHRjBaU2hFT2pJd01qVXhNVEU1TVRJeE1qQXlLekF4SnpBd0p5a3ZVSEp2WkhWalpYSW9UM0JsYmxCRVJpQXhMak11TXpJcFBqNEtaVzVrYjJKcUNuaHlaV1lLTUNBMk5nb3dNREF3TURBd01EQXdJRFkxTlRNMUlHWWdDakF3TURBd01EQXdNVFVnTURBd01EQWdiaUFLTURBd01EQXlPVE0zTlNBd01EQXdNQ0J1SUFvd01EQXdNREk1TURRMUlEQXdNREF3SUc0Z0NqQXdNREF3TWpZME1UWWdNREF3TURBZ2JpQUtNREF3TURBd09EY3dOU0F3TURBd01DQnVJQW93TURBd01ERXdOekU1SURBd01EQXdJRzRnQ2pBd01EQXdNalkwT0RJZ01EQXdNREFnYmlBS01EQXdNREF5TlRnd055QXdNREF3TUNCdUlBb3dNREF3TURJMk5UUTJJREF3TURBd0lHNGdDakF3TURBd01qWTJNVEFnTURBd01EQWdiaUFLTURBd01EQXlOalkzTlNBd01EQXdNQ0J1SUFvd01EQXdNREkyTnpRd0lEQXdNREF3SUc0Z0NqQXdNREF3TWpZNE1EVWdNREF3TURBZ2JpQUtNREF3TURBeU5qZzNNQ0F3TURBd01DQnVJQW93TURBd01ESTJPVE0xSURBd01EQXdJRzRnQ2pBd01EQXdNamN3TURBZ01EQXdNREFnYmlBS01EQXdNREF5TnpBMk5TQXdNREF3TUNCdUlBb3dNREF3TURJM01UTXhJREF3TURBd0lHNGdDakF3TURBd01qY3hPVGNnTURBd01EQWdiaUFLTURBd01EQXlOekkyTXlBd01EQXdNQ0J1SUFvd01EQXdNREkzTXpJNUlEQXdNREF3SUc0Z0NqQXdNREF3TWpjek9UVWdNREF3TURBZ2JpQUtNREF3TURBeU56UTJNU0F3TURBd01DQnVJQW93TURBd01ESTNOVEkzSURBd01EQXdJRzRnQ2pBd01EQXdNamMxT1RNZ01EQXdNREFnYmlBS01EQXdNREF5TnpZMU9TQXdNREF3TUNCdUlBb3dNREF3TURJM056STFJREF3TURBd0lHNGdDakF3TURBd01qYzNPVEVnTURBd01EQWdiaUFLTURBd01EQXlOemcxTnlBd01EQXdNQ0J1SUFvd01EQXdNREkzT1RJeklEQXdNREF3SUc0Z0NqQXdNREF3TWpjNU9Ea2dNREF3TURBZ2JpQUtNREF3TURBeU9EQTFOU0F3TURBd01DQnVJQW93TURBd01ESTRNVEl4SURBd01EQXdJRzRnQ2pBd01EQXdNamd4T0RjZ01EQXdNREFnYmlBS01EQXdNREF5T0RJMU15QXdNREF3TUNCdUlBb3dNREF3TURJNE16RTVJREF3TURBd0lHNGdDakF3TURBd01qZ3pPRFVnTURBd01EQWdiaUFLTURBd01EQXlPRFExTVNBd01EQXdNQ0J1SUFvd01EQXdNREk0TlRFM0lEQXdNREF3SUc0Z0NqQXdNREF3TWpnMU9ETWdNREF3TURBZ2JpQUtNREF3TURBeU9EWTBPU0F3TURBd01DQnVJQW93TURBd01ESTROekUxSURBd01EQXdJRzRnQ2pBd01EQXdNamczT0RFZ01EQXdNREFnYmlBS01EQXdNREF5T0RnME55QXdNREF3TUNCdUlBb3dNREF3TURJNE9URXpJREF3TURBd0lHNGdDakF3TURBd01qZzVOemtnTURBd01EQWdiaUFLTURBd01EQXdOek13TnlBd01EQXdNQ0J1SUFvd01EQXdNREkxT1RReklEQXdNREF3SUc0Z0NqQXdNREF3TURnNE56SWdNREF3TURBZ2JpQUtNREF3TURBd09Ea3dPQ0F3TURBd01DQnVJQW93TURBd01EQTRPVFUySURBd01EQXdJRzRnQ2pBd01EQXdNVEF6TVRNZ01EQXdNREFnYmlBS01EQXdNREF4TURVeE55QXdNREF3TUNCdUlBb3dNREF3TURFd09EUXdJREF3TURBd0lHNGdDakF3TURBd01UQTVNemNnTURBd01EQWdiaUFLTURBd01EQXlORFF3TlNBd01EQXdNQ0J1SUFvd01EQXdNREkwTmpBMklEQXdNREF3SUc0Z0NqQXdNREF3TWpVeE5ESWdNREF3TURBZ2JpQUtNREF3TURBeU5UazVOU0F3TURBd01DQnVJQW93TURBd01ESTJNRFV4SURBd01EQXdJRzRnQ2pBd01EQXdNall3T0RVZ01EQXdNREFnYmlBS01EQXdNREF5TmpNNE1DQXdNREF3TUNCdUlBb3dNREF3TURJNU5UQXpJREF3TURBd0lHNGdDakF3TURBd016STBOamdnTURBd01EQWdiaUFLTURBd01EQXpNamMzT1NBd01EQXdNQ0J1SUFwMGNtRnBiR1Z5Q2p3OEwwbHVabThnTmpVZ01DQlNMMGxFSUZzOE9ESmxOelJsT0RFeU4yUXpaRGhrTXpjellqQXpPVE5qTkRrNU1qVTVPVEUrUERneVpUYzBaVGd4TWpka00yUTRaRE0zTTJJd016a3pZelE1T1RJMU9Ua3hQbDB2VW05dmRDQTJOQ0F3SUZJdlUybDZaU0EyTmo0K0NuTjBZWEowZUhKbFpnb3pNamsxTUFvbEpVVlBSZ289XCIsXCJuYlBhZ2VzXCI6MX19Ig== ] 
+Hibernate: 
+    select
+        * 
+    from
+        preuve_signature ps 
+    WHERE
+        ps.preuve -> 'donneesFonctionnelles' ->> 'idActeMention' = cast(? as text)
+Hibernate: 
+    update
+        preuve_signature 
+    set
+        date_export=?,
+        preuve=? 
+    where
+        id_preuve_signature=?
+2025-11-19 12:12:02,496|[http-nio-8091-exec-2]|WARN|NO_TID|NO_USER|fr.gouv.diplomatie.rece.commun.api.filters.LogDureeEndpointFilter|La durée de l'appel au endpoint /rece-etatcivil-api/v1/acte/b41079a3-9e8d-478c-b04c-c4c2ac47134f/double-numerique/composer-document-final est supérieure à 300ms: 610ms  
+Hibernate: 
+    select
+        aje1_0.id_acte,
+        aje1_0.acte_etranger,
+        am1_0.id_acte,
+        am1_0.id_analyse_marginale,
+        am1_0.date_debut,
+        am1_0.date_fin,
+        am1_0.est_valide,
+        am1_0.motif_modification,
+        am1_0.nom_oec,
+        am1_0.prenom_oec,
+        am1_0.titulaires,
+        aje1_0.annee_registre_electronique,
+        aje1_0.conteneur_stockage_acte_signe,
+        cer1_0.id_acte,
+        cer1_0.id_corps_extrait_rectification,
+        cer1_0.texte,
+        cer1_0.type,
+        ct1_0.id_corps_texte,
+        ct1_0.id_acte,
+        ct1_0.texte,
+        aje1_0.date_creation,
+        aje1_0.date_initialisation_projet,
+        aje1_0.date_statut,
+        aje1_0.declarant,
+        dm1_0.id_detail_mariage,
+        dm1_0.id_acte,
+        dm1_0.contrat,
+        dm1_0.existence_contrat,
+        aje1_0.est_reecrit,
+        e1_0.id_evenement,
+        e1_0.annee,
+        e1_0.annee_fin,
+        e1_0.arrondissement,
+        e1_0.date_creation,
+        e1_0.date_maj,
+        e1_0.heure,
+        e1_0.heure_fin,
+        e1_0.jour,
+        e1_0.jour_fin,
+        e1_0.lieu_reprise,
+        e1_0.minute,
+        e1_0.minute_fin,
+        e1_0.mois,
+        e1_0.mois_fin,
+        e1_0.pays,
+        e1_0.preposition_date,
+        e1_0.preposition_heure,
+        e1_0.preposition_lieu,
+        e1_0.region,
+        e1_0.ville,
+        e1_0.voie,
+        aje1_0.id_formule_finale,
+        m1_0.id_acte,
+        m1_0.id_mention,
+        m1_0.date_apposition,
+        m1_0.date_creation,
+        m1_0.date_statut,
+        m1_0.id_document_mentions,
+        m1_0.id_evenement,
+        m1_0.libelle_date_deces_non_etablie,
+        m1_0.libelle_rectification,
+        m1_0.maj_regime_matrimonial,
+        m1_0.mention_infos,
+        m1_0.numero_ordre,
+        m1_0.numero_ordre_extrait,
+        m1_0.origine,
+        m1_0.region_apposition,
+        m1_0.statut,
+        m1_0.id_type_mention,
+        m1_0.type_personne_concernee,
+        m1_0.type_reconnaissance,
+        m1_0.ville_apposition,
+        aje1_0.mode_creation,
+        aje1_0.motif_annulation,
+        aje1_0.nature,
+        aje1_0.nom_oec,
+        aje1_0.numero,
+        aje1_0.numero_acte_electronique,
+        aje1_0.numero_bis_ter,
+        aje1_0.numero_dossier_national,
+        aje1_0.numero_projet,
+        aje1_0.origine,
+        aje1_0.id_phrase_signature,
+        aje1_0.prenom_oec,
+        aje1_0.reference_stockage_acte_signe,
+        rp1_0.id_registre_papier,
+        rp1_0.annee,
+        rp1_0.decret_2017,
+        rp1_0.famille,
+        rp1_0.pocopa,
+        rp1_0.support_1,
+        rp1_0.support_2,
+        rp1_0.id_type_registre,
+        aje1_0.statut,
+        aje1_0.titulaires,
+        aje1_0.type,
+        aje1_0.id_type_registre,
+        aje1_0.visible_archiviste 
+    from
+        acte aje1_0 
+    left join
+        corps_texte ct1_0 
+            on aje1_0.id_acte=ct1_0.id_acte 
+    left join
+        evenement e1_0 
+            on e1_0.id_evenement=aje1_0.id_evenement 
+    left join
+        mention m1_0 
+            on aje1_0.id_acte=m1_0.id_acte 
+    left join
+        analyse_marginale am1_0 
+            on aje1_0.id_acte=am1_0.id_acte 
+    left join
+        detail_mariage dm1_0 
+            on aje1_0.id_acte=dm1_0.id_acte 
+    left join
+        corps_extrait_rectification cer1_0 
+            on aje1_0.id_acte=cer1_0.id_acte 
+    left join
+        registre_papier rp1_0 
+            on rp1_0.id_registre_papier=aje1_0.id_registre_papier 
+    where
+        aje1_0.statut='SIGNE' 
+        and aje1_0.id_acte=?
+Hibernate: 
+    select
+        ddaje1_0.id_acte,
+        a1_0.id_acte,
+        a1_0.acte_etranger,
+        am1_0.id_acte,
+        am1_0.id_analyse_marginale,
+        am1_0.date_debut,
+        am1_0.date_fin,
+        am1_0.est_valide,
+        am1_0.motif_modification,
+        am1_0.nom_oec,
+        am1_0.prenom_oec,
+        am1_0.titulaires,
+        a1_0.annee_registre_electronique,
+        a1_0.conteneur_stockage_acte_signe,
+        ct1_0.id_corps_texte,
+        ct1_0.id_acte,
+        ct1_0.texte,
+        a1_0.date_creation,
+        a1_0.date_initialisation_projet,
+        a1_0.date_statut,
+        a1_0.declarant,
+        a1_0.est_reecrit,
+        a1_0.id_evenement,
+        a1_0.id_formule_finale,
+        a1_0.mode_creation,
+        a1_0.motif_annulation,
+        a1_0.nature,
+        a1_0.nom_oec,
+        a1_0.numero,
+        a1_0.numero_acte_electronique,
+        a1_0.numero_bis_ter,
+        a1_0.numero_dossier_national,
+        a1_0.numero_projet,
+        a1_0.origine,
+        ps1_0.id_phrase_signature,
+        ps1_0.phrase_signature,
+        a1_0.prenom_oec,
+        a1_0.reference_stockage_acte_signe,
+        a1_0.id_registre_papier,
+        a1_0.statut,
+        a1_0.titulaires,
+        a1_0.type,
+        a1_0.id_type_registre,
+        a1_0.visible_archiviste,
+        ddaje1_0.date_derniere_delivrance,
+        ddaje1_0.date_derniere_maj 
+    from
+        donnees_dynamiques_acte ddaje1_0 
+    join
+        acte a1_0 
+            on a1_0.id_acte=ddaje1_0.id_acte 
+    left join
+        analyse_marginale am1_0 
+            on a1_0.id_acte=am1_0.id_acte 
+    left join
+        corps_texte ct1_0 
+            on a1_0.id_acte=ct1_0.id_acte 
+    left join
+        phrase_signature ps1_0 
+            on ps1_0.id_phrase_signature=a1_0.id_phrase_signature 
+    where
+        ddaje1_0.id_acte=?
+Hibernate: 
+    select
+        dmje1_0.id_detail_mariage,
+        dmje1_0.id_acte,
+        a1_0.id_acte,
+        a1_0.acte_etranger,
+        am1_0.id_acte,
+        am1_0.id_analyse_marginale,
+        am1_0.date_debut,
+        am1_0.date_fin,
+        am1_0.est_valide,
+        am1_0.motif_modification,
+        am1_0.nom_oec,
+        am1_0.prenom_oec,
+        am1_0.titulaires,
+        a1_0.annee_registre_electronique,
+        a1_0.conteneur_stockage_acte_signe,
+        ct1_0.id_corps_texte,
+        ct1_0.id_acte,
+        ct1_0.texte,
+        a1_0.date_creation,
+        a1_0.date_initialisation_projet,
+        a1_0.date_statut,
+        a1_0.declarant,
+        dda1_0.id_acte,
+        dda1_0.date_derniere_delivrance,
+        dda1_0.date_derniere_maj,
+        a1_0.est_reecrit,
+        a1_0.id_evenement,
+        a1_0.id_formule_finale,
+        a1_0.mode_creation,
+        a1_0.motif_annulation,
+        a1_0.nature,
+        a1_0.nom_oec,
+        a1_0.numero,
+        a1_0.numero_acte_electronique,
+        a1_0.numero_bis_ter,
+        a1_0.numero_dossier_national,
+        a1_0.numero_projet,
+        a1_0.origine,
+        ps1_0.id_phrase_signature,
+        ps1_0.phrase_signature,
+        a1_0.prenom_oec,
+        a1_0.reference_stockage_acte_signe,
+        a1_0.id_registre_papier,
+        a1_0.statut,
+        a1_0.titulaires,
+        a1_0.type,
+        a1_0.id_type_registre,
+        a1_0.visible_archiviste,
+        dmje1_0.contrat,
+        dmje1_0.existence_contrat 
+    from
+        detail_mariage dmje1_0 
+    join
+        acte a1_0 
+            on a1_0.id_acte=dmje1_0.id_acte 
+    left join
+        analyse_marginale am1_0 
+            on a1_0.id_acte=am1_0.id_acte 
+    left join
+        corps_texte ct1_0 
+            on a1_0.id_acte=ct1_0.id_acte 
+    left join
+        donnees_dynamiques_acte dda1_0 
+            on a1_0.id_acte=dda1_0.id_acte 
+    left join
+        phrase_signature ps1_0 
+            on ps1_0.id_phrase_signature=a1_0.id_phrase_signature 
+    where
+        dmje1_0.id_acte=?
+Hibernate: 
+    select
+        tmje1_0.id_type_mention,
+        tmje1_0.code_type,
+        tmje1_0.est_present_liste_deroulante,
+        tmje1_0.est_saisie_assistee,
+        tmje1_0.est_sous_type,
+        tmje1_0.id_type_mention_parent,
+        tmje1_0.libelle_type,
+        tmje1_0.modifie_analyse_marginale,
+        n1_0.id_nomenclature,
+        n1_0.code,
+        n1_0.est_actif,
+        n1_0.infos,
+        n1_0.libelle,
+        n1_0.nom,
+        tmje1_0.nature_acte,
+        tmje1_0.nom_fichier,
+        tmje1_0.ordre_affichage 
+    from
+        type_mention tmje1_0 
+    left join
+        nomenclature n1_0 
+            on n1_0.id_nomenclature=tmje1_0.id_nomenclature_nature_mention 
+    where
+        tmje1_0.id_type_mention=?
+Hibernate: 
+    select
+        tmje1_0.id_type_mention,
+        tmje1_0.code_type,
+        tmje1_0.est_present_liste_deroulante,
+        tmje1_0.est_saisie_assistee,
+        tmje1_0.est_sous_type,
+        tmje1_0.id_type_mention_parent,
+        tmje1_0.libelle_type,
+        tmje1_0.modifie_analyse_marginale,
+        n1_0.id_nomenclature,
+        n1_0.code,
+        n1_0.est_actif,
+        n1_0.infos,
+        n1_0.libelle,
+        n1_0.nom,
+        tmje1_0.nature_acte,
+        tmje1_0.nom_fichier,
+        tmje1_0.ordre_affichage 
+    from
+        type_mention tmje1_0 
+    left join
+        nomenclature n1_0 
+            on n1_0.id_nomenclature=tmje1_0.id_nomenclature_nature_mention 
+    where
+        tmje1_0.id_type_mention=?
+Hibernate: 
+    select
+        p1_0.id_acte,
+        p1_0.id_personne,
+        p1_0.id_deces,
+        p1_0.id_naissance,
+        p1_0.nationalite,
+        p1_0.nom,
+        p1_0.id_pacs,
+        p1_0.id_inscription_rc,
+        p1_0.id_inscription_rca,
+        p1_0.sexe 
+    from
+        personne p1_0 
+    where
+        p1_0.id_acte=?
+Hibernate: 
+    select
+        eje1_0.id_evenement,
+        eje1_0.annee,
+        eje1_0.annee_fin,
+        eje1_0.arrondissement,
+        eje1_0.date_creation,
+        eje1_0.date_maj,
+        eje1_0.heure,
+        eje1_0.heure_fin,
+        eje1_0.jour,
+        eje1_0.jour_fin,
+        eje1_0.lieu_reprise,
+        eje1_0.minute,
+        eje1_0.minute_fin,
+        eje1_0.mois,
+        eje1_0.mois_fin,
+        eje1_0.pays,
+        eje1_0.preposition_date,
+        eje1_0.preposition_heure,
+        eje1_0.preposition_lieu,
+        eje1_0.region,
+        eje1_0.ville,
+        eje1_0.voie 
+    from
+        evenement eje1_0 
+    where
+        eje1_0.id_evenement=?
+Hibernate: 
+    select
+        an1_0.id_personne,
+        an1_0.id_autre_nom,
+        an1_0.nom,
+        an1_0.type 
+    from
+        autre_nom an1_0 
+    where
+        an1_0.id_personne=?
+Hibernate: 
+    select
+        p1_0.id_personne,
+        p1_0.id_prenom,
+        p1_0.ordre,
+        p1_0.prenom 
+    from
+        prenom p1_0 
+    where
+        p1_0.id_personne=? 
+    order by
+        p1_0.ordre
+Hibernate: 
+    select
+        ap1_0.id_personne,
+        ap1_0.id_autre_prenom,
+        ap1_0.prenom 
+    from
+        autre_prenom ap1_0 
+    where
+        ap1_0.id_personne=?
+Hibernate: 
+    select
+        trje1_0.id_type_registre,
+        trje1_0.date_rattachement,
+        trje1_0.date_transfert_scec,
+        dtr1_0.id_decret_type_registre,
+        dtr1_0.libelle_decret_type_registre,
+        trje1_0.description,
+        trje1_0.est_ouvert,
+        trje1_0.famille,
+        trje1_0.gere_scec,
+        trje1_0.pays_pocopa,
+        trje1_0.pocopa,
+        trje1_0.poste 
+    from
+        type_registre trje1_0 
+    left join
+        decret_type_registre dtr1_0 
+            on dtr1_0.id_decret_type_registre=trje1_0.id_decret_type_registre 
+    where
+        trje1_0.id_type_registre=?
+Hibernate: 
+    select
+        hssje1_0.id_statut,
+        hssje1_0.date_dernier_changement,
+        hssje1_0.statut_crl,
+        hssje1_0.statut_horodatage 
+    from
+        histo_statut_signature hssje1_0 
+    order by
+        hssje1_0.id_statut desc 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        bsje1_0.id_blocage_signature,
+        bsje1_0.commentaire,
+        bsje1_0.debut_blocage_signature,
+        bsje1_0.fin_blocage_signature 
+    from
+        blocage_signature bsje1_0 
+    order by
+        bsje1_0.id_blocage_signature desc 
+    fetch
+        first ? rows only
+2025-11-19 12:12:05,660|[http-nio-8091-exec-10]|WARN|NO_TID|NO_USER|fr.gouv.diplomatie.rece.etatcivil.adapters.signature.HorodateurAdapter|Pas d'URL d'horodatage fournie, on renvoi le document source tel quel 
+Hibernate: 
+    select
+        dmje1_0.id_document_mentions,
+        dmje1_0.id_acte,
+        dmje1_0.conteneur_stockage_mentions_signees,
+        dmje1_0.numero_ordre_signature,
+        dmje1_0.reference_stockage_mentions_signees,
+        dmje1_0.statut_document_mentions 
+    from
+        document_mentions dmje1_0 
+    where
+        dmje1_0.id_acte=? 
+        and dmje1_0.statut_document_mentions=?
+2025-11-19 12:12:05,682|[http-nio-8091-exec-10]|ERROR|NO_TID|NO_USER|fr.gouv.diplomatie.rece.commun.web.handlers.GlobalDefaultExceptionHandler|Erreur technique [TECH_00001] - reportId [B-46006@debian12.localdomain-251119121205682-932] : Cannot invoke "fr.gouv.diplomatie.rece.etatcivil.domain.repertoirecivil.mention.DocumentMentions.getId()" because "documentMentions" is null 
+java.lang.NullPointerException: Cannot invoke "fr.gouv.diplomatie.rece.etatcivil.domain.repertoirecivil.mention.DocumentMentions.getId()" because "documentMentions" is null
+	at fr.gouv.diplomatie.rece.etatcivil.application.services.MentionService.integrerDocumentMentionSigne(MentionService.java:316) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:355) ~[spring-aop-6.1.13.jar:6.1.13]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196) ~[spring-aop-6.1.13.jar:6.1.13]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163) ~[spring-aop-6.1.13.jar:6.1.13]
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:768) ~[spring-aop-6.1.13.jar:6.1.13]
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:379) ~[spring-tx-6.1.13.jar:6.1.13]
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119) ~[spring-tx-6.1.13.jar:6.1.13]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.1.13.jar:6.1.13]
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:768) ~[spring-aop-6.1.13.jar:6.1.13]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:720) ~[spring-aop-6.1.13.jar:6.1.13]
+	at fr.gouv.diplomatie.rece.etatcivil.application.services.MentionService$$SpringCGLIB$$0.integrerDocumentMentionSigne(<generated>) ~[classes/:na]
+	at fr.gouv.diplomatie.rece.etatcivil.adapters.rest.controllers.ActeController.integrerDocumentMentionSigne(ActeController.java:697) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:355) ~[spring-aop-6.1.13.jar:6.1.13]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196) ~[spring-aop-6.1.13.jar:6.1.13]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163) ~[spring-aop-6.1.13.jar:6.1.13]
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:768) ~[spring-aop-6.1.13.jar:6.1.13]
+	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.proceed(AuthorizationManagerBeforeMethodInterceptor.java:269) ~[spring-security-core-6.3.3.jar:6.3.3]
+	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.attemptAuthorization(AuthorizationManagerBeforeMethodInterceptor.java:264) ~[spring-security-core-6.3.3.jar:6.3.3]
+	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.invoke(AuthorizationManagerBeforeMethodInterceptor.java:197) ~[spring-security-core-6.3.3.jar:6.3.3]
+	at org.springframework.security.config.annotation.method.configuration.DeferringMethodInterceptor.invoke(DeferringMethodInterceptor.java:44) ~[spring-security-config-6.3.3.jar:6.3.3]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.1.13.jar:6.1.13]
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:768) ~[spring-aop-6.1.13.jar:6.1.13]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:720) ~[spring-aop-6.1.13.jar:6.1.13]
+	at fr.gouv.diplomatie.rece.etatcivil.adapters.rest.controllers.ActeController$$SpringCGLIB$$0.integrerDocumentMentionSigne(<generated>) ~[classes/:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) ~[na:na]
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:255) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:188) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118) ~[spring-webmvc-6.1.13.jar:6.1.13]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:926) ~[spring-webmvc-6.1.13.jar:6.1.13]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:831) ~[spring-webmvc-6.1.13.jar:6.1.13]
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87) ~[spring-webmvc-6.1.13.jar:6.1.13]
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089) ~[spring-webmvc-6.1.13.jar:6.1.13]
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979) ~[spring-webmvc-6.1.13.jar:6.1.13]
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014) ~[spring-webmvc-6.1.13.jar:6.1.13]
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:888) ~[spring-webmvc-6.1.13.jar:6.1.13]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658) ~[tomcat-embed-core-10.1.30.jar:6.0]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51) ~[tomcat-embed-websocket-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at fr.gouv.diplomatie.rece.commun.api.filters.LogDureeEndpointFilter.doFilter(LogDureeEndpointFilter.java:37) ~[classes/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:101) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at fr.gouv.diplomatie.rece.commun.api.filters.AddGenericHeaderFilter.doFilter(AddGenericHeaderFilter.java:40) ~[classes/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$FilterObservation$SimpleFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:479) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:340) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator.lambda$wrapSecured$0(ObservationFilterChainDecorator.java:82) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:128) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:100) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.authentication.www.BasicAuthenticationFilter.doFilterInternal(BasicAuthenticationFilter.java:181) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at fr.gouv.diplomatie.rece.commun.api.filters.VerificationJWTFilter.doFilterInternal(VerificationJWTFilter.java:57) ~[classes/:na]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter.doFilter(AbstractAuthenticationProcessingFilter.java:227) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter.doFilter(AbstractAuthenticationProcessingFilter.java:221) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$0(ObservationFilterChainDecorator.java:323) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:224) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191) ~[spring-security-web-6.3.3.jar:6.3.3]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:195) ~[spring-webmvc-6.1.13.jar:6.1.13]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:230) ~[spring-security-config-6.3.3.jar:6.3.3]
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:352) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:268) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:113) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.13.jar:6.1.13]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:384) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:905) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1741) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1190) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.30.jar:10.1.30]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+2025-11-19 12:12:05,689|[http-nio-8091-exec-10]|WARN|NO_TID|NO_USER|org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver|Resolved [java.lang.NullPointerException: Cannot invoke "fr.gouv.diplomatie.rece.etatcivil.domain.repertoirecivil.mention.DocumentMentions.getId()" because "documentMentions" is null] 
+Hibernate: 
+    select
+        hssje1_0.id_statut,
+        hssje1_0.date_dernier_changement,
+        hssje1_0.statut_crl,
+        hssje1_0.statut_horodatage 
+    from
+        histo_statut_signature hssje1_0 
+    order by
+        hssje1_0.id_statut desc 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        bsje1_0.id_blocage_signature,
+        bsje1_0.commentaire,
+        bsje1_0.debut_blocage_signature,
+        bsje1_0.fin_blocage_signature 
+    from
+        blocage_signature bsje1_0 
+    order by
+        bsje1_0.id_blocage_signature desc 
+    fetch
+        first ? rows only
