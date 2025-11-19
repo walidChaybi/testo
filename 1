@@ -1,0 +1,741 @@
+package fr.gouv.diplomatie.rece.etatcivil.adapters.rest.controllers;
+
+import fr.gouv.diplomatie.rece.commun.bo.Result;
+import fr.gouv.diplomatie.rece.commun.constants.SecurityConstants;
+import fr.gouv.diplomatie.rece.commun.exceptions.BusinessListException;
+import fr.gouv.diplomatie.rece.commun.exceptions.PayloadTooLargeException;
+import fr.gouv.diplomatie.rece.commun.utils.RecuperationHeaderUtils;
+import fr.gouv.diplomatie.rece.commun.web.handlers.GlobalDefaultExceptionHandler;
+import fr.gouv.diplomatie.rece.etatcivil.adapters.rest.mappers.MapperActeSigneDomainToDto;
+import fr.gouv.diplomatie.rece.etatcivil.adapters.rest.mappers.MapperDomainToDto;
+import fr.gouv.diplomatie.rece.etatcivil.adapters.rest.mappers.MapperDtoToDomain;
+import fr.gouv.diplomatie.rece.etatcivil.adapters.rest.utils.ControllerUtils;
+import fr.gouv.diplomatie.rece.etatcivil.application.ports.in.ActeDoubleNumeriqueTraitement;
+import fr.gouv.diplomatie.rece.etatcivil.application.ports.in.ActeTraitement;
+import fr.gouv.diplomatie.rece.etatcivil.application.ports.in.DeleteAlerteActeCommand;
+import fr.gouv.diplomatie.rece.etatcivil.application.ports.in.MentionTraitement;
+import fr.gouv.diplomatie.rece.etatcivil.application.ports.in.RmcAutoTraitement;
+import fr.gouv.diplomatie.rece.etatcivil.application.ports.in.RmcTraitement;
+import fr.gouv.diplomatie.rece.etatcivil.application.ports.in.SaisieExtraitCommand;
+import fr.gouv.diplomatie.rece.etatcivil.application.ports.in.projetActe.MiseAJourActeTraitement;
+import fr.gouv.diplomatie.rece.etatcivil.application.ports.in.rmccommand.RmcAutoCommand;
+import fr.gouv.diplomatie.rece.etatcivil.application.ports.in.rmccommand.RmcCommand;
+import fr.gouv.diplomatie.rece.etatcivil.domain.enums.NatureActe;
+import fr.gouv.diplomatie.rece.etatcivil.domain.enums.TechnicalExceptionCode;
+import fr.gouv.diplomatie.rece.etatcivil.domain.enums.TypeExtrait;
+import fr.gouv.diplomatie.rece.etatcivil.domain.repertoirecivil.acte.Acte;
+import fr.gouv.diplomatie.rece.etatcivil.domain.repertoirecivil.acte.ActeImage;
+import fr.gouv.diplomatie.rece.etatcivil.domain.repertoirecivil.acte.AlerteActe;
+import fr.gouv.diplomatie.rece.etatcivil.domain.repertoirecivil.acte.BulletinIdentification;
+import fr.gouv.diplomatie.rece.etatcivil.domain.repertoirecivil.acte.TitulaireAnalyseMarginale;
+import fr.gouv.diplomatie.rece.etatcivil.domain.repertoirecivil.commun.Titulaire;
+import fr.gouv.diplomatie.rece.etatcivil.domain.repertoirecivil.mention.Mention;
+import fr.gouv.diplomatie.rece.etatcivil.domain.repertoirecivil.rmc.ResultatRmcActe;
+import fr.gouv.diplomatie.rece.etatcivil.dto.repertoirecivil.acte.ActeDto;
+import fr.gouv.diplomatie.rece.etatcivil.dto.repertoirecivil.acte.ActeImageDto;
+import fr.gouv.diplomatie.rece.etatcivil.dto.repertoirecivil.acte.AlerteActeDto;
+import fr.gouv.diplomatie.rece.etatcivil.dto.repertoirecivil.acte.BulletinIdentificationDto;
+import fr.gouv.diplomatie.rece.etatcivil.dto.repertoirecivil.acte.CorpsExtraitDto;
+import fr.gouv.diplomatie.rece.etatcivil.dto.repertoirecivil.acte.DocumentActeImageDto;
+import fr.gouv.diplomatie.rece.etatcivil.dto.repertoirecivil.acte.DonneesTeleverificationDTO;
+import fr.gouv.diplomatie.rece.etatcivil.dto.repertoirecivil.acte.ListeAlerteActeDto;
+import fr.gouv.diplomatie.rece.etatcivil.dto.repertoirecivil.acte.LotActeImageDto;
+import fr.gouv.diplomatie.rece.etatcivil.dto.repertoirecivil.acte.MiseAjourActeDto;
+import fr.gouv.diplomatie.rece.etatcivil.dto.repertoirecivil.acte.ResultActeSigneDto;
+import fr.gouv.diplomatie.rece.etatcivil.dto.repertoirecivil.acte.TitulaireAnalyseMarginaleDto;
+import fr.gouv.diplomatie.rece.etatcivil.dto.repertoirecivil.commun.TitulaireDto;
+import fr.gouv.diplomatie.rece.etatcivil.dto.repertoirecivil.mention.MentionDto;
+import fr.gouv.diplomatie.rece.etatcivil.dto.repertoirecivil.sasisieextrait.SaisieExtraitDto;
+import fr.gouv.diplomatie.rece.etatcivil.dto.rmc.RmcActeReponseDto;
+import fr.gouv.diplomatie.rece.etatcivil.dto.rmc.requete.RmcAutoFiltreTitulaireRequestDTO;
+import fr.gouv.diplomatie.rece.etatcivil.dto.rmc.requete.RmcRequestDto;
+import fr.gouv.diplomatie.rece.etatcivil.dto.signature.DocumentSigneDTO;
+import fr.gouv.diplomatie.rece.etatcivil.dto.signature.SignatureCompositionRecord;
+import fr.gouv.diplomatie.rece.etatcivil.enums.StatutMention;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import jakarta.persistence.PersistenceException;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.TransactionTimedOutException;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping(value = "/v1/acte", produces = {MediaType.APPLICATION_JSON_VALUE}, consumes = {MediaType.APPLICATION_JSON_VALUE})
+@RequiredArgsConstructor
+public class ActeController {
+
+	private static final String LABEL_ACCEPT_RANGE = "rmc_acte";
+
+	private final ControllerUtils controllerUtils;
+
+	private final ActeTraitement acteTraitement;
+
+	private final RmcTraitement rmcTraitement;
+
+	private final RmcAutoTraitement rmcAutoTraitement;
+
+	private final MentionTraitement mentionTraitement;
+
+	private final MiseAJourActeTraitement miseAJourActeService;
+
+	private final MapperDomainToDto mapperDomainToDto;
+
+	private final MapperDtoToDomain mapperDtoToDomain;
+
+	private final MapperActeSigneDomainToDto mapperActeSigneDomainToDto;
+
+	private final ActeDoubleNumeriqueTraitement acteDoubleNumeriqueTraitement;
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Recherche un acte avec des critères")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@PostMapping(value = "/rmc")
+	public ResponseEntity<Result<List<RmcActeReponseDto>>> rechercheMultiCriteres(@RequestBody final RmcRequestDto rmcRequestDto,
+																				  @RequestParam(defaultValue = "0-10") final String range, final HttpServletRequest request) {
+
+		Pair<Integer, Integer> offsetLimit = controllerUtils.definirOffsetLimit(range);
+		final Map<RmcCommand, BusinessListException> mapErreurActe = new HashMap<>();
+
+		RmcCommand rmcCommand = controllerUtils.buildRMCCommand(rmcRequestDto, offsetLimit.getLeft(),
+																offsetLimit.getRight());
+
+		// Pour les RMC, un code HTTP 413 est renvoyé si celle-ci est trop longue à la place d'un code 408
+		try {
+			Page<ResultatRmcActe> rmcActes = rmcTraitement.rmcActes(rmcCommand,
+																	RecuperationHeaderUtils.getIdArobasFromHttpRequete(request), mapErreurActe);
+
+			return getResultResponseEntity(offsetLimit, rmcActes, mapErreurActe);
+		} catch (TransactionTimedOutException ex) {
+			throw new PayloadTooLargeException(TechnicalExceptionCode.TECH_TIMEOUT_TRANSACTION_RMC, rmcCommand.toString());
+		} catch (PersistenceException ex) {
+			if (ex.getCause() != null && GlobalDefaultExceptionHandler.HIBERNATE_TIMEOUT_EXCEPTION_MESSAGE.equals(ex.getCause().getMessage())) {
+				throw new PayloadTooLargeException(TechnicalExceptionCode.TECH_TIMEOUT_TRANSACTION_RMC, rmcCommand.toString());
+			}
+		}
+
+		return null;
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Recherche auto d'un acte avec des critères")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@PostMapping(value = "/rmcauto")
+	public ResponseEntity<Result<List<RmcActeReponseDto>>> rechercheMultiCriteresAuto(
+			@RequestBody final List<RmcAutoFiltreTitulaireRequestDTO> criteres, @RequestParam(defaultValue = "0-10") final String range,
+			final HttpServletRequest request) {
+
+		Pair<Integer, Integer> offsetLimit = controllerUtils.definirOffsetLimit(range);
+		final Map<RmcCommand, BusinessListException> mapErreurActe = new HashMap<>();
+
+		RmcAutoCommand rmcAutoCommand = mapperDtoToDomain.map(criteres, offsetLimit.getLeft(),
+															  offsetLimit.getRight());
+
+		// Pour les RMC, un code HTTP 413 est renvoyé si celle-ci est trop longue à la place d'un code 408
+		try {
+			Page<ResultatRmcActe> rmcActes = rmcAutoTraitement.rechercheAutoActes(rmcAutoCommand,
+																				  RecuperationHeaderUtils.getIdArobasFromHttpRequete(request));
+
+			return getResultResponseEntity(offsetLimit, rmcActes, mapErreurActe);
+		} catch (TransactionTimedOutException ex) {
+			throw new PayloadTooLargeException(TechnicalExceptionCode.TECH_TIMEOUT_TRANSACTION_RMC, rmcAutoCommand.toString());
+		} catch (PersistenceException ex) {
+			if (ex.getCause() != null && GlobalDefaultExceptionHandler.HIBERNATE_TIMEOUT_EXCEPTION_MESSAGE.equals(ex.getCause().getMessage())) {
+				throw new PayloadTooLargeException(TechnicalExceptionCode.TECH_TIMEOUT_TRANSACTION_RMC, rmcAutoCommand.toString());
+			}
+		}
+		return null;
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Récupère un acte Image PDF")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@GetMapping(value = "/{id}/corps-image", consumes = {MediaType.ALL_VALUE})
+	public Result<DocumentActeImageDto> getCorpsActeImageById(@PathVariable final UUID id,
+															  final HttpServletRequest request) {
+		return new Result<>(acteTraitement.getActeImage(id,
+														RecuperationHeaderUtils.getIdArobasFromHttpRequete(request)));
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Récupère les données pour générer un acte texte PDF")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@GetMapping(value = "/{id}/donnees-pour-composition-acte-texte", consumes = {MediaType.ALL_VALUE})
+	public ResponseEntity<Result<String>> getDonneesPourCompositionActeTexteById(@PathVariable final String id,
+																				 final HttpServletRequest request) {
+
+		String acteTexteJson = acteTraitement.getCorpsActeTexte(UUID.fromString(id),
+																RecuperationHeaderUtils.getIdArobasFromHttpRequete(request),
+																false);
+
+		return new ResponseEntity<>(new Result<>(acteTexteJson), HttpStatus.OK);
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Récupère les données pour générer un acte texte PDF mis à jour")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@GetMapping(value = "/{id}/donnees-pour-composition-acte-texte-mis-a-jour", consumes = {MediaType.ALL_VALUE})
+	public ResponseEntity<Result<String>> getDonneesPourCompositionActeTexteMisAJourById(@PathVariable final String id,
+																						 final HttpServletRequest request) {
+
+		String acteTexteJson = acteTraitement.getCorpsActeTexte(UUID.fromString(id),
+																RecuperationHeaderUtils.getIdArobasFromHttpRequete(request), true);
+
+		return new ResponseEntity<>(new Result<>(acteTexteJson), HttpStatus.OK);
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Récupère les données pour générer un acte repris Texte PDF")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@GetMapping(value = "/{id}/donnees-pour-composition-acte-repris", consumes = {MediaType.ALL_VALUE})
+	public ResponseEntity<Result<String>> getDonneesPourCompositionActeReprisById(@PathVariable final String id,
+																				  final HttpServletRequest request) {
+		final String acteTexteJson = acteTraitement.getActeReprisTexte(UUID.fromString(id),
+																	   RecuperationHeaderUtils.getIdArobasFromHttpRequete(request));
+		return new ResponseEntity<>(new Result<>(acteTexteJson), HttpStatus.OK);
+	}
+
+	private ResponseEntity<Result<InputStreamResource>> getResponseEntityForInputStream(final byte[] corps) {
+		HttpHeaders responseHeaders = new HttpHeaders();
+		InputStream inputStream = new ByteArrayInputStream(corps);
+		InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
+
+		responseHeaders.setContentLength(corps.length);
+		responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+		responseHeaders.setContentDisposition(ContentDisposition.builder("attachment")
+																.filename("acte.pdf")
+																.build());
+
+		return ResponseEntity.ok()
+							 .headers(responseHeaders)
+							 .body(new Result<>(inputStreamResource));
+	}
+
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Récupère le bulletin d'identification d'un acte")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 404, message = "Pas d'acte correspondant", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@GetMapping(value = "/bulletinIdentification/{id}", consumes = {MediaType.ALL_VALUE})
+	public ResponseEntity<Result<BulletinIdentificationDto>> getBulletinIdentification(@PathVariable final UUID id,
+																					   @RequestParam(defaultValue = "false") boolean recupereImagesEtTexte,
+																					   @RequestParam(defaultValue = "false") boolean isConsultation,
+																					   final HttpServletRequest request) {
+		final BulletinIdentification bulletinIdentification = acteTraitement.getBulletinIdentification(id, recupereImagesEtTexte, isConsultation, RecuperationHeaderUtils.getIdArobasFromHttpRequete(request));
+		final BulletinIdentificationDto bulletinIdentificationDto = mapperDomainToDto.mapBulletinIdentification(bulletinIdentification);
+		return new ResponseEntity<>(new Result<>(bulletinIdentificationDto), HttpStatus.OK);
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Recherche le titulaire de l'analyse marginale par idActe")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 404, message = "Pas d'acte correspondant", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@PostMapping(value = "/analyseMarginale", consumes = {MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<Result<List<TitulaireAnalyseMarginaleDto>>> getTitulaireAnalyseMarginaleByIdActe(@RequestBody final List<UUID> listIdsActe,
+																										   @RequestParam(defaultValue = "false") boolean recupereImagesEtTexte,
+																										   @RequestParam(defaultValue = "false") boolean isConsultation,
+																										   final HttpServletRequest request) {
+
+		final List<TitulaireAnalyseMarginale> titulaireAnalyseMarginales = acteTraitement.getTitulairesAnalysesMarginalesByIdActe(listIdsActe, recupereImagesEtTexte, isConsultation,
+																																  RecuperationHeaderUtils.getIdArobasFromHttpRequete(request));
+
+		final List<TitulaireAnalyseMarginaleDto> titulaireAnalyseMarginaleDtos = mapperDomainToDto.mapTitulairesAnalysesMarginales(titulaireAnalyseMarginales);
+
+		return new ResponseEntity<>(new Result<>(titulaireAnalyseMarginaleDtos), HttpStatus.OK);
+
+	}
+
+	@PreAuthorize("estProfilReceUser(#request) ")
+	@ApiOperation(value = "Recherche un resumé d'acte par son identifiant")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 404, message = "Pas de resume d'acte correspondant", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@GetMapping(value = "/{id}/resume", consumes = {MediaType.ALL_VALUE})
+	public ResponseEntity<Result<ActeDto>> getResumeActeById(@PathVariable final String id,
+															 @RequestParam(defaultValue = "false") boolean recupereImagesEtTexte,
+															 @RequestParam(defaultValue = "true") boolean remplaceIdentiteTitulaireParIdentiteTitulaireAM,
+															 final HttpServletRequest request) {
+
+		final Acte acte = acteTraitement.getActeResumeById(UUID.fromString(id), recupereImagesEtTexte, true,
+														   remplaceIdentiteTitulaireParIdentiteTitulaireAM,
+														   RecuperationHeaderUtils.getIdArobasFromHttpRequete(request));
+		final ActeDto acteDto = mapperDomainToDto.mapActe(acte);
+		return new ResponseEntity<>(new Result<>(acteDto), HttpStatus.OK);
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Récupération des données de téléverification")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 404, message = "Pas de resume d'acte correspondant", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@PostMapping(value = "/donnees-pour-televerification", consumes = {MediaType.APPLICATION_JSON_VALUE})
+	public Result<List<DonneesTeleverificationDTO>> getDonneesTeleverification(@RequestBody final List<UUID> listIdsActes,
+																			   final HttpServletRequest request) {
+
+		return new Result<>(mapperDomainToDto.map(acteTraitement.getDonneesTeleverification(listIdsActes,
+																							RecuperationHeaderUtils.getIdArobasFromHttpRequete(request))));
+	}
+
+
+	@PreAuthorize("estBatch(#request)")
+	@ApiOperation(value = "Retourne une liste d'actes images à reprendre")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class),
+			@ApiResponse(code = 503, message = "Service indisponible", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@GetMapping(value = "/actesimages", consumes = {MediaType.ALL_VALUE})
+	public ResponseEntity<Result<List<LotActeImageDto>>> getActesImages(
+			@RequestParam(defaultValue = "0-100") final String range, @RequestParam final NatureActe natureActe,
+			final HttpServletRequest request) {
+		Pair<Integer, Integer> offsetLimit = controllerUtils.definirOffsetLimit(range);
+		Page<ActeImage> actesImages = acteTraitement.getActesImages(range, natureActe);
+		List<ActeImageDto> actesImagesDto = mapperDomainToDto.mapActeImages(actesImages.getContent());
+
+		List<LotActeImageDto> lots = getLotActeImageDtos(actesImagesDto);
+
+		HttpStatus status = controllerUtils.definirHttpStatus(actesImages);
+		HttpHeaders httpHeaders = controllerUtils.definirPaginationHeader(actesImages, offsetLimit.getRight(),
+																		  LABEL_ACCEPT_RANGE);
+		return new ResponseEntity<>(new Result<>(lots), httpHeaders, status);
+	}
+
+	private static @NotNull List<LotActeImageDto> getLotActeImageDtos(List<ActeImageDto> actesImagesDto) {
+		if (null != actesImagesDto && !actesImagesDto.isEmpty()) {
+			Map<UUID, List<ActeImageDto>> actesImagesParIdActe = actesImagesDto.stream().collect(Collectors.groupingBy(ActeImageDto::getIdActe));
+			return actesImagesParIdActe.values().stream().filter(Objects::nonNull).map(acteImageDtos -> LotActeImageDto.builder()
+																													   .idActe(acteImageDtos.get(0).getIdActe())
+																													   .dateCreationActe(acteImageDtos.get(0).getDateCreationActe())
+																													   .numeroActe(acteImageDtos.get(0).getNumeroActe())
+																													   .natureActe(acteImageDtos.get(0).getNatureActe())
+																													   .images(acteImageDtos).build()
+			).toList();
+		}
+		return List.of();
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Recherche des alertes associées à un acte")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class),
+			@ApiResponse(code = 503, message = "Service indisponible", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@GetMapping(value = "{idActe}/alertes", consumes = {MediaType.ALL_VALUE})
+	public Result<ListeAlerteActeDto> getAlertesActe(@PathVariable(name = "idActe") final UUID idActe,
+													 final HttpServletRequest request) {
+		// Récupération des alertes
+		List<AlerteActe> alertesActe = acteTraitement.getAlertesActe(idActe);
+		// Récupération de l'ID TypeRegistre
+		UUID idTypeRegistre = acteTraitement.getIdTypeRegistre(idActe);
+
+		ListeAlerteActeDto listeAlertesActeDTO = mapperDomainToDto.mapListeAlertesActe(idTypeRegistre, alertesActe);
+		return new Result<>(listeAlertesActeDTO);
+	}
+
+	//TODO A deplacer dans une nouvelle class controller "v1/alerte" - Impact front + batch
+	@PreAuthorize("estProfilReceUser(#request) || estBatch(#request)")
+	@ApiOperation(value = "Ajout d'une alerte sur un acte")
+	@ApiResponses(value = {
+			@ApiResponse(code = 201, message = "Objet créé", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class),
+			@ApiResponse(code = 503, message = "Service indisponible", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.CREATED)
+	@PostMapping(value = "/alerte")
+	public Result<AlerteActeDto> addAlerteActe(@RequestBody final AlerteActeDto alerteActeDto, final HttpServletRequest request) {
+
+		boolean hasToGetIdArobas = StringUtils.contains(request.getHeader(SecurityConstants.HEADER_REFERER),
+														SecurityConstants.RECE_UI_REFERER);
+
+		AlerteActeDto alerteActeDTO;
+		if (hasToGetIdArobas) {
+			String idArobas = RecuperationHeaderUtils.getIdArobasFromHttpRequete(request);
+			alerteActeDTO = mapperDomainToDto.mapAlerteActe(acteTraitement
+																	.addAlerteActe(mapperDtoToDomain.mapAlerteActe(alerteActeDto), idArobas));
+		} else {
+			alerteActeDTO = mapperDomainToDto
+					.mapAlerteActe(acteTraitement.addAlerteActe(mapperDtoToDomain.mapAlerteActe(alerteActeDto)));
+		}
+
+		return new Result<>(alerteActeDTO);
+	}
+
+	//TODO A deplacer dans une nouvelle class controller "v1/alerte" - Impact front
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Suppression d'une alerte sur un acte")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class),
+			@ApiResponse(code = 503, message = "Service indisponible", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@DeleteMapping(value = "/alerte/{idAlerteActe}", consumes = {MediaType.ALL_VALUE})
+	public Result<Void> deleteAlerteActe(@PathVariable final UUID idAlerteActe, final HttpServletRequest request) {
+
+		DeleteAlerteActeCommand deleteAlerteActeCommand = DeleteAlerteActeCommand.builder()
+																				 .idAlerteActe(idAlerteActe)
+																				 .build();
+
+		String idArobas = RecuperationHeaderUtils.getIdArobasFromHttpRequete(request);
+
+		acteTraitement.deleteAlerteActe(deleteAlerteActeCommand, idArobas);
+
+		return new Result<>(null);
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Recherche les titulaires d'un acte par son identifiant")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@GetMapping(value = "/{id}/titulaire", consumes = {MediaType.ALL_VALUE})
+	public ResponseEntity<Result<Set<TitulaireDto>>> recupererTitulairesActe(@PathVariable final UUID id,
+																			 final HttpServletRequest request) {
+		Set<Titulaire> titulaires = acteTraitement.getTitulairesActe(id);
+		return new ResponseEntity<>(new Result<>(mapperDomainToDto.mapSetTitulaires(titulaires)), HttpStatus.OK);
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Récupère les mentions d'un acte")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class),
+			@ApiResponse(code = 503, message = "Service indisponible", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@GetMapping(value = "/{idActe}/mentions", consumes = {MediaType.ALL_VALUE})
+	public ResponseEntity<Result<List<MentionDto>>> getMentionsActe(@PathVariable final UUID idActe,
+																	@RequestParam(required = false) final StatutMention statut,
+																	final HttpServletRequest request) {
+		final List<Mention> mentions = mentionTraitement.getMentionsByIdActe(idActe, mapperDtoToDomain.mapStatutMention(statut));
+		final List<MentionDto> mentionsDtos = mapperDomainToDto.mapMentions(mentions);
+		return new ResponseEntity<>(new Result<>(mentionsDtos), HttpStatus.OK);
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Ajout / suppression / mise à jour des mentions d'un acte en délivrance")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class),
+			@ApiResponse(code = 503, message = "Service indisponible", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@PostMapping(value = "/{idActe}/mentions")
+	public Result<Void> miseAJourMentionActePourDelivrance(@RequestBody final List<MentionDto> mentionsDto,
+														   @PathVariable final UUID idActe, final HttpServletRequest request) {
+
+		final String idArobas = RecuperationHeaderUtils.getIdArobasFromHttpRequete(request);
+
+		mentionTraitement.miseAJourMentions(mapperDtoToDomain.mapMentions(mentionsDto), idActe, idArobas);
+
+		return new Result<>(null);
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Ajout / suppression / mise à jour des mentions d'un acte en création d'acte")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class),
+			@ApiResponse(code = 503, message = "Service indisponible", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@PutMapping(value = "/mentions-et-analyse-marginale")
+	public Result<String> miseAJourMentionEtAnalyseMarginale(@RequestBody final MiseAjourActeDto miseAjourActeDto,
+															 final HttpServletRequest request) {
+
+		final String idArobas = RecuperationHeaderUtils.getIdArobasFromHttpRequete(request);
+
+		miseAJourActeService.miseAJour(mapperDtoToDomain.mapMiseAjourActe(miseAjourActeDto), idArobas);
+
+		return new Result<>(acteTraitement.getCorpsActeTexte(miseAjourActeDto.getIdActe(), idArobas, true));
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Abandon de la mise à jour d'un acte")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class),
+			@ApiResponse(code = 503, message = "Service indisponible", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@PatchMapping(value = "/{idActe}/abandonner-mise-a-jour")
+	public Result<Void> abandonMiseAJourActe(@PathVariable final UUID idActe,
+											 final HttpServletRequest request) {
+
+		final String idArobas = RecuperationHeaderUtils.getIdArobasFromHttpRequete(request);
+
+		mentionTraitement.abandonMiseAJourMentionsActe(idActe, idArobas);
+
+		return new Result<>(null);
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Remplace la date de dernière delivrance par aujourd'hui")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class),
+			@ApiResponse(code = 503, message = "Service indisponible", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@PatchMapping(value = "/{idActe}/dernieredelivrance", consumes = {MediaType.ALL_VALUE})
+	public Result<Void> miseAJourDerniereDelivranceActe(@PathVariable final UUID idActe,
+														final HttpServletRequest request) {
+
+		String idArobas = RecuperationHeaderUtils.getIdArobasFromHttpRequete(request);
+
+		acteTraitement.miseAJourDerniereDelivrance(idActe, idArobas);
+
+		return new Result<>(null);
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Mise à jour des informations suite à la saisie de l'extrait d'un acte")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class),
+			@ApiResponse(code = 503, message = "Service indisponible", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@PatchMapping(value = "/{idActe}/saisieExtrait")
+	public Result<Void> miseAJourSuiteSaisieExtrait(@PathVariable final UUID idActe,
+													@RequestBody final SaisieExtraitDto saisieExtraitDto,
+													final HttpServletRequest request) {
+
+		String idArobas = RecuperationHeaderUtils.getIdArobasFromHttpRequete(request);
+		SaisieExtraitCommand saisieExtraitCommand = SaisieExtraitCommand.builder().idActe(idActe)
+																		.idAnalyseMarginale(saisieExtraitDto.getIdAnalyseMarginale())
+																		.natureActe(mapperDtoToDomain.mapNatureActe(saisieExtraitDto.getNatureActe()))
+																		.titulaire1(mapperDtoToDomain.mapSaisieExtraitTitulaireActe(saisieExtraitDto.getTitulaire1()))
+																		.titulaire2(mapperDtoToDomain.mapSaisieExtraitTitulaireActe(saisieExtraitDto.getTitulaire2()))
+																		.titulaireOrigine1(mapperDtoToDomain.mapSaisieExtraitTitulaireActe(saisieExtraitDto.getTitulaireOrigine1()))
+																		.titulaireOrigine2(mapperDtoToDomain.mapSaisieExtraitTitulaireActe(saisieExtraitDto.getTitulaireOrigine2()))
+																		.evenement(mapperDtoToDomain.mapEvenement(saisieExtraitDto.getEvenementActe()))
+																		.detailMariage(mapperDtoToDomain.mapDetailMariage(saisieExtraitDto.getDetailMariage())).build();
+
+		acteTraitement.miseAJourSuiteSaisieExtrait(saisieExtraitCommand, idArobas);
+
+		return new Result<>(null);
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Enregistre le corps de l'extrait rectifié")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 404, message = "Pas d'acte correspondant", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@PostMapping(value = "/{idActe}/corpstexte")
+	public Result<Void> sauvegardeCorpsExtrait(@PathVariable final UUID idActe,
+											   @RequestBody CorpsExtraitDto corpsExtrait,
+											   @RequestParam final TypeExtrait type, final HttpServletRequest request) {
+		acteTraitement.sauvegardeCorpsExtrait(idActe, corpsExtrait.getCorpsExtrait(), type,
+											  RecuperationHeaderUtils.getIdArobasFromHttpRequete(request));
+		return new Result<>(null);
+	}
+
+	private ResponseEntity<Result<List<RmcActeReponseDto>>> getResultResponseEntity(final Pair<Integer, Integer> offsetLimit,
+																					final Page<ResultatRmcActe> rmcActes,
+																					final Map<RmcCommand, BusinessListException> mapErreurActe) {
+		HttpStatus status = controllerUtils.definirHttpStatus(rmcActes);
+		HttpHeaders httpHeaders = controllerUtils.definirPaginationHeader(rmcActes, offsetLimit.getRight(), LABEL_ACCEPT_RANGE);
+		Result<List<RmcActeReponseDto>> result = new Result<>();
+		if (!mapErreurActe.isEmpty()) {
+			mapErreurActe.values().forEach(result::addErrors);
+		}
+		if (rmcActes != null) {
+			result.setData(mapperDomainToDto.mapRmcActes(rmcActes.getContent()));
+		}
+		return new ResponseEntity<>(result, httpHeaders, status);
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Composition document final à signer")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 404, message = "Pas d'acte correspondant", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@GetMapping("/{idActe}/recomposer-document-final")
+	public ResponseEntity<Result<InputStreamResource>> recomposerActeSigne(@PathVariable UUID idActe,
+																		   final HttpServletRequest request) {
+		String idArobas = RecuperationHeaderUtils.getIdArobasFromHttpRequete(request);
+		final byte[] acteSigne = acteTraitement.recomposerActeSigne(idActe, idArobas);
+		return getResponseEntityForInputStream(acteSigne);
+	}
+
+	@PreAuthorize("estBatch(#request)")
+	@ApiOperation(value = "Récupérer les actes signés liés à un numéro de dossier national")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 404, message = "Pas d'acte correspondant", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@GetMapping(value = "/numero-dossier-national/{numeroDossierNational}", consumes = {MediaType.ALL_VALUE})
+	public ResponseEntity<Result<List<ResultActeSigneDto>>> getActesSignesByNumeroDossierNational(@PathVariable final String numeroDossierNational,
+																								  final HttpServletRequest request) {
+		return new ResponseEntity<>(new Result<>(mapperActeSigneDomainToDto
+														 .mapActes(acteTraitement.getActesSignesByNumeroDossierNational(numeroDossierNational))), HttpStatus.OK);
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Composition document mentions ultérieures à signer")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 404, message = "Pas d'acte correspondant", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@PatchMapping("/{idActe}/composer-document-mentions-ulterieures")
+	public ResponseEntity<Result<String>> composerDocumentMentionsUlterieures(@RequestBody SignatureCompositionRecord signature,
+																			  @PathVariable UUID idActe,
+																			  final HttpServletRequest request) {
+		return new ResponseEntity<>(new Result<>(mentionTraitement.composerDocumentMentionsUlterieures(idActe, mapperDtoToDomain.mapSignatureComposition(signature),
+																									   RecuperationHeaderUtils.getIdArobasFromHttpRequete(request))), HttpStatus.OK);
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Intégration du document mention signé")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 404, message = "Pas d'acte correspondant", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@PatchMapping("/{idActe}/integrer-document-mention-signe")
+	public ResponseEntity<Result<String>> integrerDocumentMentionSigne(@RequestBody DocumentSigneDTO documentSigneDTO,
+																	   @PathVariable UUID idActe,
+																	   final HttpServletRequest request) {
+		String idArobas = RecuperationHeaderUtils.getIdArobasFromHttpRequete(request);
+		mentionTraitement.integrerDocumentMentionSigne(idActe, idArobas, mapperDtoToDomain.map(documentSigneDTO));
+		return new ResponseEntity<>(new Result<>(), HttpStatus.OK);
+	}
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Composition d'un acte électronique à partir d'un acte issu d'un support papier")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 404, message = "Pas d'acte correspondant", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@ResponseBody
+	@PatchMapping("/{idActe}/double-numerique/composer-document-final")
+	public ResponseEntity<Result<String>> composerActeDoubleNumerique(@RequestBody SignatureCompositionRecord signature,
+																	  @PathVariable UUID idActe,
+																	  final HttpServletRequest request) {
+		String idArobas = RecuperationHeaderUtils.getIdArobasFromHttpRequete(request);
+		return new ResponseEntity<>(new Result<>(acteDoubleNumeriqueTraitement.composerActeDoubleNumerique(idActe,
+																										   mapperDtoToDomain.mapSignatureComposition(signature),
+																										   idArobas)),
+									HttpStatus.OK);
+	}
+
+
+	@PreAuthorize("estProfilReceUser(#request)")
+	@ApiOperation(value = "Intégration du document acte double numérique signé")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Result.class),
+			@ApiResponse(code = 400, message = "Erreur fonctionnelle", response = Result.class),
+			@ApiResponse(code = 403, message = "Erreur de droit", response = Result.class),
+			@ApiResponse(code = 404, message = "Pas d'acte correspondant", response = Result.class),
+			@ApiResponse(code = 500, message = "Erreur interne", response = Result.class)})
+	@ResponseStatus(value = HttpStatus.OK)
+	@ResponseBody
+	@PatchMapping("/{idActe}/double-numerique/integrer-double-numerique")
+	public ResponseEntity<Result<String>> integrerActeDoubleNumerique(@RequestBody DocumentSigneDTO documentSigneDTO,
+																	  @PathVariable UUID idActe,
+																	  final HttpServletRequest request) {
+		String idArobas = RecuperationHeaderUtils.getIdArobasFromHttpRequete(request);
+		acteDoubleNumeriqueTraitement.integrerActeDoubleNumerique(idActe, idArobas, mapperDtoToDomain.map(documentSigneDTO));
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+}
