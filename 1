@@ -277,7 +277,10 @@ const AVANCEMENT: { [EtatAvancement in Exclude<TStatutSignature, "attente-pin" |
         console.info("[SIGNATURE] Modification du statut de la requête ...");
 
         const apresModificationStatut = {
-          apresSucces: () => console.info("[SIGNATURE] Modification du statut de la requête effectué"),
+          apresSucces: () => {
+            console.info("[SIGNATURE] Modification du statut de la requête effectué");
+            apresSignature(true);
+          },
           apresErreur: (erreurs: TErreurApi[]) =>
             console.error(
               `[SIGNATURE] Erreur lors de la modification du statut de la requête : ${erreurs[0]?.code ?? "CODE_INCONNU"} - ${erreurs[0]?.message ?? "Erreur inconnue"}`
@@ -318,10 +321,7 @@ const AVANCEMENT: { [EtatAvancement in Exclude<TStatutSignature, "attente-pin" |
           case "TRANSCRIT":
             appelModifierStatutRequeteTranscrit({
               parametres: { path: { idRequete: idRequete }, query: { statut: StatutRequete.getKey(StatutRequete.TRAITE) } },
-              ...apresModificationStatut,
-              apresSucces: () => {
-                apresSignature(true);
-              }
+              ...apresModificationStatut
             });
 
             return;
