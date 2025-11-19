@@ -1,0 +1,471 @@
+import { CONFIG_PATCH_COMPOSER_DOCUMENT_FINAL_DOUBLE_NUMERIQUE } from "@api/configurations/etatCivil/acte/PatchComposerDocumentFinalDoubleNumeriqueConfigApi";
+import { CONFIG_PATCH_COMPOSER_DOCUMENT_MENTIONS_ULTERIEURES } from "@api/configurations/etatCivil/acte/PatchComposerDocumentMentionsUlterieuresConfigApi";
+import { CONFIG_PATCH_INTEGRER_DOCUMENT_MENTION_SIGNER } from "@api/configurations/etatCivil/acte/PatchIntegrerDocumentMentionSigneConfigApi";
+import { CONFIG_PATCH_COMPOSER_DOCUMENT_FINAL_PROJET_ACTE_ETABLI } from "@api/configurations/etatCivil/projetActe/PatchComposerDocumentFinalProjetActeEtabliConfigApi";
+import { CONFIG_PATCH_COMPOSER_DOCUMENT_FINAL_PROJET_ACTE_TRANSCRIT } from "@api/configurations/etatCivil/projetActe/PatchComposerDocumentFinalProjetActeTranscritConfigApi";
+import { CONFIG_PATCH_INTEGRER_DOCUMENT_FINAL_PROJET_ACTE_ETABLI } from "@api/configurations/etatCivil/projetActe/PatchIntegrerDocumentFinalProjetActeEtabliConfigApi";
+import { CONFIG_PATCH_INTEGRER_DOCUMENT_FINAL_PROJET_ACTE_TRANSCRIT } from "@api/configurations/etatCivil/projetActe/PatchIntegrerDocumentFinalProjetActeTranscritConfigApi";
+import { CONFIG_PATCH_STATUT_REQUETE_CREATION } from "@api/configurations/requete/creation/PatchStatutRequeteCreationConfigApi";
+import { CONFIG_PATCH_STATUT_REQUETE_ETABLI_APRES_SIGNATURE } from "@api/configurations/requete/creation/PatchStatutRequeteEtabliApresSignatureConfigApi";
+import { CONFIG_PATCH_STATUT_REQUETE_MISE_A_JOUR } from "@api/configurations/requete/miseAJour/PatchStatutRequeteMiseAjourConfigApi";
+import { TErreurApi } from "@model/api/Api";
+import { StatutRequete } from "@model/requete/enum/StatutRequete";
+import { TypePopinSignature } from "@model/signature/ITypePopinSignature";
+import CircularProgress from "@mui/material/CircularProgress";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { RECEContextData } from "../../../contexts/RECEContextProvider";
+import useFetchApi from "../../../hooks/api/FetchApiHook";
+import Signature, { CODE_PIN_INVALIDE, IInformationsCarte } from "../../../utils/Signature";
+import Bouton from "../bouton/Bouton";
+import CodePinForm from "./CodePinForm";
+import InformationsDeveloppeur from "./InformationsDeveloppeur";
+
+type TStatutSignature =
+  | "attente-pin"
+  | "recuperation-informations"
+  | "composition-document"
+  | "signature-document"
+  | "enregistrement-document"
+  | "termine";
+
+type TTypeSignature = "MISE_A_JOUR" | "ETABLI" | "TRANSCRIT" | "DOUBLE_NUMERIQUE";
+
+interface IDonneesSignature {
+  statut: TStatutSignature;
+  codePin: string | null;
+  erreurPin: boolean;
+  erreur: string | null;
+  informationsCarte: IInformationsCarte | null;
+  documentASigner: string | null;
+  documentSigne: string | null;
+}
+
+interface ISignatureCommunProps {
+  idActe: string;
+  idRequete: string;
+  apresSignature: (succes: boolean) => void;
+}
+
+interface ISignatureMiseAJourProps extends ISignatureCommunProps {
+  typeSignature: TTypeSignature;
+  idSuivi?: never;
+}
+
+interface ISignatureDoubleNumeriqueProps extends ISignatureCommunProps {
+  typeSignature: "DOUBLE_NUMERIQUE";
+  idSuivi?: never;
+}
+
+interface ISignatureEtablissementProps extends ISignatureCommunProps {
+  typeSignature: TTypeSignature;
+  idSuivi: string;
+}
+
+interface ISignatureTranscriptionProps extends ISignatureCommunProps {
+  typeSignature: TTypeSignature;
+  idSuivi?: never;
+}
+
+const DONNEES_SIGNATURE_DEFAUT: IDonneesSignature = {
+  statut: "attente-pin",
+  codePin: null,
+  erreurPin: false,
+  erreur: null,
+  informationsCarte: null,
+  documentASigner: null,
+  documentSigne: null
+};
+
+const AVANCEMENT: { [EtatAvancement in Exclude<TStatutSignature, "attente-pin" | "termine">]: { niveau: number; message: string } } = {
+  "recuperation-informations": { niveau: 0, message: "Récupération des informations de signature..." },
+  "composition-document": { niveau: 33, message: "Génération du document à signer..." },
+  "signature-document": { niveau: 66, message: "Signature du document..." },
+  "enregistrement-document": { niveau: 100, message: "Enregistrement du document signé..." }
+};
+
+/* NOSONAR */ const SignatureDocument: React.FC<
+  ISignatureMiseAJourProps | ISignatureEtablissementProps | ISignatureTranscriptionProps | ISignatureDoubleNumeriqueProps
+> = ({ idActe, idRequete, apresSignature, typeSignature, idSuivi = null }) => {
+  const { utilisateurConnecte } = useContext(RECEContextData);
+
+  const signature = useMemo(
+    () => ({
+      estMiseAJour: typeSignature === "MISE_A_JOUR" || typeSignature === "DOUBLE_NUMERIQUE",
+      messageInformation: (() => {
+        switch (typeSignature) {
+          case "MISE_A_JOUR":
+            return TypePopinSignature.getTextePopinSignatureMentions() ?? "";
+          case "DOUBLE_NUMERIQUE":
+            return TypePopinSignature.getTextePopinSignatureMentions() ?? "";
+          case "ETABLI":
+            return TypePopinSignature.getTextePopinSignatureActe() ?? "";
+          case "TRANSCRIT":
+            return TypePopinSignature.getTextePopinSignatureActeTranscrit() ?? "";
+          default:
+            return "";
+        }
+      })()
+    }),
+    [typeSignature]
+  );
+
+  const { appelApi: appelComposerMentions } = useFetchApi(CONFIG_PATCH_COMPOSER_DOCUMENT_MENTIONS_ULTERIEURES);
+  const { appelApi: appelIntegrerMentions } = useFetchApi(CONFIG_PATCH_INTEGRER_DOCUMENT_MENTION_SIGNER);
+  const { appelApi: appelModifierStatutRequeteMiseAJour } = useFetchApi(CONFIG_PATCH_STATUT_REQUETE_MISE_A_JOUR, true);
+
+  const { appelApi: appelComposerDoubleNumerique } = useFetchApi(CONFIG_PATCH_COMPOSER_DOCUMENT_FINAL_DOUBLE_NUMERIQUE);
+
+  const { appelApi: appelComposerProjetActeEtabli } = useFetchApi(CONFIG_PATCH_COMPOSER_DOCUMENT_FINAL_PROJET_ACTE_ETABLI);
+  const { appelApi: appelIntegrerProjetActeEtabli } = useFetchApi(CONFIG_PATCH_INTEGRER_DOCUMENT_FINAL_PROJET_ACTE_ETABLI);
+  const { appelApi: appelModifierStatutRequeteEtabli } = useFetchApi(CONFIG_PATCH_STATUT_REQUETE_ETABLI_APRES_SIGNATURE);
+
+  const { appelApi: appelComposerProjetActeTranscrit } = useFetchApi(CONFIG_PATCH_COMPOSER_DOCUMENT_FINAL_PROJET_ACTE_TRANSCRIT);
+  const { appelApi: appelIntegrerProjetActeTranscrit } = useFetchApi(CONFIG_PATCH_INTEGRER_DOCUMENT_FINAL_PROJET_ACTE_TRANSCRIT);
+  const { appelApi: appelModifierStatutRequeteTranscrit } = useFetchApi(CONFIG_PATCH_STATUT_REQUETE_CREATION, true);
+
+  const [donneesSignature, setDonneesSignature] = useState<IDonneesSignature>({ ...DONNEES_SIGNATURE_DEFAUT });
+
+  const configurationSignature = {
+    MISE_A_JOUR: {
+      composer: appelComposerMentions,
+      enregistrer: appelIntegrerMentions,
+      modifierStatut: appelModifierStatutRequeteMiseAJour
+    },
+    DOUBLE_NUMERIQUE: {
+      composer: appelComposerDoubleNumerique,
+      enregistrer: appelIntegrerMentions,
+      modifierStatut: appelModifierStatutRequeteMiseAJour
+    },
+    ETABLI: {
+      composer: appelComposerProjetActeEtabli,
+      enregistrer: appelIntegrerProjetActeEtabli,
+      modifierStatut: appelModifierStatutRequeteEtabli
+    },
+    TRANSCRIT: {
+      composer: appelComposerProjetActeTranscrit,
+      enregistrer: appelIntegrerProjetActeTranscrit,
+      modifierStatut: appelModifierStatutRequeteTranscrit
+    }
+  } as const satisfies Record<TTypeSignature, unknown>;
+
+  const recuperationInformations = () => {
+    console.info("[SIGNATURE] Récupération des informations de la carte ...");
+    donneesSignature.codePin &&
+      Signature.recupererInformationsCarte({
+        parametres: {
+          idActe: idActe,
+          codePin: donneesSignature.codePin,
+          idAgent: utilisateurConnecte.id,
+          prenomNomAgent: utilisateurConnecte.prenomNom,
+          estMiseAJour: signature.estMiseAJour
+        },
+        apresSucces: informations => {
+          console.info("[SIGNATURE] Récupération des informations de la carte effectuée");
+          setDonneesSignature(prec => ({
+            ...prec,
+            informationsCarte: informations,
+            statut: "composition-document"
+          }));
+        },
+        apresErreur: erreur => {
+          console.error(
+            `[SIGNATURE] Erreur récupération des informations de la carte : ${erreur.code} - ${erreur.libelle} - ${erreur?.detail ?? "AUCUN DETAIL"}`
+          );
+          setDonneesSignature(prec => ({
+            ...prec,
+            erreur: erreur.libelle,
+            erreurPin: erreur.code === CODE_PIN_INVALIDE,
+            statut: erreur.code === CODE_PIN_INVALIDE ? "attente-pin" : "termine"
+          }));
+        }
+      });
+  };
+
+  const compositionDocument = () => {
+    console.info("[SIGNATURE] Composition du document à signer ...");
+
+    if (!donneesSignature.informationsCarte) return;
+
+    const config = configurationSignature[typeSignature];
+
+    config.composer({
+      parametres: {
+        path: { idActe: idActe },
+        body: {
+          issuerCertificat: donneesSignature.informationsCarte.issuerCertificat,
+          entiteCertificat: donneesSignature.informationsCarte.entiteCertificat
+        }
+      },
+      apresSucces: documentASigner => {
+        console.info("[SIGNATURE] Composition du document à signer effectuée");
+        setDonneesSignature(prec => ({
+          ...prec,
+          documentASigner: documentASigner,
+          statut: "signature-document"
+        }));
+      },
+      apresErreur: erreurs => {
+        const messageErreurServeur = ["FCT_16108", "TECH_16021"].includes(erreurs[0]?.code) ? erreurs[0]?.message : null;
+        const messageErreurDefaut = "Erreur lors de la composition du document à signer";
+        console.error(
+          `[SIGNATURE] ${messageErreurDefaut} : ${erreurs[0]?.code ?? "CODE_INCONNU"} - ${erreurs[0]?.message ?? "Erreur inconnue"}`
+        );
+
+        setDonneesSignature(prec => ({
+          ...prec,
+          erreur: messageErreurServeur ?? messageErreurDefaut,
+          statut: "termine"
+        }));
+      }
+    });
+  };
+
+  const signatureDocument = () => {
+    console.info(`[SIGNATURE] Signature du document ...`);
+    donneesSignature.codePin &&
+      donneesSignature.documentASigner &&
+      Signature.signerDocument({
+        parametres: {
+          idActe: idActe,
+          idAgent: utilisateurConnecte.id,
+          document: donneesSignature.documentASigner,
+          codePin: donneesSignature.codePin,
+          estMiseAJour: signature.estMiseAJour
+        },
+        apresReponse: reponse => {
+          const erreur = reponse.erreur?.libelle ?? null;
+          const documentSigne = reponse.document ?? null;
+          const messageErreur = !erreur && !documentSigne ? "Erreur inattendue" : erreur;
+          messageErreur
+            ? console.error(
+                `[SIGNATURE] Erreur lors de la signature du document : ${reponse.erreur?.code ?? "CODE_INCONNU"} - ${messageErreur} - ${reponse.erreur?.detail ?? "AUCUN DETAIL"}`
+              )
+            : console.info(`[SIGNATURE] Signature du document effectuée`);
+
+          setDonneesSignature(prec => ({
+            ...prec,
+            documentASigner: null,
+            documentSigne: documentSigne,
+            erreur: messageErreur,
+            informationsCarte: reponse.infosSignature ?? null,
+            statut: documentSigne ? "enregistrement-document" : "termine"
+          }));
+        }
+      });
+  };
+
+  const enregistrementDocument = () => {
+    console.info("[SIGNATURE] Enregistrement du document signé ...");
+
+    if (!donneesSignature.documentSigne || !donneesSignature.informationsCarte) return;
+
+    const config = configurationSignature[typeSignature];
+
+    config.enregistrer({
+      parametres: {
+        path: { idActe: idActe },
+        body: {
+          documentPadesBase64: donneesSignature.documentSigne,
+          signature: donneesSignature.informationsCarte,
+          modeAuthentification: "AROBAS_MDP"
+        }
+      },
+      apresSucces: () => {
+        console.info("[SIGNATURE] Enregistrement du document signé effectué");
+        console.info("[SIGNATURE] Modification du statut de la requête ...");
+
+        const apresModificationStatut = {
+          apresSucces: () => console.info("[SIGNATURE] Modification du statut de la requête effectué"),
+          apresErreur: (erreurs: TErreurApi[]) =>
+            console.error(
+              `[SIGNATURE] Erreur lors de la modification du statut de la requête : ${erreurs[0]?.code ?? "CODE_INCONNU"} - ${erreurs[0]?.message ?? "Erreur inconnue"}`
+            ),
+          finalement: () =>
+            setDonneesSignature(prec => ({
+              ...prec,
+              statut: "termine"
+            }))
+        };
+
+        switch (typeSignature) {
+          case "MISE_A_JOUR":
+            appelModifierStatutRequeteMiseAJour({
+              parametres: { path: { idRequete: idRequete, statut: StatutRequete.TRAITEE_MIS_A_JOUR.nom } },
+              ...apresModificationStatut
+            });
+
+            return;
+
+          case "ETABLI":
+            if (idSuivi?.length) {
+              appelModifierStatutRequeteEtabli({
+                parametres: { path: { idRequete: idRequete, idSuiviDossier: idSuivi ?? "" } },
+                ...apresModificationStatut
+              });
+            } else {
+              console.error("[SIGNATURE] Erreur lors de la modification du statut de la requête : ID Suivi inconnu");
+              setDonneesSignature(prec => ({
+                ...prec,
+                statut: "termine"
+              }));
+            }
+
+            return;
+
+          case "TRANSCRIT":
+            appelModifierStatutRequeteTranscrit({
+              parametres: { path: { idRequete: idRequete }, query: { statut: StatutRequete.getKey(StatutRequete.TRAITE) } },
+              ...apresModificationStatut,
+              apresSucces: () => {
+                apresSignature(true);
+              }
+            });
+
+            return;
+
+          default:
+            console.error(`[SIGNATURE] Type de signature inconnu : ${typeSignature}`);
+            setDonneesSignature(prec => ({
+              ...prec,
+              statut: "termine"
+            }));
+            return;
+        }
+      },
+      apresErreur: erreurs => {
+        const messageErreurServeur = ["FCT_16108", "TECH_16021"].includes(erreurs[0]?.code) ? erreurs[0]?.message : null;
+        const messageErreurDefaut = `Erreur lors de l'enregistrement ${signature.estMiseAJour ? "des mentions signées" : "de l'acte signé"} `;
+        console.error(
+          `[SIGNATURE] ${messageErreurDefaut} : ${erreurs[0]?.code ?? "CODE_INCONNU"} - ${erreurs[0]?.message ?? "Erreur inconnue"}`
+        );
+
+        setDonneesSignature(prec => ({
+          ...prec,
+          erreur: messageErreurServeur ?? messageErreurDefaut,
+          statut: "termine"
+        }));
+      }
+    });
+  };
+
+  useEffect(() => {
+    switch (donneesSignature.statut) {
+      case "recuperation-informations":
+        recuperationInformations();
+        break;
+
+      case "composition-document":
+        compositionDocument();
+        break;
+
+      case "signature-document":
+        signatureDocument();
+        break;
+
+      case "enregistrement-document":
+        enregistrementDocument();
+        break;
+      default:
+        break;
+    }
+  }, [donneesSignature.statut]);
+
+  switch (donneesSignature.statut) {
+    case "attente-pin":
+      return (
+        <>
+          {signature.messageInformation && <div className="mb-4 text-start">{signature.messageInformation}</div>}
+
+          <InformationsDeveloppeur />
+
+          <CodePinForm
+            onSubmit={codePin =>
+              setDonneesSignature(prec => ({
+                ...prec,
+                codePin: codePin,
+                erreurPin: false,
+                statut: "recuperation-informations"
+              }))
+            }
+            fermerModale={() => {
+              setDonneesSignature({ ...DONNEES_SIGNATURE_DEFAUT });
+              apresSignature(false);
+            }}
+            erreurPin={donneesSignature.erreurPin}
+          />
+        </>
+      );
+
+    case "recuperation-informations":
+    case "composition-document":
+    case "signature-document":
+    case "enregistrement-document":
+      return (
+        <div>
+          <div className="mt-1 h-2 w-full overflow-hidden rounded-full border border-solid border-gris">
+            <div
+              className="h-full bg-bleu"
+              style={{
+                width: `${AVANCEMENT[donneesSignature.statut].niveau}%`,
+                transition: "width .4s ease"
+              }}
+            ></div>
+          </div>
+
+          <div className="text-center">{AVANCEMENT[donneesSignature.statut].message}</div>
+
+          <div className="pt-4 text-center">
+            <CircularProgress size={30} />
+          </div>
+        </div>
+      );
+
+    case "termine": {
+      const estTypeSignatureMajOuEtabli = ["ETABLI", "MISE_A_JOUR"].includes(typeSignature);
+      return (
+        <div className="text-center">
+          {donneesSignature.erreur && (
+            <>
+              <div className="font-bold text-rouge">{"⚠ Impossible d'effectuer la signature :"}</div>
+              <div className="text-rouge">{donneesSignature.erreur}</div>
+            </>
+          )}
+
+          {!donneesSignature.erreur && estTypeSignatureMajOuEtabli && <div>{"Signature des mentions effectuée."}</div>}
+
+          {estTypeSignatureMajOuEtabli && (
+            <Bouton
+              className="mt-6"
+              title="Fermer"
+              styleBouton="principal"
+              onClick={() => {
+                setDonneesSignature({ ...DONNEES_SIGNATURE_DEFAUT });
+                apresSignature(!donneesSignature.erreur);
+              }}
+            >
+              {"Fermer"}
+            </Bouton>
+          )}
+
+          {donneesSignature.erreur && !estTypeSignatureMajOuEtabli && (
+            <div className="mt-6">
+              <Bouton
+                title="Réessayer"
+                styleBouton="principal"
+                onClick={() => {
+                  setDonneesSignature({ ...DONNEES_SIGNATURE_DEFAUT });
+                }}
+              >
+                {"Réessayer"}
+              </Bouton>
+            </div>
+          )}
+        </div>
+      );
+    }
+    default:
+      return <></>;
+  }
+};
+
+export default SignatureDocument;
