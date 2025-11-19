@@ -1,0 +1,382 @@
+import { CONFIG_GET_RESUME_ACTE } from "@api/configurations/etatCivil/acte/GetResumeActeConfigApi";
+import CONFIG_GET_FORMULE_INTEGRATION_RECE, {
+  IFormuleIntegrationDto
+} from "@api/configurations/etatCivil/nomenclature/GetFormuleIntegrationRECEApi";
+import { CONFIG_PUT_ANALYSE_MARGINALE_ET_MENTIONS } from "@api/configurations/etatCivil/PutAnalyseMarginaleEtMentionsConfigApi";
+import { CONFIG_PUT_MISE_A_JOUR_ANALYSE_MARGINALE } from "@api/configurations/etatCivil/PutMiseAJourAnalyseMarginaleConfigApi";
+import { Droit } from "@model/agent/enum/Droit";
+import { TErreurApi } from "@model/api/Api";
+import { FicheActe } from "@model/etatcivil/acte/FicheActe";
+import AnalyseMarginaleForm from "@model/form/AnalyseMarginale/AnalyseMarginaleForm";
+import { TObjetFormulaire } from "@model/form/commun/ObjetFormulaire";
+import { TPrenomsForm } from "@model/form/commun/PrenomsForm";
+import MiseAJourForm from "@model/form/miseAJour/MiseAJourForm";
+import { estActeEligibleFormuleDIntegration } from "@pages/fiche/FichePage";
+import { Formik } from "formik";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { Form } from "react-router";
+import { ECleOngletsMiseAJour, EditionMiseAJourContext } from "../../../contexts/EditionMiseAJourContextProvider";
+import { RECEContextData } from "../../../contexts/RECEContextProvider";
+import useFetchApi from "../../../hooks/api/FetchApiHook";
+import AfficherMessage from "../../../utils/AfficherMessage";
+import Bouton from "../../commun/bouton/Bouton";
+import { ConteneurBoutonBasDePage } from "../../commun/bouton/conteneurBoutonBasDePage/ConteneurBoutonBasDePage";
+import PageChargeur from "../../commun/chargeurs/PageChargeur";
+import ConteneurAvecBordure from "../../commun/conteneurs/formulaire/ConteneurAvecBordure";
+import ConteneurModale from "../../commun/conteneurs/modale/ConteneurModale";
+import OngletsBouton from "../../commun/onglets/OngletsBouton";
+import OngletsContenu from "../../commun/onglets/OngletsContenu";
+import BoutonTerminerEtSigner from "./formulaires/BoutonTerminerEtSigner";
+import BoutonValiderEtTerminer from "./formulaires/BoutonValiderEtTerminer";
+import MentionForm, { ITitulaireMention } from "./formulaires/MentionForm";
+import AnalyseMarginaleFormulaire from "./formulaires/mentions/AnalyseMarginaleFormulaire/AnalyseMarginaleFormulaire";
+import TableauMentions from "./formulaires/mentions/ListeMentionsFormulaire/TableauMentions";
+
+interface IDonneesAideSaisie {
+  champs: TObjetFormulaire;
+  textesEdites: { [cle: string]: { edite: string; original: string } };
+}
+
+export interface IMentionMiseAJour {
+  texte: string;
+  idTypeMention: string;
+  affecteAnalyseMarginale: boolean;
+  donneesAideSaisie?: IDonneesAideSaisie;
+}
+
+export interface IMentionEnCours {
+  index: number | null;
+  mention: IMentionMiseAJour;
+}
+
+export interface IAnalyseMarginaleMiseAJour extends TObjetFormulaire {
+  motif: string;
+  titulaires: {
+    nom: string;
+    nomSecable: boolean;
+    nomPartie1: string;
+    nomPartie2: string;
+    prenoms: TPrenomsForm;
+  }[];
+}
+
+export interface IMiseAJourForm {
+  mentions: IMentionMiseAJour[];
+  analyseMarginale: IAnalyseMarginaleMiseAJour;
+}
+
+export interface IMiseAJourMentionsForm {
+  mentions: IMentionMiseAJour[];
+}
+
+const PartieFormulaire: React.FC = () => {
+  const { estMiseAJourAvecMentions, ongletsActifs, idActe, miseAJourEffectuee } = useContext(EditionMiseAJourContext.Valeurs);
+  const { changerOnglet, activerOngletActeMisAJour, setComposerActeMisAJour } = useContext(EditionMiseAJourContext.Actions);
+
+  const { appelApi: mettreAJourAnalyseMarginaleEtMentions, enAttenteDeReponseApi: enAttenteMiseAJourAnalyseMarginaleEtMention } =
+    useFetchApi(CONFIG_PUT_ANALYSE_MARGINALE_ET_MENTIONS);
+  const { appelApi: mettreAJourAnalyseMarginale, enAttenteDeReponseApi: enAttenteMiseAJourAnalyseMarginale } = useFetchApi(
+    CONFIG_PUT_MISE_A_JOUR_ANALYSE_MARGINALE
+  );
+  const [afficherAnalyseMarginale, setAfficherAnalyseMarginale] = useState(!estMiseAJourAvecMentions);
+
+  const [formulaireMentionEnCoursDeSaisie, setFormulaireMentionEnCoursDeSaisie] = useState<boolean>(false);
+
+  const [afficherModaleAnalyseMarginale, setAfficherModaleAnalyseMarginale] = useState<boolean>(false);
+  const [donneesAnalyseMarginale, setDonneesAnalyseMarginale] = useState<IAnalyseMarginaleMiseAJour | null>(null);
+  const [analyseMarginaleModifiee, setAnalyseMarginaleModifiee] = useState<boolean>(false);
+  const [mentionsDeLActe, setMentionsDeLActe] = useState<IMentionMiseAJour[]>([]);
+  const [mentionsDuTableau, setMentionsDuTableau] = useState<IMentionMiseAJour[]>([]);
+  const [mentionEnCoursDeSaisie, setMentionEnCoursDeSaisie] = useState<IMentionEnCours | null>(null);
+  const [motif, setMotif] = useState<string | null>(null);
+
+  const [acte, setActe] = useState<FicheActe | null>(null);
+  const { appelApi: getResumeActe } = useFetchApi(CONFIG_GET_RESUME_ACTE, true);
+  const { appelApi: getFormuleIntegrationRece } = useFetchApi(CONFIG_GET_FORMULE_INTEGRATION_RECE, true);
+  const [valeursInitialesFormulaireAnalyseMarginale, setValeursInitialesFormulaireAnalyseMarginale] =
+    useState<IAnalyseMarginaleMiseAJour | null>(null);
+  const { utilisateurConnecte } = useContext(RECEContextData);
+
+  const [formuleDIntegration, setFormuleDIntegration] = useState<IFormuleIntegrationDto | null>(null);
+
+  const acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits = useMemo(() => {
+    if (acte !== null) {
+      return (
+        estActeEligibleFormuleDIntegration(acte) &&
+        utilisateurConnecte.estHabilitePour({ tousLesDroits: [Droit.METTRE_A_JOUR_ACTE, Droit.MISE_A_JOUR_CREER_DOUBLE_NUMERIQUE] })
+      );
+    }
+    return false;
+  }, [acte, utilisateurConnecte]);
+
+  useEffect(() => {
+    if (acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits && formuleDIntegration === null) {
+      getFormuleIntegrationRece({
+        parametres: {},
+        apresSucces: formuleDIntegration => {
+          setFormuleDIntegration(formuleDIntegration);
+        },
+        apresErreur: erreurs =>
+          AfficherMessage.erreur("Une erreur est survenue lors de la récupération des informations de la formule d'intégration au RECE", {
+            erreurs
+          })
+      });
+    }
+  }, [acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits]);
+
+  useEffect(() => {
+    if (estMiseAJourAvecMentions) {
+      let mentions: IMentionMiseAJour[];
+      const analyseMarginaleEstMiseAJour = afficherAnalyseMarginale && analyseMarginaleModifiee && donneesAnalyseMarginale !== null;
+
+      // Mention saisie dans le formulaire de saisie
+      if (mentionEnCoursDeSaisie?.mention) {
+        // Mention modifiée
+        if (typeof mentionEnCoursDeSaisie.index === "number") {
+          if (mentionsDeLActe[mentionEnCoursDeSaisie.index] === mentionEnCoursDeSaisie.mention) return;
+
+          mentions = mentionsDeLActe.map((mention, index) =>
+            index === mentionEnCoursDeSaisie.index ? mentionEnCoursDeSaisie.mention : mention
+          );
+
+          // Mention ajoutée
+        } else {
+          mentions = [...mentionsDeLActe, mentionEnCoursDeSaisie.mention];
+        }
+
+        // Analyse marginale modifiée
+      } else if (analyseMarginaleEstMiseAJour) {
+        mentions = mentionsDeLActe;
+
+        // Ordre des mentions modifié ou mention supprimée
+      } else {
+        mentions = mentionsDuTableau;
+      }
+
+      if (!mentions.length) return;
+
+      mettreAJourAnalyseMarginaleEtMentions({
+        parametres: {
+          body: MiseAJourForm.versDto(
+            idActe,
+            [
+              ...mentions,
+              ...(formuleDIntegration !== null
+                ? [
+                    {
+                      idTypeMention: formuleDIntegration.idTypeMention,
+                      affecteAnalyseMarginale: formuleDIntegration.affecteAnalyseMarginale,
+                      texte: formuleDIntegration.texteFormule
+                    }
+                  ]
+                : [])
+            ],
+            donneesAnalyseMarginale,
+            analyseMarginaleEstMiseAJour
+          )
+        },
+        apresSucces: () => {
+          setMentionsDeLActe(mentions);
+          activerMiseAJourActe();
+          resetModificationMention();
+
+          !analyseMarginaleEstMiseAJour &&
+            setAfficherModaleAnalyseMarginale(mentions[mentionEnCoursDeSaisie?.index ?? mentions.length - 1].affecteAnalyseMarginale);
+        },
+        apresErreur: (erreurs: TErreurApi[]) => {
+          const messageErreur = (() => {
+            switch (true) {
+              case Boolean(erreurs?.find(erreur => erreur.code === "FCT_16136")):
+                return "Aucune modification de l'analyse marginale n'a été détectée";
+              case Boolean(erreurs?.find(erreur => erreur.code === "FCT_160168")):
+                return "La personne liée ne peut pas être le titulaire de l'acte";
+              default:
+                return "Impossible de mettre à jour l'acte";
+            }
+          })();
+
+          AfficherMessage.erreur(messageErreur, { erreurs, fermetureAuto: true });
+        }
+      });
+    }
+
+    if (!estMiseAJourAvecMentions && donneesAnalyseMarginale !== null) {
+      mettreAJourAnalyseMarginale({
+        parametres: {
+          path: { idActe: idActe },
+          body: AnalyseMarginaleForm.versDto(donneesAnalyseMarginale)
+        },
+        apresSucces: () => {
+          activerOngletActeMisAJour();
+          setComposerActeMisAJour(true);
+          changerOnglet(ECleOngletsMiseAJour.ACTE_MIS_A_JOUR, null);
+        },
+        apresErreur: (erreurs: TErreurApi[]) => {
+          const messageErreur = erreurs.find(erreur => erreur.code === "FCT_16136")
+            ? "Aucune modification de l'analyse marginale n'a été détectée"
+            : "Impossible de mettre à jour l'analyse marginale";
+
+          AfficherMessage.erreur(messageErreur, { erreurs, fermetureAuto: true });
+        }
+      });
+    }
+  }, [donneesAnalyseMarginale, mentionEnCoursDeSaisie, mentionsDuTableau]);
+
+  useEffect(() => {
+    getResumeActe({
+      parametres: {
+        path: { idActe },
+        query: { remplaceIdentiteTitulaireParIdentiteTitulaireAM: true }
+      },
+      apresSucces: acteDto => {
+        setActe(FicheActe.depuisDto(acteDto));
+      },
+      apresErreur: erreurs =>
+        AfficherMessage.erreur("Une erreur est survenue lors de la récupération des informations de l'acte", { erreurs })
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!acte) return;
+
+    setValeursInitialesFormulaireAnalyseMarginale(
+      AnalyseMarginaleForm.genererValeursDefautFormulaire(acte.getTitulairesPourAnalyseMarginale(), motif)
+    );
+  }, [motif, acte]);
+
+  const resetModificationMention = () => {
+    setMentionEnCoursDeSaisie(mention => (mention ? null : mention));
+    setMentionsDuTableau(mentions => (mentions.length > 0 ? [] : mentions));
+    setFormulaireMentionEnCoursDeSaisie(false);
+  };
+
+  const activerMiseAJourActe = () => {
+    activerOngletActeMisAJour();
+    setComposerActeMisAJour(true);
+    changerOnglet(ECleOngletsMiseAJour.ACTE_MIS_A_JOUR, null);
+  };
+
+  const titulairesMention: ITitulaireMention[] = useMemo(() => {
+    if (!acte) return [];
+
+    return [...Array(acte.getNombreTitulairesSelonNature()).keys()].map(index => {
+      return {
+        nom: acte?.titulaires?.[index].nom ?? "",
+        nomPartie1: acte?.titulaires?.[index].nomPartie1 ?? "",
+        nomPartie2: acte?.titulaires?.[index].nomPartie2 ?? "",
+        nomSecable: Boolean(acte?.titulaires?.[index].nomPartie1 && acte?.titulaires?.[index].nomPartie2),
+        prenoms: acte?.titulaires?.[index].prenoms ?? [],
+        sexe: acte?.titulaires?.[index].sexe ?? null
+      };
+    });
+  }, [acte]);
+
+  return (
+    <>
+      {(enAttenteMiseAJourAnalyseMarginale || enAttenteMiseAJourAnalyseMarginaleEtMention) && <PageChargeur />}
+      <div className="w-1/2">
+        <OngletsBouton<ECleOngletsMiseAJour>
+          onglets={[
+            ...(estMiseAJourAvecMentions
+              ? [
+                  {
+                    cle: ECleOngletsMiseAJour.MENTIONS,
+                    libelle: "Mentions"
+                  }
+                ]
+              : []),
+
+            ...(afficherAnalyseMarginale
+              ? [
+                  {
+                    cle: ECleOngletsMiseAJour.ANALYSE_MARGINALE,
+                    libelle: "Analyse Marginale"
+                  }
+                ]
+              : [])
+          ]}
+          cleOngletActif={ongletsActifs.formulaires}
+          changerOnglet={valeur => changerOnglet(null, valeur)}
+        />
+
+        <div className="mt-4 flex h-[calc(100vh-16rem)] flex-col overflow-y-auto">
+          {estMiseAJourAvecMentions && (
+            <OngletsContenu estActif={ongletsActifs.formulaires === ECleOngletsMiseAJour.MENTIONS}>
+              {acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits && (
+                <div className="pb-4 text-left">
+                  <ConteneurAvecBordure titreEnTete="Formule intégration dans RECE">
+                    <div className="mt-3 bg-slate-400">{formuleDIntegration?.texteFormule}</div>
+                  </ConteneurAvecBordure>
+                </div>
+              )}
+
+              <Formik<IMiseAJourMentionsForm>
+                initialValues={{ mentions: [] }}
+                onSubmit={values => {
+                  setMentionsDuTableau(values.mentions);
+                }}
+              >
+                <Form>
+                  <TableauMentions
+                    setAfficherOngletAnalyseMarginale={setAfficherAnalyseMarginale}
+                    setMotif={setMotif}
+                    formulaireMentionEnCoursDeSaisie={formulaireMentionEnCoursDeSaisie}
+                    donneesMentions={mentionsDeLActe}
+                  />
+                </Form>
+              </Formik>
+              <MentionForm
+                titulaires={titulairesMention}
+                setEnCoursDeSaisie={setFormulaireMentionEnCoursDeSaisie}
+                enCoursDeSaisie={formulaireMentionEnCoursDeSaisie}
+                setMentionEnCoursDeSaisie={setMentionEnCoursDeSaisie}
+                natureActe={acte?.nature}
+              />
+            </OngletsContenu>
+          )}
+
+          {afficherAnalyseMarginale && (
+            <OngletsContenu estActif={ongletsActifs.formulaires === ECleOngletsMiseAJour.ANALYSE_MARGINALE}>
+              <AnalyseMarginaleFormulaire
+                setDonneesAnalyseMarginale={setDonneesAnalyseMarginale}
+                setAnalyseMarginaleModifiee={setAnalyseMarginaleModifiee}
+                valeursInitiales={valeursInitialesFormulaireAnalyseMarginale}
+                motif={motif}
+              />
+            </OngletsContenu>
+          )}
+
+          <ConteneurBoutonBasDePage position="droite">
+            {estMiseAJourAvecMentions ? (
+              <BoutonTerminerEtSigner
+                saisieMentionEnCours={formulaireMentionEnCoursDeSaisie}
+                mentionsDeLActe={mentionsDeLActe}
+                acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits={acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits}
+                acte={acte}
+              />
+            ) : (
+              <BoutonValiderEtTerminer disabled={!miseAJourEffectuee} />
+            )}
+          </ConteneurBoutonBasDePage>
+        </div>
+      </div>
+      {afficherModaleAnalyseMarginale && (
+        <ConteneurModale>
+          <div className="rounded-md border-[2px] border-solid border-bleu-sombre bg-blanc p-6 shadow-lg">
+            <div className="p-6">{"Veuillez vérifier s'il y a lieu de mettre à jour l'analyse marginale"}</div>
+            <Bouton
+              title="J'ai lu ce message"
+              onClick={() => {
+                setAfficherModaleAnalyseMarginale(false);
+              }}
+            >
+              {"OK"}
+            </Bouton>
+          </div>
+        </ConteneurModale>
+      )}
+    </>
+  );
+};
+
+export default PartieFormulaire;
