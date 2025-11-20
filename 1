@@ -1,480 +1,406 @@
-import { CONFIG_PATCH_COMPOSER_DOCUMENT_FINAL_DOUBLE_NUMERIQUE } from "@api/configurations/etatCivil/acte/PatchComposerDocumentFinalDoubleNumeriqueConfigApi";
-import { CONFIG_PATCH_COMPOSER_DOCUMENT_MENTIONS_ULTERIEURES } from "@api/configurations/etatCivil/acte/PatchComposerDocumentMentionsUlterieuresConfigApi";
-import { CONFIG_PATCH_INTEGRER_ACTE_DOUBLE_NUMERIQUE } from "@api/configurations/etatCivil/acte/PatchIntegrerActeDoubleNumeriqueConfigApi";
-import { CONFIG_PATCH_INTEGRER_DOCUMENT_MENTION_SIGNER } from "@api/configurations/etatCivil/acte/PatchIntegrerDocumentMentionSigneConfigApi";
-import { CONFIG_PATCH_COMPOSER_DOCUMENT_FINAL_PROJET_ACTE_ETABLI } from "@api/configurations/etatCivil/projetActe/PatchComposerDocumentFinalProjetActeEtabliConfigApi";
-import { CONFIG_PATCH_COMPOSER_DOCUMENT_FINAL_PROJET_ACTE_TRANSCRIT } from "@api/configurations/etatCivil/projetActe/PatchComposerDocumentFinalProjetActeTranscritConfigApi";
-import { CONFIG_PATCH_INTEGRER_DOCUMENT_FINAL_PROJET_ACTE_ETABLI } from "@api/configurations/etatCivil/projetActe/PatchIntegrerDocumentFinalProjetActeEtabliConfigApi";
-import { CONFIG_PATCH_INTEGRER_DOCUMENT_FINAL_PROJET_ACTE_TRANSCRIT } from "@api/configurations/etatCivil/projetActe/PatchIntegrerDocumentFinalProjetActeTranscritConfigApi";
-import { CONFIG_PATCH_STATUT_REQUETE_CREATION } from "@api/configurations/requete/creation/PatchStatutRequeteCreationConfigApi";
-import { CONFIG_PATCH_STATUT_REQUETE_ETABLI_APRES_SIGNATURE } from "@api/configurations/requete/creation/PatchStatutRequeteEtabliApresSignatureConfigApi";
-import { CONFIG_PATCH_STATUT_REQUETE_MISE_A_JOUR } from "@api/configurations/requete/miseAJour/PatchStatutRequeteMiseAjourConfigApi";
+import { CONFIG_GET_RESUME_ACTE } from "@api/configurations/etatCivil/acte/GetResumeActeConfigApi";
+import CONFIG_GET_FORMULE_INTEGRATION_RECE, {
+  IFormuleIntegrationDto
+} from "@api/configurations/etatCivil/nomenclature/GetFormuleIntegrationRECEApi";
+import { CONFIG_PUT_ANALYSE_MARGINALE_ET_MENTIONS } from "@api/configurations/etatCivil/PutAnalyseMarginaleEtMentionsConfigApi";
+import { CONFIG_PUT_MISE_A_JOUR_ANALYSE_MARGINALE } from "@api/configurations/etatCivil/PutMiseAJourAnalyseMarginaleConfigApi";
+import { useMentionsApiHook } from "@hook/acte/mentions/MentionsApiHook";
+import { Droit } from "@model/agent/enum/Droit";
 import { TErreurApi } from "@model/api/Api";
-import { StatutRequete } from "@model/requete/enum/StatutRequete";
-import { TypePopinSignature } from "@model/signature/ITypePopinSignature";
-import CircularProgress from "@mui/material/CircularProgress";
+import { FicheActe } from "@model/etatcivil/acte/FicheActe";
+import { EStatutMention } from "@model/etatcivil/enum/EStatutMention";
+import AnalyseMarginaleForm from "@model/form/AnalyseMarginale/AnalyseMarginaleForm";
+import { TObjetFormulaire } from "@model/form/commun/ObjetFormulaire";
+import { TPrenomsForm } from "@model/form/commun/PrenomsForm";
+import MiseAJourForm from "@model/form/miseAJour/MiseAJourForm";
+import { estActeEligibleFormuleDIntegration } from "@pages/fiche/FichePage";
+import { Formik } from "formik";
 import { useContext, useEffect, useMemo, useState } from "react";
+import { Form } from "react-router";
+import { ECleOngletsMiseAJour, EditionMiseAJourContext } from "../../../contexts/EditionMiseAJourContextProvider";
 import { RECEContextData } from "../../../contexts/RECEContextProvider";
 import useFetchApi from "../../../hooks/api/FetchApiHook";
-import Signature, { CODE_PIN_INVALIDE, IInformationsCarte } from "../../../utils/Signature";
-import Bouton from "../bouton/Bouton";
-import CodePinForm from "./CodePinForm";
-import InformationsDeveloppeur from "./InformationsDeveloppeur";
+import AfficherMessage from "../../../utils/AfficherMessage";
+import Bouton from "../../commun/bouton/Bouton";
+import { ConteneurBoutonBasDePage } from "../../commun/bouton/conteneurBoutonBasDePage/ConteneurBoutonBasDePage";
+import PageChargeur from "../../commun/chargeurs/PageChargeur";
+import ConteneurAvecBordure from "../../commun/conteneurs/formulaire/ConteneurAvecBordure";
+import ConteneurModale from "../../commun/conteneurs/modale/ConteneurModale";
+import OngletsBouton from "../../commun/onglets/OngletsBouton";
+import OngletsContenu from "../../commun/onglets/OngletsContenu";
+import BoutonTerminerEtSigner from "./formulaires/BoutonTerminerEtSigner";
+import BoutonValiderEtTerminer from "./formulaires/BoutonValiderEtTerminer";
+import MentionForm, { ITitulaireMention } from "./formulaires/MentionForm";
+import AnalyseMarginaleFormulaire from "./formulaires/mentions/AnalyseMarginaleFormulaire/AnalyseMarginaleFormulaire";
+import TableauMentions from "./formulaires/mentions/ListeMentionsFormulaire/TableauMentions";
 
-type TStatutSignature =
-  | "attente-pin"
-  | "recuperation-informations"
-  | "composition-document"
-  | "signature-document"
-  | "enregistrement-document"
-  | "termine";
-
-type TTypeSignature = "MISE_A_JOUR" | "DOUBLE_NUMERIQUE" | "ETABLI" | "TRANSCRIT";
-
-interface IDonneesSignature {
-  statut: TStatutSignature;
-  codePin: string | null;
-  erreurPin: boolean;
-  erreur: string | null;
-  informationsCarte: IInformationsCarte | null;
-  documentASigner: string | null;
-  documentSigne: string | null;
+interface IDonneesAideSaisie {
+  champs: TObjetFormulaire;
+  textesEdites: { [cle: string]: { edite: string; original: string } };
 }
 
-interface ISignatureCommunProps {
-  idActe: string;
-  idRequete: string;
-  apresSignature: (succes: boolean) => void;
+export interface IMentionMiseAJour {
+  texte: string;
+  idTypeMention: string;
+  affecteAnalyseMarginale: boolean;
+  donneesAideSaisie?: IDonneesAideSaisie;
 }
 
-interface ISignatureMiseAJourProps extends ISignatureCommunProps {
-  typeSignature: TTypeSignature;
-  idSuivi?: never;
+export interface IMentionEnCours {
+  index: number | null;
+  mention: IMentionMiseAJour;
 }
 
-interface ISignatureEtablissementProps extends ISignatureCommunProps {
-  typeSignature: TTypeSignature;
-  idSuivi: string;
+export interface IAnalyseMarginaleMiseAJour extends TObjetFormulaire {
+  motif: string;
+  titulaires: {
+    nom: string;
+    nomSecable: boolean;
+    nomPartie1: string;
+    nomPartie2: string;
+    prenoms: TPrenomsForm;
+  }[];
 }
 
-interface ISignatureTranscriptionProps extends ISignatureCommunProps {
-  typeSignature: TTypeSignature;
-  idSuivi?: never;
+export interface IMiseAJourForm {
+  mentions: IMentionMiseAJour[];
+  analyseMarginale: IAnalyseMarginaleMiseAJour;
 }
 
-const DONNEES_SIGNATURE_DEFAUT: IDonneesSignature = {
-  statut: "attente-pin",
-  codePin: null,
-  erreurPin: false,
-  erreur: null,
-  informationsCarte: null,
-  documentASigner: null,
-  documentSigne: null
-};
+export interface IMiseAJourMentionsForm {
+  mentions: IMentionMiseAJour[];
+}
 
-const AVANCEMENT: { [EtatAvancement in Exclude<TStatutSignature, "attente-pin" | "termine">]: { niveau: number; message: string } } = {
-  "recuperation-informations": { niveau: 0, message: "Récupération des informations de signature..." },
-  "composition-document": { niveau: 33, message: "Génération du document à signer..." },
-  "signature-document": { niveau: 66, message: "Signature du document..." },
-  "enregistrement-document": { niveau: 100, message: "Enregistrement du document signé..." }
-};
+const PartieFormulaire: React.FC = () => {
+  const { estMiseAJourAvecMentions, ongletsActifs, idActe, miseAJourEffectuee } = useContext(EditionMiseAJourContext.Valeurs);
+  const { changerOnglet, activerOngletActeMisAJour, setComposerActeMisAJour } = useContext(EditionMiseAJourContext.Actions);
 
-/* NOSONAR */ const SignatureDocument: React.FC<ISignatureMiseAJourProps | ISignatureEtablissementProps | ISignatureTranscriptionProps> = ({
-  idActe,
-  idRequete,
-  apresSignature,
-  typeSignature,
-  idSuivi = null
-}) => {
+  const { appelApi: mettreAJourAnalyseMarginaleEtMentions, enAttenteDeReponseApi: enAttenteMiseAJourAnalyseMarginaleEtMention } =
+    useFetchApi(CONFIG_PUT_ANALYSE_MARGINALE_ET_MENTIONS);
+  const { appelApi: mettreAJourAnalyseMarginale, enAttenteDeReponseApi: enAttenteMiseAJourAnalyseMarginale } = useFetchApi(
+    CONFIG_PUT_MISE_A_JOUR_ANALYSE_MARGINALE
+  );
+  const [afficherAnalyseMarginale, setAfficherAnalyseMarginale] = useState(!estMiseAJourAvecMentions);
+
+  const [formulaireMentionEnCoursDeSaisie, setFormulaireMentionEnCoursDeSaisie] = useState<boolean>(false);
+
+  const [afficherModaleAnalyseMarginale, setAfficherModaleAnalyseMarginale] = useState<boolean>(false);
+  const [donneesAnalyseMarginale, setDonneesAnalyseMarginale] = useState<IAnalyseMarginaleMiseAJour | null>(null);
+  const [analyseMarginaleModifiee, setAnalyseMarginaleModifiee] = useState<boolean>(false);
+  const [mentionsDeLActe, setMentionsDeLActe] = useState<IMentionMiseAJour[]>([]);
+  const [mentionsDuTableau, setMentionsDuTableau] = useState<IMentionMiseAJour[]>([]);
+  const [mentionEnCoursDeSaisie, setMentionEnCoursDeSaisie] = useState<IMentionEnCours | null>(null);
+  const [motif, setMotif] = useState<string | null>(null);
+
+  const [acte, setActe] = useState<FicheActe | null>(null);
+  const { appelApi: getResumeActe } = useFetchApi(CONFIG_GET_RESUME_ACTE, true);
+  const { appelApi: getFormuleIntegrationRece } = useFetchApi(CONFIG_GET_FORMULE_INTEGRATION_RECE, true);
+  const [valeursInitialesFormulaireAnalyseMarginale, setValeursInitialesFormulaireAnalyseMarginale] =
+    useState<IAnalyseMarginaleMiseAJour | null>(null);
   const { utilisateurConnecte } = useContext(RECEContextData);
 
-  const signature = useMemo(
-    () => ({
-      estMiseAJour: typeSignature === "MISE_A_JOUR" || typeSignature === "DOUBLE_NUMERIQUE",
-      messageInformation: (() => {
-        switch (typeSignature) {
-          case "MISE_A_JOUR":
-            return TypePopinSignature.getTextePopinSignatureMentions() ?? "";
-          case "DOUBLE_NUMERIQUE":
-            return TypePopinSignature.getTextePopinSignatureMentions() ?? "";
-          case "ETABLI":
-            return TypePopinSignature.getTextePopinSignatureActe() ?? "";
-          case "TRANSCRIT":
-            return TypePopinSignature.getTextePopinSignatureActeTranscrit() ?? "";
-          default:
-            return "";
-        }
-      })()
-    }),
-    [typeSignature]
-  );
+  const [formuleDIntegration, setFormuleDIntegration] = useState<IFormuleIntegrationDto | null>(null);
 
-  const { appelApi: appelComposerMentions } = useFetchApi(CONFIG_PATCH_COMPOSER_DOCUMENT_MENTIONS_ULTERIEURES);
-  const { appelApi: appelComposerActeDoubleNumerique } = useFetchApi(CONFIG_PATCH_COMPOSER_DOCUMENT_FINAL_DOUBLE_NUMERIQUE);
-  const { appelApi: appelIntegrerMentions } = useFetchApi(CONFIG_PATCH_INTEGRER_DOCUMENT_MENTION_SIGNER);
-  const { appelApi: appelIntegrerActeDoubleNumerique } = useFetchApi(CONFIG_PATCH_INTEGRER_ACTE_DOUBLE_NUMERIQUE);
-  const { appelApi: appelModifierStatutRequeteMiseAJour } = useFetchApi(CONFIG_PATCH_STATUT_REQUETE_MISE_A_JOUR, true);
+  // Charger les mentions existantes pour les actes déjà numérisés
+  const estActeDejaNumérisé = acte?.origine === "SCEC_DOCS" && acte?.referenceActe?.startsWith("RECE.");
+  const mentionsExistantes = useMentionsApiHook(estActeDejaNumérisé ? { idActe: idActe, statutMention: EStatutMention.SIGNEE } : undefined);
 
-  const { appelApi: appelComposerProjetActeEtabli } = useFetchApi(CONFIG_PATCH_COMPOSER_DOCUMENT_FINAL_PROJET_ACTE_ETABLI);
-  const { appelApi: appelIntegrerProjetActeEtabli } = useFetchApi(CONFIG_PATCH_INTEGRER_DOCUMENT_FINAL_PROJET_ACTE_ETABLI);
-  const { appelApi: appelModifierStatutRequeteEtabli } = useFetchApi(CONFIG_PATCH_STATUT_REQUETE_ETABLI_APRES_SIGNATURE);
-
-  const { appelApi: appelComposerProjetActeTranscrit } = useFetchApi(CONFIG_PATCH_COMPOSER_DOCUMENT_FINAL_PROJET_ACTE_TRANSCRIT);
-  const { appelApi: appelIntegrerProjetActeTranscrit } = useFetchApi(CONFIG_PATCH_INTEGRER_DOCUMENT_FINAL_PROJET_ACTE_TRANSCRIT);
-  const { appelApi: appelModifierStatutRequeteTranscrit } = useFetchApi(CONFIG_PATCH_STATUT_REQUETE_CREATION, true);
-
-  const [donneesSignature, setDonneesSignature] = useState<IDonneesSignature>({ ...DONNEES_SIGNATURE_DEFAUT });
-
-  const configurationSignature = {
-    MISE_A_JOUR: {
-      composer: appelComposerMentions,
-      enregistrer: appelIntegrerMentions,
-      modifierStatut: appelModifierStatutRequeteMiseAJour
-    },
-    DOUBLE_NUMERIQUE: {
-      composer: appelComposerActeDoubleNumerique,
-      enregistrer: appelIntegrerActeDoubleNumerique,
-      modifierStatut: appelModifierStatutRequeteMiseAJour
-    },
-    ETABLI: {
-      composer: appelComposerProjetActeEtabli,
-      enregistrer: appelIntegrerProjetActeEtabli,
-      modifierStatut: appelModifierStatutRequeteEtabli
-    },
-    TRANSCRIT: {
-      composer: appelComposerProjetActeTranscrit,
-      enregistrer: appelIntegrerProjetActeTranscrit,
-      modifierStatut: appelModifierStatutRequeteTranscrit
+  const acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits = useMemo(() => {
+    if (acte !== null) {
+      return (
+        estActeEligibleFormuleDIntegration(acte) &&
+        utilisateurConnecte.estHabilitePour({ tousLesDroits: [Droit.METTRE_A_JOUR_ACTE, Droit.MISE_A_JOUR_CREER_DOUBLE_NUMERIQUE] })
+      );
     }
-  } as const satisfies Record<TTypeSignature, unknown>;
-
-  const recuperationInformations = () => {
-    console.info("[SIGNATURE] Récupération des informations de la carte ...");
-    donneesSignature.codePin &&
-      Signature.recupererInformationsCarte({
-        parametres: {
-          idActe: idActe,
-          codePin: donneesSignature.codePin,
-          idAgent: utilisateurConnecte.id,
-          prenomNomAgent: utilisateurConnecte.prenomNom,
-          estMiseAJour: signature.estMiseAJour
-        },
-        apresSucces: informations => {
-          console.info("[SIGNATURE] Récupération des informations de la carte effectuée");
-          setDonneesSignature(prec => ({
-            ...prec,
-            informationsCarte: informations,
-            statut: "composition-document"
-          }));
-        },
-        apresErreur: erreur => {
-          console.error(
-            `[SIGNATURE] Erreur récupération des informations de la carte : ${erreur.code} - ${erreur.libelle} - ${erreur?.detail ?? "AUCUN DETAIL"}`
-          );
-          setDonneesSignature(prec => ({
-            ...prec,
-            erreur: erreur.libelle,
-            erreurPin: erreur.code === CODE_PIN_INVALIDE,
-            statut: erreur.code === CODE_PIN_INVALIDE ? "attente-pin" : "termine"
-          }));
-        }
-      });
-  };
-
-  const compositionDocument = () => {
-    console.info("[SIGNATURE] Composition du document à signer ...");
-
-    if (!donneesSignature.informationsCarte) return;
-
-    const config = configurationSignature[typeSignature];
-
-    config.composer({
-      parametres: {
-        path: { idActe: idActe },
-        body: {
-          issuerCertificat: donneesSignature.informationsCarte.issuerCertificat,
-          entiteCertificat: donneesSignature.informationsCarte.entiteCertificat
-        }
-      },
-      apresSucces: documentASigner => {
-        console.info("[SIGNATURE] Composition du document à signer effectuée");
-        setDonneesSignature(prec => ({
-          ...prec,
-          documentASigner: documentASigner,
-          statut: "signature-document"
-        }));
-      },
-      apresErreur: erreurs => {
-        const messageErreurServeur = ["FCT_16108", "TECH_16021"].includes(erreurs[0]?.code) ? erreurs[0]?.message : null;
-        const messageErreurDefaut = "Erreur lors de la composition du document à signer";
-        console.error(
-          `[SIGNATURE] ${messageErreurDefaut} : ${erreurs[0]?.code ?? "CODE_INCONNU"} - ${erreurs[0]?.message ?? "Erreur inconnue"}`
-        );
-
-        setDonneesSignature(prec => ({
-          ...prec,
-          erreur: messageErreurServeur ?? messageErreurDefaut,
-          statut: "termine"
-        }));
-      }
-    });
-  };
-
-  const signatureDocument = () => {
-    console.info(`[SIGNATURE] Signature du document ...`);
-    donneesSignature.codePin &&
-      donneesSignature.documentASigner &&
-      Signature.signerDocument({
-        parametres: {
-          idActe: idActe,
-          idAgent: utilisateurConnecte.id,
-          document: donneesSignature.documentASigner,
-          codePin: donneesSignature.codePin,
-          estMiseAJour: signature.estMiseAJour
-        },
-        apresReponse: reponse => {
-          const erreur = reponse.erreur?.libelle ?? null;
-          const documentSigne = reponse.document ?? null;
-          const messageErreur = !erreur && !documentSigne ? "Erreur inattendue" : erreur;
-          messageErreur
-            ? console.error(
-                `[SIGNATURE] Erreur lors de la signature du document : ${reponse.erreur?.code ?? "CODE_INCONNU"} - ${messageErreur} - ${reponse.erreur?.detail ?? "AUCUN DETAIL"}`
-              )
-            : console.info(`[SIGNATURE] Signature du document effectuée`);
-
-          setDonneesSignature(prec => ({
-            ...prec,
-            documentASigner: null,
-            documentSigne: documentSigne,
-            erreur: messageErreur,
-            informationsCarte: reponse.infosSignature ?? null,
-            statut: documentSigne ? "enregistrement-document" : "termine"
-          }));
-        }
-      });
-  };
-
-  const enregistrementDocument = () => {
-    console.info("[SIGNATURE] Enregistrement du document signé ...");
-
-    if (!donneesSignature.documentSigne || !donneesSignature.informationsCarte) return;
-
-    const config = configurationSignature[typeSignature];
-    const parametresEnregistrement = {
-      path: { idActe: idActe },
-      body: {
-        documentPadesBase64: donneesSignature.documentSigne,
-        signature: donneesSignature.informationsCarte,
-        modeAuthentification: "AROBAS_MDP" as const
-      },
-      ...(typeSignature === "DOUBLE_NUMERIQUE" ? { responseType: "blob" as const } : {})
-    };
-
-    config.enregistrer({
-      parametres: parametresEnregistrement,
-      apresSucces: () => {
-        console.info("[SIGNATURE] Enregistrement du document signé effectué");
-        console.info("[SIGNATURE] Modification du statut de la requête ...");
-
-        const apresModificationStatut = {
-          apresSucces: () => {
-            console.info("[SIGNATURE] Modification du statut de la requête effectué");
-            apresSignature(true);
-          },
-          apresErreur: (erreurs: TErreurApi[]) =>
-            console.error(
-              `[SIGNATURE] Erreur lors de la modification du statut de la requête : ${erreurs[0]?.code ?? "CODE_INCONNU"} - ${erreurs[0]?.message ?? "Erreur inconnue"}`
-            ),
-          finalement: () =>
-            setDonneesSignature(prec => ({
-              ...prec,
-              statut: "termine"
-            }))
-        };
-
-        switch (typeSignature) {
-          case "MISE_A_JOUR":
-          case "DOUBLE_NUMERIQUE":
-            appelModifierStatutRequeteMiseAJour({
-              parametres: { path: { idRequete: idRequete, statut: StatutRequete.TRAITEE_MIS_A_JOUR.nom } },
-              ...apresModificationStatut
-            });
-
-            return;
-
-          case "ETABLI":
-            if (idSuivi?.length) {
-              appelModifierStatutRequeteEtabli({
-                parametres: { path: { idRequete: idRequete, idSuiviDossier: idSuivi ?? "" } },
-                ...apresModificationStatut
-              });
-            } else {
-              console.error("[SIGNATURE] Erreur lors de la modification du statut de la requête : ID Suivi inconnu");
-              setDonneesSignature(prec => ({
-                ...prec,
-                statut: "termine"
-              }));
-            }
-
-            return;
-
-          case "TRANSCRIT":
-            appelModifierStatutRequeteTranscrit({
-              parametres: { path: { idRequete: idRequete }, query: { statut: StatutRequete.getKey(StatutRequete.TRAITE) } },
-              ...apresModificationStatut
-            });
-
-            return;
-
-          default:
-            console.error(`[SIGNATURE] Type de signature inconnu : ${typeSignature}`);
-            setDonneesSignature(prec => ({
-              ...prec,
-              statut: "termine"
-            }));
-            return;
-        }
-      },
-      apresErreur: erreurs => {
-        const messageErreurServeur = ["FCT_16108", "TECH_16021"].includes(erreurs[0]?.code) ? erreurs[0]?.message : null;
-        const libelleEnregistrement =
-          typeSignature === "DOUBLE_NUMERIQUE"
-            ? "de l'acte double numérique signé"
-            : signature.estMiseAJour
-              ? "des mentions signées"
-              : "de l'acte signé";
-        const messageErreurDefaut = `Erreur lors de l'enregistrement ${libelleEnregistrement} `;
-        console.error(
-          `[SIGNATURE] ${messageErreurDefaut} : ${erreurs[0]?.code ?? "CODE_INCONNU"} - ${erreurs[0]?.message ?? "Erreur inconnue"}`
-        );
-
-        setDonneesSignature(prec => ({
-          ...prec,
-          erreur: messageErreurServeur ?? messageErreurDefaut,
-          statut: "termine"
-        }));
-      }
-    });
-  };
+    return false;
+  }, [acte, utilisateurConnecte]);
 
   useEffect(() => {
-    switch (donneesSignature.statut) {
-      case "recuperation-informations":
-        recuperationInformations();
-        break;
-
-      case "composition-document":
-        compositionDocument();
-        break;
-
-      case "signature-document":
-        signatureDocument();
-        break;
-
-      case "enregistrement-document":
-        enregistrementDocument();
-        break;
-      default:
-        break;
+    if (acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits && formuleDIntegration === null) {
+      getFormuleIntegrationRece({
+        parametres: {},
+        apresSucces: formuleDIntegration => {
+          setFormuleDIntegration(formuleDIntegration);
+        },
+        apresErreur: erreurs =>
+          AfficherMessage.erreur("Une erreur est survenue lors de la récupération des informations de la formule d'intégration au RECE", {
+            erreurs
+          })
+      });
     }
-  }, [donneesSignature.statut]);
+  }, [acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits]);
 
-  switch (donneesSignature.statut) {
-    case "attente-pin":
-      return (
-        <>
-          {signature.messageInformation && <div className="mb-4 text-start">{signature.messageInformation}</div>}
+  useEffect(() => {
+    if (estMiseAJourAvecMentions) {
+      let mentions: IMentionMiseAJour[];
+      const analyseMarginaleEstMiseAJour = afficherAnalyseMarginale && analyseMarginaleModifiee && donneesAnalyseMarginale !== null;
 
-          <InformationsDeveloppeur />
+      // Mention saisie dans le formulaire de saisie
+      if (mentionEnCoursDeSaisie?.mention) {
+        // Mention modifiée
+        if (typeof mentionEnCoursDeSaisie.index === "number") {
+          if (mentionsDeLActe[mentionEnCoursDeSaisie.index] === mentionEnCoursDeSaisie.mention) return;
 
-          <CodePinForm
-            onSubmit={codePin =>
-              setDonneesSignature(prec => ({
-                ...prec,
-                codePin: codePin,
-                erreurPin: false,
-                statut: "recuperation-informations"
-              }))
+          mentions = mentionsDeLActe.map((mention, index) =>
+            index === mentionEnCoursDeSaisie.index ? mentionEnCoursDeSaisie.mention : mention
+          );
+
+          // Mention ajoutée
+        } else {
+          mentions = [...mentionsDeLActe, mentionEnCoursDeSaisie.mention];
+        }
+
+        // Analyse marginale modifiée
+      } else if (analyseMarginaleEstMiseAJour) {
+        mentions = mentionsDeLActe;
+
+        // Ordre des mentions modifié ou mention supprimée
+      } else {
+        mentions = mentionsDuTableau;
+      }
+
+      if (!mentions.length) return;
+
+      mettreAJourAnalyseMarginaleEtMentions({
+        parametres: {
+          body: MiseAJourForm.versDto(
+            idActe,
+            [
+              ...mentions,
+              ...(formuleDIntegration !== null
+                ? [
+                    {
+                      idTypeMention: formuleDIntegration.idTypeMention,
+                      affecteAnalyseMarginale: formuleDIntegration.affecteAnalyseMarginale,
+                      texte: formuleDIntegration.texteFormule
+                    }
+                  ]
+                : [])
+            ],
+            donneesAnalyseMarginale,
+            analyseMarginaleEstMiseAJour
+          )
+        },
+        apresSucces: () => {
+          setMentionsDeLActe(mentions);
+          activerMiseAJourActe();
+          resetModificationMention();
+
+          !analyseMarginaleEstMiseAJour &&
+            setAfficherModaleAnalyseMarginale(mentions[mentionEnCoursDeSaisie?.index ?? mentions.length - 1].affecteAnalyseMarginale);
+        },
+        apresErreur: (erreurs: TErreurApi[]) => {
+          const messageErreur = (() => {
+            switch (true) {
+              case Boolean(erreurs?.find(erreur => erreur.code === "FCT_16136")):
+                return "Aucune modification de l'analyse marginale n'a été détectée";
+              case Boolean(erreurs?.find(erreur => erreur.code === "FCT_160168")):
+                return "La personne liée ne peut pas être le titulaire de l'acte";
+              default:
+                return "Impossible de mettre à jour l'acte";
             }
-            fermerModale={() => {
-              setDonneesSignature({ ...DONNEES_SIGNATURE_DEFAUT });
-              apresSignature(false);
-            }}
-            erreurPin={donneesSignature.erreurPin}
-          />
-        </>
-      );
+          })();
 
-    case "recuperation-informations":
-    case "composition-document":
-    case "signature-document":
-    case "enregistrement-document":
-      return (
-        <div>
-          <div className="mt-1 h-2 w-full overflow-hidden rounded-full border border-solid border-gris">
-            <div
-              className="h-full bg-bleu"
-              style={{
-                width: `${AVANCEMENT[donneesSignature.statut].niveau}%`,
-                transition: "width .4s ease"
-              }}
-            ></div>
-          </div>
+          AfficherMessage.erreur(messageErreur, { erreurs, fermetureAuto: true });
+        }
+      });
+    }
 
-          <div className="text-center">{AVANCEMENT[donneesSignature.statut].message}</div>
+    if (!estMiseAJourAvecMentions && donneesAnalyseMarginale !== null) {
+      mettreAJourAnalyseMarginale({
+        parametres: {
+          path: { idActe: idActe },
+          body: AnalyseMarginaleForm.versDto(donneesAnalyseMarginale)
+        },
+        apresSucces: () => {
+          activerOngletActeMisAJour();
+          setComposerActeMisAJour(true);
+          changerOnglet(ECleOngletsMiseAJour.ACTE_MIS_A_JOUR, null);
+        },
+        apresErreur: (erreurs: TErreurApi[]) => {
+          const messageErreur = erreurs.find(erreur => erreur.code === "FCT_16136")
+            ? "Aucune modification de l'analyse marginale n'a été détectée"
+            : "Impossible de mettre à jour l'analyse marginale";
 
-          <div className="pt-4 text-center">
-            <CircularProgress size={30} />
-          </div>
-        </div>
-      );
+          AfficherMessage.erreur(messageErreur, { erreurs, fermetureAuto: true });
+        }
+      });
+    }
+  }, [donneesAnalyseMarginale, mentionEnCoursDeSaisie, mentionsDuTableau]);
 
-    case "termine": {
-      const estTypeSignatureMajOuEtabli = ["ETABLI", "MISE_A_JOUR"].includes(typeSignature);
-      return (
-        <div className="text-center">
-          {donneesSignature.erreur && (
-            <>
-              <div className="font-bold text-rouge">{"⚠ Impossible d'effectuer la signature :"}</div>
-              <div className="text-rouge">{donneesSignature.erreur}</div>
-            </>
-          )}
+  useEffect(() => {
+    getResumeActe({
+      parametres: {
+        path: { idActe },
+        query: { remplaceIdentiteTitulaireParIdentiteTitulaireAM: true }
+      },
+      apresSucces: acteDto => {
+        setActe(FicheActe.depuisDto(acteDto));
+      },
+      apresErreur: erreurs =>
+        AfficherMessage.erreur("Une erreur est survenue lors de la récupération des informations de l'acte", { erreurs })
+    });
+  }, []);
 
-          {!donneesSignature.erreur && estTypeSignatureMajOuEtabli && <div>{"Signature des mentions effectuée."}</div>}
+  useEffect(() => {
+    if (!acte) return;
 
-          {estTypeSignatureMajOuEtabli && (
-            <Bouton
-              className="mt-6"
-              title="Fermer"
-              styleBouton="principal"
-              onClick={() => {
-                setDonneesSignature({ ...DONNEES_SIGNATURE_DEFAUT });
-                apresSignature(!donneesSignature.erreur);
-              }}
-            >
-              {"Fermer"}
-            </Bouton>
-          )}
+    setValeursInitialesFormulaireAnalyseMarginale(
+      AnalyseMarginaleForm.genererValeursDefautFormulaire(acte.getTitulairesPourAnalyseMarginale(), motif)
+    );
+  }, [motif, acte]);
 
-          {donneesSignature.erreur && !estTypeSignatureMajOuEtabli && (
-            <div className="mt-6">
-              <Bouton
-                title="Réessayer"
-                styleBouton="principal"
-                onClick={() => {
-                  setDonneesSignature({ ...DONNEES_SIGNATURE_DEFAUT });
+  // Charger les mentions existantes pour les actes déjà numérisés (SCEC_DOCS avec référence RECE)
+  useEffect(() => {
+    if (mentionsExistantes?.mentions) {
+      const mentionsConverties: IMentionMiseAJour[] = mentionsExistantes.mentions
+        .filter(mention => {
+          // Exclure la formule d'intégration (vérifier via le texte ou l'id du type mention)
+          const estFormuleIntegration = mention.textes?.texteMention?.includes("intégré au registre électronique sous la référence");
+          return !estFormuleIntegration;
+        })
+        .map(mention => ({
+          texte: mention.textes?.texteMention ?? "",
+          idTypeMention: mention.typeMention?.id ?? "",
+          affecteAnalyseMarginale: mention.typeMention?.affecteAnalyseMarginale ?? false
+        }));
+      setMentionsDeLActe(mentionsConverties);
+    }
+  }, [mentionsExistantes]);
+
+  const resetModificationMention = () => {
+    setMentionEnCoursDeSaisie(mention => (mention ? null : mention));
+    setMentionsDuTableau(mentions => (mentions.length > 0 ? [] : mentions));
+    setFormulaireMentionEnCoursDeSaisie(false);
+  };
+
+  const activerMiseAJourActe = () => {
+    activerOngletActeMisAJour();
+    setComposerActeMisAJour(true);
+    changerOnglet(ECleOngletsMiseAJour.ACTE_MIS_A_JOUR, null);
+  };
+
+  const titulairesMention: ITitulaireMention[] = useMemo(() => {
+    if (!acte) return [];
+
+    return [...Array(acte.getNombreTitulairesSelonNature()).keys()].map(index => {
+      return {
+        nom: acte?.titulaires?.[index].nom ?? "",
+        nomPartie1: acte?.titulaires?.[index].nomPartie1 ?? "",
+        nomPartie2: acte?.titulaires?.[index].nomPartie2 ?? "",
+        nomSecable: Boolean(acte?.titulaires?.[index].nomPartie1 && acte?.titulaires?.[index].nomPartie2),
+        prenoms: acte?.titulaires?.[index].prenoms ?? [],
+        sexe: acte?.titulaires?.[index].sexe ?? null
+      };
+    });
+  }, [acte]);
+
+  return (
+    <>
+      {(enAttenteMiseAJourAnalyseMarginale || enAttenteMiseAJourAnalyseMarginaleEtMention) && <PageChargeur />}
+      <div className="w-1/2">
+        <OngletsBouton<ECleOngletsMiseAJour>
+          onglets={[
+            ...(estMiseAJourAvecMentions
+              ? [
+                  {
+                    cle: ECleOngletsMiseAJour.MENTIONS,
+                    libelle: "Mentions"
+                  }
+                ]
+              : []),
+
+            ...(afficherAnalyseMarginale
+              ? [
+                  {
+                    cle: ECleOngletsMiseAJour.ANALYSE_MARGINALE,
+                    libelle: "Analyse Marginale"
+                  }
+                ]
+              : [])
+          ]}
+          cleOngletActif={ongletsActifs.formulaires}
+          changerOnglet={valeur => changerOnglet(null, valeur)}
+        />
+
+        <div className="mt-4 flex h-[calc(100vh-16rem)] flex-col overflow-y-auto">
+          {estMiseAJourAvecMentions && (
+            <OngletsContenu estActif={ongletsActifs.formulaires === ECleOngletsMiseAJour.MENTIONS}>
+              {acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits && (
+                <div className="pb-4 text-left">
+                  <ConteneurAvecBordure titreEnTete="Formule intégration dans RECE">
+                    <div className="mt-3 bg-slate-400">{formuleDIntegration?.texteFormule}</div>
+                  </ConteneurAvecBordure>
+                </div>
+              )}
+
+              <Formik<IMiseAJourMentionsForm>
+                initialValues={{ mentions: [] }}
+                onSubmit={values => {
+                  setMentionsDuTableau(values.mentions);
                 }}
               >
-                {"Réessayer"}
-              </Bouton>
-            </div>
+                <Form>
+                  <TableauMentions
+                    setAfficherOngletAnalyseMarginale={setAfficherAnalyseMarginale}
+                    setMotif={setMotif}
+                    formulaireMentionEnCoursDeSaisie={formulaireMentionEnCoursDeSaisie}
+                    donneesMentions={mentionsDeLActe}
+                  />
+                </Form>
+              </Formik>
+              <MentionForm
+                titulaires={titulairesMention}
+                setEnCoursDeSaisie={setFormulaireMentionEnCoursDeSaisie}
+                enCoursDeSaisie={formulaireMentionEnCoursDeSaisie}
+                setMentionEnCoursDeSaisie={setMentionEnCoursDeSaisie}
+                natureActe={acte?.nature}
+              />
+            </OngletsContenu>
           )}
+
+          {afficherAnalyseMarginale && (
+            <OngletsContenu estActif={ongletsActifs.formulaires === ECleOngletsMiseAJour.ANALYSE_MARGINALE}>
+              <AnalyseMarginaleFormulaire
+                setDonneesAnalyseMarginale={setDonneesAnalyseMarginale}
+                setAnalyseMarginaleModifiee={setAnalyseMarginaleModifiee}
+                valeursInitiales={valeursInitialesFormulaireAnalyseMarginale}
+                motif={motif}
+              />
+            </OngletsContenu>
+          )}
+
+          <ConteneurBoutonBasDePage position="droite">
+            {estMiseAJourAvecMentions ? (
+              <BoutonTerminerEtSigner
+                saisieMentionEnCours={formulaireMentionEnCoursDeSaisie}
+                nombreMentionsAjoutees={mentionsDeLActe.length}
+                estActeSansReceEnCoursDeNumerisation={acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits}
+                typeSignature={acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits ? "DOUBLE_NUMERIQUE" : "MISE_A_JOUR"}
+              />
+            ) : (
+              <BoutonValiderEtTerminer disabled={!miseAJourEffectuee} />
+            )}
+          </ConteneurBoutonBasDePage>
         </div>
-      );
-    }
-    default:
-      return <></>;
-  }
+      </div>
+      {afficherModaleAnalyseMarginale && (
+        <ConteneurModale>
+          <div className="rounded-md border-[2px] border-solid border-bleu-sombre bg-blanc p-6 shadow-lg">
+            <div className="p-6">{"Veuillez vérifier s'il y a lieu de mettre à jour l'analyse marginale"}</div>
+            <Bouton
+              title="J'ai lu ce message"
+              onClick={() => {
+                setAfficherModaleAnalyseMarginale(false);
+              }}
+            >
+              {"OK"}
+            </Bouton>
+          </div>
+        </ConteneurModale>
+      )}
+    </>
+  );
 };
 
-export default SignatureDocument;
+export default PartieFormulaire;
