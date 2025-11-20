@@ -374,9 +374,8 @@ const PartieFormulaire: React.FC = () => {
             {estMiseAJourAvecMentions ? (
               <BoutonTerminerEtSigner
                 saisieMentionEnCours={formulaireMentionEnCoursDeSaisie}
+                acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits={acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits}
                 nombreMentionsAjoutees={mentionsDeLActe.length}
-                estActeSansReceEnCoursDeNumerisation={acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits}
-                typeSignature={acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits ? "DOUBLE_NUMERIQUE" : "MISE_A_JOUR"}
               />
             ) : (
               <BoutonValiderEtTerminer disabled={!miseAJourEffectuee} />
