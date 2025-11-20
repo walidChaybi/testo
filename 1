@@ -1,410 +1,350 @@
-import { CONFIG_GET_RESUME_ACTE } from "@api/configurations/etatCivil/acte/GetResumeActeConfigApi";
-import CONFIG_GET_FORMULE_INTEGRATION_RECE, {
-  IFormuleIntegrationDto
-} from "@api/configurations/etatCivil/nomenclature/GetFormuleIntegrationRECEApi";
-import { CONFIG_PUT_ANALYSE_MARGINALE_ET_MENTIONS } from "@api/configurations/etatCivil/PutAnalyseMarginaleEtMentionsConfigApi";
-import { CONFIG_PUT_MISE_A_JOUR_ANALYSE_MARGINALE } from "@api/configurations/etatCivil/PutMiseAJourAnalyseMarginaleConfigApi";
-import { useMentionsApiHook } from "@hook/acte/mentions/MentionsApiHook";
+import { CONFIG_POST_REQUETE_MISE_A_JOUR } from "@api/configurations/requete/miseAJour/PostRequeteMiseAJourApiConfig";
+import { AddAlerteActeApiHookParameters, useAddAlerteActeApiHook } from "@hook/alertes/AddAlerteActeHookApi";
+import { DeleteAlerteActeApiHookParameters, useDeleteAlerteActeApiHook } from "@hook/alertes/DeleteAlerteActeHookApi";
 import { Droit } from "@model/agent/enum/Droit";
-import { TErreurApi } from "@model/api/Api";
+import { Perimetre } from "@model/agent/enum/Perimetre";
 import { FicheActe } from "@model/etatcivil/acte/FicheActe";
-import { EStatutMention } from "@model/etatcivil/enum/EStatutMention";
-import AnalyseMarginaleForm from "@model/form/AnalyseMarginale/AnalyseMarginaleForm";
-import { TObjetFormulaire } from "@model/form/commun/ObjetFormulaire";
-import { TPrenomsForm } from "@model/form/commun/PrenomsForm";
-import MiseAJourForm from "@model/form/miseAJour/MiseAJourForm";
-import { estActeEligibleFormuleDIntegration } from "@pages/fiche/FichePage";
-import { Formik } from "formik";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { Form } from "react-router";
-import { ECleOngletsMiseAJour, EditionMiseAJourContext } from "../../../contexts/EditionMiseAJourContextProvider";
+import { ETypeActe } from "@model/etatcivil/enum/ETypeActe";
+import { ETypeFiche } from "@model/etatcivil/enum/ETypeFiche";
+import { EOptionMiseAJourActe, OptionMiseAJourActe } from "@model/etatcivil/enum/OptionMiseAJourActe";
+import { TitulaireRequeteMiseAJour } from "@model/requete/ITitulaireRequeteMiseAJour";
+import { SousTypeMiseAJour } from "@model/requete/enum/SousTypeMiseAJour";
+import { UN } from "@util/Utils";
+import { FeatureFlag } from "@util/featureFlag/FeatureFlag";
+import { gestionnaireFeatureFlag } from "@util/featureFlag/gestionnaireFeatureFlag";
+import { AccordionRece } from "@widget/accordion/AccordionRece";
+import { IAjouterAlerteFormValue } from "@widget/alertes/ajouterAlerte/contenu/PopinAjouterAlertes";
+import { OperationLocaleEnCours } from "@widget/attente/OperationLocaleEnCours";
+import { BoutonMenu } from "@widget/boutonMenu/BoutonMenu";
+import { BarreNavigationSuivPrec } from "@widget/navigation/barreNavigationSuivPrec/BarreNavigationSuivPrec";
+import { SectionPanelProps } from "@widget/section/SectionPanel";
+import { SectionPanelAreaProps } from "@widget/section/SectionPanelArea";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
+import { IFenetreExterneRef } from "../../../composants/commun/conteneurs/FenetreExterne";
 import { RECEContextData } from "../../../contexts/RECEContextProvider";
 import useFetchApi from "../../../hooks/api/FetchApiHook";
+import LiensRECE from "../../../router/LiensRECE";
+import {
+  INFO_PAGE_MISE_A_JOUR_ANALYSE_MARGINALE,
+  INFO_PAGE_MISE_A_JOUR_MENTION_AUTRE,
+  INFO_PAGE_MISE_A_JOUR_MENTION_SUITE_AVIS
+} from "../../../router/infoPages/InfoPagesEspaceMiseAJour";
 import AfficherMessage from "../../../utils/AfficherMessage";
-import Bouton from "../../commun/bouton/Bouton";
-import { ConteneurBoutonBasDePage } from "../../commun/bouton/conteneurBoutonBasDePage/ConteneurBoutonBasDePage";
-import PageChargeur from "../../commun/chargeurs/PageChargeur";
-import ConteneurAvecBordure from "../../commun/conteneurs/formulaire/ConteneurAvecBordure";
-import ConteneurModale from "../../commun/conteneurs/modale/ConteneurModale";
-import OngletsBouton from "../../commun/onglets/OngletsBouton";
-import OngletsContenu from "../../commun/onglets/OngletsContenu";
-import BoutonTerminerEtSigner from "./formulaires/BoutonTerminerEtSigner";
-import BoutonValiderEtTerminer from "./formulaires/BoutonValiderEtTerminer";
-import MentionForm, { ITitulaireMention } from "./formulaires/MentionForm";
-import AnalyseMarginaleFormulaire from "./formulaires/mentions/AnalyseMarginaleFormulaire/AnalyseMarginaleFormulaire";
-import TableauMentions from "./formulaires/mentions/ListeMentionsFormulaire/TableauMentions";
+import { BoutonCreationRDD } from "./BoutonCreationRDD/BoutonCreationRDD";
+import { setFiche } from "./FicheUtils";
+import { BandeauAlertesActe } from "./contenu/BandeauAlertesActe";
+import { BandeauFiche } from "./contenu/BandeauFiche";
+import { BandeauFicheActeNumero } from "./contenu/BandeauFicheActeNumero";
+import { BandeauFicheRcRcaPacsNumero } from "./contenu/BandeauFicheRcRcaPacsNumero";
+import { useFichePageApiHook } from "./hook/FichePageApiHook";
+import "./scss/FichePage.scss";
 
-interface IDonneesAideSaisie {
-  champs: TObjetFormulaire;
-  textesEdites: { [cle: string]: { edite: string; original: string } };
+export interface IIndex {
+  value: number;
 }
 
-export interface IMentionMiseAJour {
-  texte: string;
-  idTypeMention: string;
-  affecteAnalyseMarginale: boolean;
-  donneesAideSaisie?: IDonneesAideSaisie;
+interface IFichePageProps {
+  datasFiches: IDataFicheProps[];
+  index: IIndex;
+  numeroRequete?: string;
+  fenetreExterneRef?: IFenetreExterneRef;
+  nbLignesTotales: number;
+  nbLignesParAppel: number;
 }
 
-export interface IMentionEnCours {
-  index: number | null;
-  mention: IMentionMiseAJour;
+export interface IDataFicheProps {
+  identifiant: string;
+  categorie: ETypeFiche;
 }
 
-export interface IAnalyseMarginaleMiseAJour extends TObjetFormulaire {
-  motif: string;
-  titulaires: {
-    nom: string;
-    nomSecable: boolean;
-    nomPartie1: string;
-    nomPartie2: string;
-    prenoms: TPrenomsForm;
-  }[];
-}
+export const estActeEligibleFormuleDIntegration = ({
+  origine,
+  referenceActe,
+  referenceRegistreSansNumeroDActe,
+  type,
+  mentions
+}: FicheActe): boolean => {
+  const estOrigineScecDocs = origine === "SCEC_DOCS";
+  const referenceActePresente = Boolean(referenceActe?.trim());
+  const referenceRegistreSansNumeroDActeAbsente = !referenceRegistreSansNumeroDActe?.trim();
+  const estTypeTexte = type === ETypeActe.TEXTE;
 
-export interface IMiseAJourForm {
-  mentions: IMentionMiseAJour[];
-  analyseMarginale: IAnalyseMarginaleMiseAJour;
-}
+  // Vérifier si l'acte a déjà été numérisé en cherchant la mention d'intégration
+  const aDejaFormuleIntegration = mentions.some(mention => mention.textes?.texteMention?.includes("intégré au registre électronique"));
 
-export interface IMiseAJourMentionsForm {
-  mentions: IMentionMiseAJour[];
-}
+  return estOrigineScecDocs && referenceActePresente && referenceRegistreSansNumeroDActeAbsente && estTypeTexte && !aDejaFormuleIntegration;
+};
 
-const PartieFormulaire: React.FC = () => {
-  const { estMiseAJourAvecMentions, ongletsActifs, idActe, miseAJourEffectuee } = useContext(EditionMiseAJourContext.Valeurs);
-  const { changerOnglet, activerOngletActeMisAJour, setComposerActeMisAJour } = useContext(EditionMiseAJourContext.Actions);
-
-  const { appelApi: mettreAJourAnalyseMarginaleEtMentions, enAttenteDeReponseApi: enAttenteMiseAJourAnalyseMarginaleEtMention } =
-    useFetchApi(CONFIG_PUT_ANALYSE_MARGINALE_ET_MENTIONS);
-  const { appelApi: mettreAJourAnalyseMarginale, enAttenteDeReponseApi: enAttenteMiseAJourAnalyseMarginale } = useFetchApi(
-    CONFIG_PUT_MISE_A_JOUR_ANALYSE_MARGINALE
+export const FichePage: React.FC<IFichePageProps> = ({
+  datasFiches,
+  numeroRequete,
+  index,
+  fenetreExterneRef,
+  nbLignesTotales,
+  nbLignesParAppel
+}) => {
+  const navigate = useNavigate();
+  const [actualisationInfosFiche, setActualisationInfosFiche] = useState<boolean>(false);
+  const [ficheCourante, setFicheCourante] = useState<IDataFicheProps | undefined>(
+    datasFiches[getIndexLocal(index.value, nbLignesParAppel)]
   );
-  const [afficherAnalyseMarginale, setAfficherAnalyseMarginale] = useState(!estMiseAJourAvecMentions);
+  const [optionMiseAJour, setOptionMiseAJour] = useState<EOptionMiseAJourActe | null>(null);
+  // index courant sur la totalité des données
+  const [indexCourant, setIndexCourant] = useState<number>(index.value);
 
-  const [formulaireMentionEnCoursDeSaisie, setFormulaireMentionEnCoursDeSaisie] = useState<boolean>(false);
+  const { appelApi: appelPostRequeteMiseAJour } = useFetchApi(CONFIG_POST_REQUETE_MISE_A_JOUR);
 
-  const [afficherModaleAnalyseMarginale, setAfficherModaleAnalyseMarginale] = useState<boolean>(false);
-  const [donneesAnalyseMarginale, setDonneesAnalyseMarginale] = useState<IAnalyseMarginaleMiseAJour | null>(null);
-  const [analyseMarginaleModifiee, setAnalyseMarginaleModifiee] = useState<boolean>(false);
-  const [mentionsDeLActe, setMentionsDeLActe] = useState<IMentionMiseAJour[]>([]);
-  const [mentionsDuTableau, setMentionsDuTableau] = useState<IMentionMiseAJour[]>([]);
-  const [mentionEnCoursDeSaisie, setMentionEnCoursDeSaisie] = useState<IMentionEnCours | null>(null);
-  const [motif, setMotif] = useState<string | null>(null);
+  useEffect(() => {
+    setFicheCourante(datasFiches[getIndexLocal(indexCourant, nbLignesParAppel)]);
+  }, [datasFiches]);
 
-  const [acte, setActe] = useState<FicheActe | null>(null);
-  const { appelApi: getResumeActe } = useFetchApi(CONFIG_GET_RESUME_ACTE, true);
-  const { appelApi: getFormuleIntegrationRece } = useFetchApi(CONFIG_GET_FORMULE_INTEGRATION_RECE, true);
-  const [valeursInitialesFormulaireAnalyseMarginale, setValeursInitialesFormulaireAnalyseMarginale] =
-    useState<IAnalyseMarginaleMiseAJour | null>(null);
+  // (*) Permet de résoudre le pb de la fenêtre fiche déjà ouverte
+  // Si l'utilisateur clique sur une fenêtre fiche déjà ouverte (et qu'il a déjà navigué dedans) alors l'index aura changé (cf. onClickOnLine RMCTableauActes par exemple ),
+  //   on peut ainsi mettre à jour l'index courant avec l'index passé en props
+  // A noté que ce useEffect passe après le précédent et qu'il écrase donc la ficheCourante précédemment mise à jour par le useEffect ci-dessus
+  useEffect(() => {
+    setIndexCourant(index.value);
+    setFicheCourante(datasFiches[getIndexLocal(index.value, nbLignesParAppel)]);
+  }, [index]);
+
   const { utilisateurConnecte } = useContext(RECEContextData);
 
-  const [formuleDIntegration, setFormuleDIntegration] = useState<IFormuleIntegrationDto | null>(null);
+  const fiche = useFichePageApiHook(actualisationInfosFiche, ficheCourante?.categorie, ficheCourante?.identifiant);
 
-  // Charger les mentions existantes pour les actes déjà numérisés
-  const estActeDejaNumérisé = acte?.origine === "SCEC_DOCS" && acte?.referenceActe?.startsWith("RECE.");
-  const mentionsSignees = useMentionsApiHook(estActeDejaNumérisé ? { idActe: idActe, statutMention: EStatutMention.SIGNEE } : undefined);
-  const mentionsBrouillon = useMentionsApiHook(
-    estActeDejaNumérisé ? { idActe: idActe, statutMention: EStatutMention.BROUILLON } : undefined
+  const { bandeauFiche, panelsFiche, alertes, visuBoutonAlertes } = setFiche(utilisateurConnecte, ficheCourante, fiche);
+
+  const droitsMiseAJour = useMemo(() => {
+    const droitMentions = utilisateurConnecte.estHabilitePour({ leDroit: Droit.METTRE_A_JOUR_ACTE });
+    const droitAnalyseMarginale = utilisateurConnecte.estHabilitePour({ leDroit: Droit.MODIFIER_ANALYSE_MARGINALE });
+    const droitCreationDoubleNumerique = utilisateurConnecte.estHabilitePour({ leDroit: Droit.MISE_A_JOUR_CREER_DOUBLE_NUMERIQUE });
+
+    if (!fiche) {
+      return {
+        autorise: false,
+        mentions: droitMentions,
+        AnalyseMarginale: droitAnalyseMarginale
+      };
+    }
+
+    let autorise = false;
+    let peutMettreAJourSansRece = false;
+
+    if (ficheCourante?.categorie === ETypeFiche.ACTE && "titulaires" in fiche && fiche.statut !== "BROUILLON") {
+      const estOrigineRece = fiche?.origine === "RECE";
+      const acteSansReceEligible = estActeEligibleFormuleDIntegration(fiche);
+      // Acte SCEC_DOCS déjà numérisé (a la mention d'intégration)
+      const estActeScecDocsNumerise = fiche?.origine === "SCEC_DOCS" && !acteSansReceEligible;
+
+      peutMettreAJourSansRece = acteSansReceEligible && droitMentions && droitCreationDoubleNumerique;
+      autorise =
+        (estOrigineRece && (droitMentions || droitAnalyseMarginale)) ||
+        peutMettreAJourSansRece ||
+        (estActeScecDocsNumerise && droitMentions);
+    }
+
+    return {
+      autorise,
+      mentions: droitMentions || peutMettreAJourSansRece,
+      AnalyseMarginale: droitAnalyseMarginale
+    };
+  }, [fiche, ficheCourante, utilisateurConnecte]);
+
+  useEffect(() => {
+    const idActe = fiche?.id;
+    if (!optionMiseAJour || !idActe || !(fiche instanceof FicheActe)) return;
+
+    const estAnalyseMarginale = optionMiseAJour === EOptionMiseAJourActe.ANALYSE_MARGINALE;
+    const sousTypeOptionMiseAJour = OptionMiseAJourActe.getSousType(optionMiseAJour);
+
+    appelPostRequeteMiseAJour({
+      parametres: {
+        body: {
+          idActeMAJ: idActe,
+          choixMAJ: estAnalyseMarginale ? "MAJ_ACTE_ANALYSE_MARGINALE" : "MAJ_ACTE_APPOSER_MENTION",
+          sousType: sousTypeOptionMiseAJour.nom,
+          titulaires: TitulaireRequeteMiseAJour.listeDepuisDonneesFiche(fiche.titulaires)
+        }
+      },
+      apresSucces: reponse => {
+        const urlNavigation = (() => {
+          switch (true) {
+            case estAnalyseMarginale:
+              return LiensRECE.genererLien(INFO_PAGE_MISE_A_JOUR_ANALYSE_MARGINALE.url, {
+                idRequeteParam: reponse.id,
+                idActeParam: idActe
+              });
+            case SousTypeMiseAJour.estRMAC(sousTypeOptionMiseAJour):
+              return LiensRECE.genererLien(INFO_PAGE_MISE_A_JOUR_MENTION_SUITE_AVIS.url, {
+                idRequeteParam: reponse.id,
+                idActeParam: idActe
+              });
+            default:
+              return LiensRECE.genererLien(INFO_PAGE_MISE_A_JOUR_MENTION_AUTRE.url, { idRequeteParam: reponse.id, idActeParam: idActe });
+          }
+        })();
+
+        navigate(urlNavigation);
+      },
+      apresErreur: erreurs => {
+        const messageErreur = erreurs.find(erreur => erreur.code === "FCT_15181")?.message;
+
+        AfficherMessage.erreur(messageErreur ?? "Impossible d'accéder à la requête de mise à jour de l'acte", {
+          erreurs
+        });
+      },
+      finalement: () => setOptionMiseAJour(null)
+    });
+  }, [optionMiseAJour]);
+
+  // Obligatoire pour les styles qui sont chargés dynamiquement
+  useEffect(() => {
+    if (fiche && fiche.id === ficheCourante?.identifiant) {
+      if (fiche != null) {
+        const event = new CustomEvent("refreshStyles");
+        if (window.top) {
+          window.top.dispatchEvent(event);
+        }
+      }
+      if (fenetreExterneRef && bandeauFiche) {
+        fenetreExterneRef.ref.document.title = bandeauFiche.titreFenetre;
+      }
+    }
+  }, [fiche, fenetreExterneRef, bandeauFiche, ficheCourante]);
+
+  const setIndexFiche = useCallback(
+    (idx: number) => {
+      if (ficheCourante && datasFiches && idx >= 0 && idx < nbLignesTotales) {
+        setFicheCourante(datasFiches[getIndexLocal(idx, nbLignesParAppel)]);
+      }
+      setIndexCourant(idx);
+    },
+    [ficheCourante, datasFiches, indexCourant, nbLignesParAppel, nbLignesTotales]
   );
 
-  const acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits = useMemo(() => {
-    if (acte !== null) {
-      return (
-        estActeEligibleFormuleDIntegration(acte) &&
-        utilisateurConnecte.estHabilitePour({ tousLesDroits: [Droit.METTRE_A_JOUR_ACTE, Droit.MISE_A_JOUR_CREER_DOUBLE_NUMERIQUE] })
-      );
-    }
-    return false;
-  }, [acte, utilisateurConnecte]);
+  /* Ajout d'une alerte */
+  const [ajouterAlerteActeApiHookParameters, setAjouterAlerteActeApiHookParameters] = useState<AddAlerteActeApiHookParameters>();
 
-  useEffect(() => {
-    if (acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits && formuleDIntegration === null) {
-      getFormuleIntegrationRece({
-        parametres: {},
-        apresSucces: formuleDIntegration => {
-          setFormuleDIntegration(formuleDIntegration);
-        },
-        apresErreur: erreurs =>
-          AfficherMessage.erreur("Une erreur est survenue lors de la récupération des informations de la formule d'intégration au RECE", {
-            erreurs
-          })
+  const ajouterAlerteCallBack = useCallback(
+    (value: IAjouterAlerteFormValue) => {
+      setAjouterAlerteActeApiHookParameters({
+        idActe: fiche?.id ?? "",
+        idTypeAlerte: value?.idTypeAlerte,
+        complementDescription: value?.complementDescription
       });
-    }
-  }, [acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits]);
+    },
+    [fiche]
+  );
 
-  useEffect(() => {
-    if (estMiseAJourAvecMentions) {
-      let mentions: IMentionMiseAJour[];
-      const analyseMarginaleEstMiseAJour = afficherAnalyseMarginale && analyseMarginaleModifiee && donneesAnalyseMarginale !== null;
+  const alerte = useAddAlerteActeApiHook(ajouterAlerteActeApiHookParameters);
 
-      // Mention saisie dans le formulaire de saisie
-      if (mentionEnCoursDeSaisie?.mention) {
-        // Mention modifiée
-        if (typeof mentionEnCoursDeSaisie.index === "number") {
-          if (mentionsDeLActe[mentionEnCoursDeSaisie.index] === mentionEnCoursDeSaisie.mention) return;
+  /* Suppression d'une alerte */
+  const [deleteAlerteActeApiHookParameters, setDeleteAlerteActeApiHookParameters] = useState<DeleteAlerteActeApiHookParameters>();
 
-          mentions = mentionsDeLActe.map((mention, index) =>
-            index === mentionEnCoursDeSaisie.index ? mentionEnCoursDeSaisie.mention : mention
-          );
-
-          // Mention ajoutée
-        } else {
-          mentions = [...mentionsDeLActe, mentionEnCoursDeSaisie.mention];
-        }
-
-        // Analyse marginale modifiée
-      } else if (analyseMarginaleEstMiseAJour) {
-        mentions = mentionsDeLActe;
-
-        // Ordre des mentions modifié ou mention supprimée
-      } else {
-        mentions = mentionsDuTableau;
-      }
-
-      if (!mentions.length) return;
-
-      mettreAJourAnalyseMarginaleEtMentions({
-        parametres: {
-          body: MiseAJourForm.versDto(
-            idActe,
-            [
-              ...mentions,
-              ...(formuleDIntegration !== null
-                ? [
-                    {
-                      idTypeMention: formuleDIntegration.idTypeMention,
-                      affecteAnalyseMarginale: formuleDIntegration.affecteAnalyseMarginale,
-                      texte: formuleDIntegration.texteFormule
-                    }
-                  ]
-                : [])
-            ],
-            donneesAnalyseMarginale,
-            analyseMarginaleEstMiseAJour
-          )
-        },
-        apresSucces: () => {
-          setMentionsDeLActe(mentions);
-          activerMiseAJourActe();
-          resetModificationMention();
-
-          !analyseMarginaleEstMiseAJour &&
-            setAfficherModaleAnalyseMarginale(mentions[mentionEnCoursDeSaisie?.index ?? mentions.length - 1].affecteAnalyseMarginale);
-        },
-        apresErreur: (erreurs: TErreurApi[]) => {
-          const messageErreur = (() => {
-            switch (true) {
-              case Boolean(erreurs?.find(erreur => erreur.code === "FCT_16136")):
-                return "Aucune modification de l'analyse marginale n'a été détectée";
-              case Boolean(erreurs?.find(erreur => erreur.code === "FCT_160168")):
-                return "La personne liée ne peut pas être le titulaire de l'acte";
-              default:
-                return "Impossible de mettre à jour l'acte";
-            }
-          })();
-
-          AfficherMessage.erreur(messageErreur, { erreurs, fermetureAuto: true });
-        }
-      });
-    }
-
-    if (!estMiseAJourAvecMentions && donneesAnalyseMarginale !== null) {
-      mettreAJourAnalyseMarginale({
-        parametres: {
-          path: { idActe: idActe },
-          body: AnalyseMarginaleForm.versDto(donneesAnalyseMarginale)
-        },
-        apresSucces: () => {
-          activerOngletActeMisAJour();
-          setComposerActeMisAJour(true);
-          changerOnglet(ECleOngletsMiseAJour.ACTE_MIS_A_JOUR, null);
-        },
-        apresErreur: (erreurs: TErreurApi[]) => {
-          const messageErreur = erreurs.find(erreur => erreur.code === "FCT_16136")
-            ? "Aucune modification de l'analyse marginale n'a été détectée"
-            : "Impossible de mettre à jour l'analyse marginale";
-
-          AfficherMessage.erreur(messageErreur, { erreurs, fermetureAuto: true });
-        }
-      });
-    }
-  }, [donneesAnalyseMarginale, mentionEnCoursDeSaisie, mentionsDuTableau]);
-
-  useEffect(() => {
-    getResumeActe({
-      parametres: {
-        path: { idActe },
-        query: { remplaceIdentiteTitulaireParIdentiteTitulaireAM: true }
-      },
-      apresSucces: acteDto => {
-        setActe(FicheActe.depuisDto(acteDto));
-      },
-      apresErreur: erreurs =>
-        AfficherMessage.erreur("Une erreur est survenue lors de la récupération des informations de l'acte", { erreurs })
+  const supprimerAlerteCallBack = useCallback((idAlerteActe: string, idActe: string) => {
+    setDeleteAlerteActeApiHookParameters({
+      idAlerteActe,
+      idActe
     });
   }, []);
 
+  const resultatSuppressionAlerte = useDeleteAlerteActeApiHook(deleteAlerteActeApiHookParameters);
+
   useEffect(() => {
-    if (!acte) return;
-
-    setValeursInitialesFormulaireAnalyseMarginale(
-      AnalyseMarginaleForm.genererValeursDefautFormulaire(acte.getTitulairesPourAnalyseMarginale(), motif)
-    );
-  }, [motif, acte]);
-
-  // Charger les mentions existantes pour les actes déjà numérisés (SCEC_DOCS avec référence RECE)
-  useEffect(() => {
-    const toutesLesMentions = [...(mentionsSignees?.mentions ?? []), ...(mentionsBrouillon?.mentions ?? [])];
-
-    if (toutesLesMentions.length > 0) {
-      const mentionsConverties: IMentionMiseAJour[] = toutesLesMentions
-        .filter(mention => {
-          // Exclure la formule d'intégration (vérifier via le texte ou l'id du type mention)
-          const estFormuleIntegration = mention.textes?.texteMention?.includes("intégré au registre électronique sous la référence");
-          return !estFormuleIntegration;
-        })
-        .map(mention => ({
-          texte: mention.textes?.texteMention ?? "",
-          idTypeMention: mention.typeMention?.id ?? "",
-          affecteAnalyseMarginale: mention.typeMention?.affecteAnalyseMarginale ?? false
-        }));
-      setMentionsDeLActe(mentionsConverties);
+    if (alerte || resultatSuppressionAlerte) {
+      setActualisationInfosFiche(!actualisationInfosFiche);
     }
-  }, [mentionsSignees, mentionsBrouillon]);
-
-  const resetModificationMention = () => {
-    setMentionEnCoursDeSaisie(mention => (mention ? null : mention));
-    setMentionsDuTableau(mentions => (mentions.length > 0 ? [] : mentions));
-    setFormulaireMentionEnCoursDeSaisie(false);
-  };
-
-  const activerMiseAJourActe = () => {
-    activerOngletActeMisAJour();
-    setComposerActeMisAJour(true);
-    changerOnglet(ECleOngletsMiseAJour.ACTE_MIS_A_JOUR, null);
-  };
-
-  const titulairesMention: ITitulaireMention[] = useMemo(() => {
-    if (!acte) return [];
-
-    return [...Array(acte.getNombreTitulairesSelonNature()).keys()].map(index => {
-      return {
-        nom: acte?.titulaires?.[index].nom ?? "",
-        nomPartie1: acte?.titulaires?.[index].nomPartie1 ?? "",
-        nomPartie2: acte?.titulaires?.[index].nomPartie2 ?? "",
-        nomSecable: Boolean(acte?.titulaires?.[index].nomPartie1 && acte?.titulaires?.[index].nomPartie2),
-        prenoms: acte?.titulaires?.[index].prenoms ?? [],
-        sexe: acte?.titulaires?.[index].sexe ?? null
-      };
-    });
-  }, [acte]);
+  }, [alerte, resultatSuppressionAlerte]);
 
   return (
-    <>
-      {(enAttenteMiseAJourAnalyseMarginale || enAttenteMiseAJourAnalyseMarginaleEtMention) && <PageChargeur />}
-      <div className="w-1/2">
-        <OngletsBouton<ECleOngletsMiseAJour>
-          onglets={[
-            ...(estMiseAJourAvecMentions
-              ? [
-                  {
-                    cle: ECleOngletsMiseAJour.MENTIONS,
-                    libelle: "Mentions"
-                  }
-                ]
-              : []),
+    <div className="FichePage">
+      {bandeauFiche && panelsFiche && fiche && ficheCourante ? (
+        <>
+          <BandeauFiche
+            dataBandeau={bandeauFiche}
+            elementNumeroLigne={
+              ficheCourante.categorie === ETypeFiche.ACTE ? (
+                <BandeauFicheActeNumero dataBandeau={bandeauFiche} />
+              ) : (
+                <BandeauFicheRcRcaPacsNumero dataBandeau={bandeauFiche} />
+              )
+            }
+          />
 
-            ...(afficherAnalyseMarginale
-              ? [
-                  {
-                    cle: ECleOngletsMiseAJour.ANALYSE_MARGINALE,
-                    libelle: "Analyse Marginale"
-                  }
-                ]
-              : [])
-          ]}
-          cleOngletActif={ongletsActifs.formulaires}
-          changerOnglet={valeur => changerOnglet(null, valeur)}
-        />
+          {datasFiches.length > UN && (
+            <div className="barreNavigationSuivPrec">
+              <BarreNavigationSuivPrec
+                index={indexCourant}
+                max={nbLignesTotales}
+                setIndex={setIndexFiche}
+              />
+            </div>
+          )}
 
-        <div className="mt-4 flex h-[calc(100vh-16rem)] flex-col overflow-y-auto">
-          {estMiseAJourAvecMentions && (
-            <OngletsContenu estActif={ongletsActifs.formulaires === ECleOngletsMiseAJour.MENTIONS}>
-              {acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits && (
-                <div className="pb-4 text-left">
-                  <ConteneurAvecBordure titreEnTete="Formule intégration dans RECE">
-                    <div className="mt-3 bg-slate-400">{formuleDIntegration?.texteFormule}</div>
-                  </ConteneurAvecBordure>
-                </div>
+          {fiche instanceof FicheActe && ficheCourante.categorie === ETypeFiche.ACTE && (
+            <div className="headerFichePage">
+              <BandeauAlertesActe
+                alertes={alertes}
+                idTypeRegistre={fiche?.registre?.type?.id}
+                ajouterAlerteCallBack={ajouterAlerteCallBack}
+                supprimerAlerteCallBack={supprimerAlerteCallBack}
+                afficherBouton={visuBoutonAlertes}
+                disableScrollLock={true}
+              />
+              {droitsMiseAJour.autorise && (
+                <BoutonMenu
+                  boutonLibelle="Mettre à jour"
+                  className="menuMettreAJour"
+                  options={OptionMiseAJourActe.commeOptions({
+                    mentions: droitsMiseAJour.mentions,
+                    analyseMarginale: droitsMiseAJour.AnalyseMarginale
+                  })}
+                  onClickOption={option => setOptionMiseAJour(option as EOptionMiseAJourActe)}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                  transformOrigin={{ vertical: "top", horizontal: "right" }}
+                  disableScrollLock={true}
+                />
               )}
-
-              <Formik<IMiseAJourMentionsForm>
-                initialValues={{ mentions: [] }}
-                onSubmit={values => {
-                  setMentionsDuTableau(values.mentions);
-                }}
-              >
-                <Form>
-                  <TableauMentions
-                    setAfficherOngletAnalyseMarginale={setAfficherAnalyseMarginale}
-                    setMotif={setMotif}
-                    formulaireMentionEnCoursDeSaisie={formulaireMentionEnCoursDeSaisie}
-                    donneesMentions={mentionsDeLActe}
+              {fiche &&
+                !(
+                  utilisateurConnecte.estHabilitePour({
+                    leDroit: Droit.CONSULTER,
+                    pourIdTypeRegistre: fiche.registre?.type?.id
+                  }) || utilisateurConnecte.estHabilitePour({ leDroit: Droit.CONSULTER, surLePerimetre: Perimetre.TOUS_REGISTRES })
+                ) &&
+                gestionnaireFeatureFlag.estActif(FeatureFlag.FF_DELIVRANCE_CIBLE_EXTRAITS_COPIES) && (
+                  <BoutonCreationRDD
+                    label="Demander la délivrance"
+                    labelPopin={`Vous allez demander la délivrance de cet acte. Souhaitez-vous continuer ?`}
+                    acte={fiche}
+                    numeroFonctionnel={numeroRequete}
                   />
-                </Form>
-              </Formik>
-              <MentionForm
-                titulaires={titulairesMention}
-                setEnCoursDeSaisie={setFormulaireMentionEnCoursDeSaisie}
-                enCoursDeSaisie={formulaireMentionEnCoursDeSaisie}
-                setMentionEnCoursDeSaisie={setMentionEnCoursDeSaisie}
-                natureActe={acte?.nature}
-              />
-            </OngletsContenu>
+                )}
+            </div>
           )}
 
-          {afficherAnalyseMarginale && (
-            <OngletsContenu estActif={ongletsActifs.formulaires === ECleOngletsMiseAJour.ANALYSE_MARGINALE}>
-              <AnalyseMarginaleFormulaire
-                setDonneesAnalyseMarginale={setDonneesAnalyseMarginale}
-                setAnalyseMarginaleModifiee={setAnalyseMarginaleModifiee}
-                valeursInitiales={valeursInitialesFormulaireAnalyseMarginale}
-                motif={motif}
-              />
-            </OngletsContenu>
-          )}
-
-          <ConteneurBoutonBasDePage position="droite">
-            {estMiseAJourAvecMentions ? (
-              <BoutonTerminerEtSigner
-                saisieMentionEnCours={formulaireMentionEnCoursDeSaisie}
-                acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits={acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits}
-                nombreMentionsAjoutees={mentionsDeLActe.length}
-              />
-            ) : (
-              <BoutonValiderEtTerminer disabled={!miseAJourEffectuee} />
-            )}
-          </ConteneurBoutonBasDePage>
-        </div>
-      </div>
-      {afficherModaleAnalyseMarginale && (
-        <ConteneurModale>
-          <div className="rounded-md border-[2px] border-solid border-bleu-sombre bg-blanc p-6 shadow-lg">
-            <div className="p-6">{"Veuillez vérifier s'il y a lieu de mettre à jour l'analyse marginale"}</div>
-            <Bouton
-              title="J'ai lu ce message"
-              onClick={() => {
-                setAfficherModaleAnalyseMarginale(false);
-              }}
-            >
-              {"OK"}
-            </Bouton>
-          </div>
-        </ConteneurModale>
+          {panelsFiche?.panels.map((panel: SectionPanelProps, idx: number) => (
+            <AccordionRece
+              key={`accordion-rece-${idx}`}
+              panel={panel}
+              index={idx}
+              expanded={panelsFiche.panelParDefaut ? idx === panelsFiche.panelParDefaut : idx === 0}
+              titre={panel?.title}
+              disabled={panel?.panelAreas.every((pa: SectionPanelAreaProps) => !pa.value && !pa.parts)}
+            />
+          ))}
+        </>
+      ) : (
+        <OperationLocaleEnCours visible={true} />
       )}
-    </>
+    </div>
   );
 };
 
-export default PartieFormulaire;
+/**
+ * Retourne l'index local à la "plage" courante (ie "datasFiches").
+ * En effet, "indexCourant" est l'index sur la totalité des données mais dépasse peut être la taille de datasFiches
+ */
+function getIndexLocal(index: number, nbLignesParAppel: number) {
+  return index % nbLignesParAppel;
+}
