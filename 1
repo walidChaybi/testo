@@ -1,79 +1,352 @@
+import { CONFIG_POST_REQUETE_MISE_A_JOUR } from "@api/configurations/requete/miseAJour/PostRequeteMiseAJourApiConfig";
+import { AddAlerteActeApiHookParameters, useAddAlerteActeApiHook } from "@hook/alertes/AddAlerteActeHookApi";
+import { DeleteAlerteActeApiHookParameters, useDeleteAlerteActeApiHook } from "@hook/alertes/DeleteAlerteActeHookApi";
 import { Droit } from "@model/agent/enum/Droit";
-import { useContext, useMemo, useState } from "react";
-import { ECleOngletsMiseAJour, EditionMiseAJourContext } from "../../../../contexts/EditionMiseAJourContextProvider";
-import { RECEContextData } from "../../../../contexts/RECEContextProvider";
-import AfficherMessage from "../../../../utils/AfficherMessage";
-import Bouton from "../../../commun/bouton/Bouton";
-import ConteneurModale from "../../../commun/conteneurs/modale/ConteneurModale";
-import SignatureDocument from "../../../commun/signature/SignatureDocument";
+import { Perimetre } from "@model/agent/enum/Perimetre";
+import { FicheActe } from "@model/etatcivil/acte/FicheActe";
+import { ETypeActe } from "@model/etatcivil/enum/ETypeActe";
+import { ETypeFiche } from "@model/etatcivil/enum/ETypeFiche";
+import { EOptionMiseAJourActe, OptionMiseAJourActe } from "@model/etatcivil/enum/OptionMiseAJourActe";
+import { TitulaireRequeteMiseAJour } from "@model/requete/ITitulaireRequeteMiseAJour";
+import { SousTypeMiseAJour } from "@model/requete/enum/SousTypeMiseAJour";
+import { UN } from "@util/Utils";
+import { FeatureFlag } from "@util/featureFlag/FeatureFlag";
+import { gestionnaireFeatureFlag } from "@util/featureFlag/gestionnaireFeatureFlag";
+import { AccordionRece } from "@widget/accordion/AccordionRece";
+import { IAjouterAlerteFormValue } from "@widget/alertes/ajouterAlerte/contenu/PopinAjouterAlertes";
+import { OperationLocaleEnCours } from "@widget/attente/OperationLocaleEnCours";
+import { BoutonMenu } from "@widget/boutonMenu/BoutonMenu";
+import { BarreNavigationSuivPrec } from "@widget/navigation/barreNavigationSuivPrec/BarreNavigationSuivPrec";
+import { SectionPanelProps } from "@widget/section/SectionPanel";
+import { SectionPanelAreaProps } from "@widget/section/SectionPanelArea";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
+import { IFenetreExterneRef } from "../../../composants/commun/conteneurs/FenetreExterne";
+import { RECEContextData } from "../../../contexts/RECEContextProvider";
+import useFetchApi from "../../../hooks/api/FetchApiHook";
+import LiensRECE from "../../../router/LiensRECE";
+import {
+  INFO_PAGE_MISE_A_JOUR_ANALYSE_MARGINALE,
+  INFO_PAGE_MISE_A_JOUR_MENTION_AUTRE,
+  INFO_PAGE_MISE_A_JOUR_MENTION_SUITE_AVIS
+} from "../../../router/infoPages/InfoPagesEspaceMiseAJour";
+import AfficherMessage from "../../../utils/AfficherMessage";
+import { BoutonCreationRDD } from "./BoutonCreationRDD/BoutonCreationRDD";
+import { setFiche } from "./FicheUtils";
+import { BandeauAlertesActe } from "./contenu/BandeauAlertesActe";
+import { BandeauFiche } from "./contenu/BandeauFiche";
+import { BandeauFicheActeNumero } from "./contenu/BandeauFicheActeNumero";
+import { BandeauFicheRcRcaPacsNumero } from "./contenu/BandeauFicheRcRcaPacsNumero";
+import { useFichePageApiHook } from "./hook/FichePageApiHook";
+import "./scss/FichePage.scss";
 
-interface IBoutonTerminerEtSignerProps {
-  saisieMentionEnCours: boolean;
-  acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits: boolean;
-  acteEstEligibleDoubleNumerique?: boolean;
-  nombreMentionsManuelles?: number;
+export interface IIndex {
+  value: number;
 }
 
-const BoutonTerminerEtSigner: React.FC<IBoutonTerminerEtSignerProps> = ({
-  saisieMentionEnCours,
-  acteEstEligibleFormuleDIntegrationEtUtilisateurALesDroits,
-  acteEstEligibleDoubleNumerique = false,
-  nombreMentionsManuelles = 0
+interface IFichePageProps {
+  datasFiches: IDataFicheProps[];
+  index: IIndex;
+  numeroRequete?: string;
+  fenetreExterneRef?: IFenetreExterneRef;
+  nbLignesTotales: number;
+  nbLignesParAppel: number;
+}
+
+export interface IDataFicheProps {
+  identifiant: string;
+  categorie: ETypeFiche;
+}
+
+export const estActeEligibleDoubleNumerique = ({ origine, referenceActe, referenceRegistreSansNumeroDActe, type }: FicheActe): boolean => {
+  const estOrigineScecDocs = origine === "SCEC_DOCS";
+  const aReferenceRegistre = Boolean(referenceRegistreSansNumeroDActe?.trim());
+  const estTypeTexte = type === ETypeActe.TEXTE;
+  // L'acte n'a pas encore de référence RECE (contient ACQ.xx.XX ou similaire, pas RECE.xxx.XXX)
+  const naPasReferenceRece = !referenceActe?.trim().startsWith("RECE");
+
+  return estOrigineScecDocs && aReferenceRegistre && estTypeTexte && naPasReferenceRece;
+};
+
+// Les actes éligibles au double numérique sont aussi éligibles à la formule d'intégration
+export const estActeEligibleFormuleDIntegration = (acte: FicheActe): boolean => {
+  return estActeEligibleDoubleNumerique(acte);
+};
+
+export const FichePage: React.FC<IFichePageProps> = ({
+  datasFiches,
+  numeroRequete,
+  index,
+  fenetreExterneRef,
+  nbLignesTotales,
+  nbLignesParAppel
 }) => {
-  const { utilisateurConnecte } = useContext(RECEContextData);
-  const { idActe, idRequete, miseAJourEffectuee } = useContext(EditionMiseAJourContext.Valeurs);
-  const { setEstActeSigne, desactiverBlocker, changerOnglet } = useContext(EditionMiseAJourContext.Actions);
-  const aDroitSigner = useMemo<boolean>(
-    () => utilisateurConnecte.estHabilitePour({ tousLesDroits: [Droit.SIGNER_MENTION, Droit.METTRE_A_JOUR_ACTE] }),
-    [utilisateurConnecte]
+  const navigate = useNavigate();
+  const [actualisationInfosFiche, setActualisationInfosFiche] = useState<boolean>(false);
+  const [ficheCourante, setFicheCourante] = useState<IDataFicheProps | undefined>(
+    datasFiches[getIndexLocal(index.value, nbLignesParAppel)]
   );
-  const [modaleOuverte, setModaleOuverte] = useState<boolean>(false);
+  const [optionMiseAJour, setOptionMiseAJour] = useState<EOptionMiseAJourActe | null>(null);
+  // index courant sur la totalité des données
+  const [indexCourant, setIndexCourant] = useState<number>(index.value);
 
-  if (!aDroitSigner) return <></>;
+  const { appelApi: appelPostRequeteMiseAJour } = useFetchApi(CONFIG_POST_REQUETE_MISE_A_JOUR);
 
-  const aAuMoinsUneMentionManuelle = nombreMentionsManuelles > 0;
-  // Pour double numérique, on nécessite au moins une mention manuelle
-  // Pour formule d'intégration (acte déjà transformé), on suit le flux normal de mise à jour
-  const peutSigner = miseAJourEffectuee && !saisieMentionEnCours && (!acteEstEligibleDoubleNumerique || aAuMoinsUneMentionManuelle);
+  useEffect(() => {
+    setFicheCourante(datasFiches[getIndexLocal(indexCourant, nbLignesParAppel)]);
+  }, [datasFiches]);
 
-  // DOUBLE_NUMERIQUE uniquement pour les actes qui n'ont pas encore de référence RECE
-  // MISE_A_JOUR pour les actes qui ont déjà une référence RECE (après transformation) ou origine RECE
-  const typeSignature = acteEstEligibleDoubleNumerique ? "DOUBLE_NUMERIQUE" : "MISE_A_JOUR";
+  // (*) Permet de résoudre le pb de la fenêtre fiche déjà ouverte
+  // Si l'utilisateur clique sur une fenêtre fiche déjà ouverte (et qu'il a déjà navigué dedans) alors l'index aura changé (cf. onClickOnLine RMCTableauActes par exemple ),
+  //   on peut ainsi mettre à jour l'index courant avec l'index passé en props
+  // A noté que ce useEffect passe après le précédent et qu'il écrase donc la ficheCourante précédemment mise à jour par le useEffect ci-dessus
+  useEffect(() => {
+    setIndexCourant(index.value);
+    setFicheCourante(datasFiches[getIndexLocal(index.value, nbLignesParAppel)]);
+  }, [index]);
+
+  const { utilisateurConnecte } = useContext(RECEContextData);
+
+  const fiche = useFichePageApiHook(actualisationInfosFiche, ficheCourante?.categorie, ficheCourante?.identifiant);
+
+  const { bandeauFiche, panelsFiche, alertes, visuBoutonAlertes } = setFiche(utilisateurConnecte, ficheCourante, fiche);
+
+  const droitsMiseAJour = useMemo(() => {
+    const droitMentions = utilisateurConnecte.estHabilitePour({ leDroit: Droit.METTRE_A_JOUR_ACTE });
+    const droitAnalyseMarginale = utilisateurConnecte.estHabilitePour({ leDroit: Droit.MODIFIER_ANALYSE_MARGINALE });
+
+    if (!fiche) {
+      return {
+        autorise: false,
+        mentions: droitMentions,
+        AnalyseMarginale: droitAnalyseMarginale
+      };
+    }
+
+    let autorise = false;
+
+    if (ficheCourante?.categorie === ETypeFiche.ACTE && "titulaires" in fiche && fiche.statut !== "BROUILLON") {
+      const estOrigineRece = fiche?.origine === "RECE";
+      const estOrigineScecDocs = fiche?.origine === "SCEC_DOCS";
+      const aReferenceRece = Boolean(fiche?.referenceActe?.trim().startsWith("RECE"));
+
+      // Actes origine RECE
+      const peutMettreAJourRece = estOrigineRece && (droitMentions || droitAnalyseMarginale);
+
+      // Actes SCEC_DOCS qui ont déjà une référence RECE (après transformation) → flux normal
+      const peutMettreAJourScecDocsTransforme = estOrigineScecDocs && aReferenceRece && (droitMentions || droitAnalyseMarginale);
+
+      // Actes SCEC_DOCS éligibles au double numérique (avant transformation) → avec formule d'intégration
+      const peutSignerDoubleNumerique =
+        estActeEligibleDoubleNumerique(fiche) &&
+        droitMentions &&
+        utilisateurConnecte.estHabilitePour({ leDroit: Droit.MISE_A_JOUR_CREER_DOUBLE_NUMERIQUE });
+
+      autorise = peutMettreAJourRece || peutMettreAJourScecDocsTransforme || peutSignerDoubleNumerique;
+    }
+
+    return {
+      autorise,
+      mentions: droitMentions,
+      AnalyseMarginale: droitAnalyseMarginale
+    };
+  }, [fiche, ficheCourante, utilisateurConnecte]);
+
+  useEffect(() => {
+    const idActe = fiche?.id;
+    if (!optionMiseAJour || !idActe || !(fiche instanceof FicheActe)) return;
+
+    const estAnalyseMarginale = optionMiseAJour === EOptionMiseAJourActe.ANALYSE_MARGINALE;
+    const sousTypeOptionMiseAJour = OptionMiseAJourActe.getSousType(optionMiseAJour);
+
+    appelPostRequeteMiseAJour({
+      parametres: {
+        body: {
+          idActeMAJ: idActe,
+          choixMAJ: estAnalyseMarginale ? "MAJ_ACTE_ANALYSE_MARGINALE" : "MAJ_ACTE_APPOSER_MENTION",
+          sousType: sousTypeOptionMiseAJour.nom,
+          titulaires: TitulaireRequeteMiseAJour.listeDepuisDonneesFiche(fiche.titulaires)
+        }
+      },
+      apresSucces: reponse => {
+        const urlNavigation = (() => {
+          switch (true) {
+            case estAnalyseMarginale:
+              return LiensRECE.genererLien(INFO_PAGE_MISE_A_JOUR_ANALYSE_MARGINALE.url, {
+                idRequeteParam: reponse.id,
+                idActeParam: idActe
+              });
+            case SousTypeMiseAJour.estRMAC(sousTypeOptionMiseAJour):
+              return LiensRECE.genererLien(INFO_PAGE_MISE_A_JOUR_MENTION_SUITE_AVIS.url, {
+                idRequeteParam: reponse.id,
+                idActeParam: idActe
+              });
+            default:
+              return LiensRECE.genererLien(INFO_PAGE_MISE_A_JOUR_MENTION_AUTRE.url, { idRequeteParam: reponse.id, idActeParam: idActe });
+          }
+        })();
+
+        navigate(urlNavigation);
+      },
+      apresErreur: erreurs => {
+        const messageErreur = erreurs.find(erreur => erreur.code === "FCT_15181")?.message;
+
+        AfficherMessage.erreur(messageErreur ?? "Impossible d'accéder à la requête de mise à jour de l'acte", {
+          erreurs
+        });
+      },
+      finalement: () => setOptionMiseAJour(null)
+    });
+  }, [optionMiseAJour]);
+
+  // Obligatoire pour les styles qui sont chargés dynamiquement
+  useEffect(() => {
+    if (fiche && fiche.id === ficheCourante?.identifiant) {
+      if (fiche != null) {
+        const event = new CustomEvent("refreshStyles");
+        if (window.top) {
+          window.top.dispatchEvent(event);
+        }
+      }
+      if (fenetreExterneRef && bandeauFiche) {
+        fenetreExterneRef.ref.document.title = bandeauFiche.titreFenetre;
+      }
+    }
+  }, [fiche, fenetreExterneRef, bandeauFiche, ficheCourante]);
+
+  const setIndexFiche = useCallback(
+    (idx: number) => {
+      if (ficheCourante && datasFiches && idx >= 0 && idx < nbLignesTotales) {
+        setFicheCourante(datasFiches[getIndexLocal(idx, nbLignesParAppel)]);
+      }
+      setIndexCourant(idx);
+    },
+    [ficheCourante, datasFiches, indexCourant, nbLignesParAppel, nbLignesTotales]
+  );
+
+  /* Ajout d'une alerte */
+  const [ajouterAlerteActeApiHookParameters, setAjouterAlerteActeApiHookParameters] = useState<AddAlerteActeApiHookParameters>();
+
+  const ajouterAlerteCallBack = useCallback(
+    (value: IAjouterAlerteFormValue) => {
+      setAjouterAlerteActeApiHookParameters({
+        idActe: fiche?.id ?? "",
+        idTypeAlerte: value?.idTypeAlerte,
+        complementDescription: value?.complementDescription
+      });
+    },
+    [fiche]
+  );
+
+  const alerte = useAddAlerteActeApiHook(ajouterAlerteActeApiHookParameters);
+
+  /* Suppression d'une alerte */
+  const [deleteAlerteActeApiHookParameters, setDeleteAlerteActeApiHookParameters] = useState<DeleteAlerteActeApiHookParameters>();
+
+  const supprimerAlerteCallBack = useCallback((idAlerteActe: string, idActe: string) => {
+    setDeleteAlerteActeApiHookParameters({
+      idAlerteActe,
+      idActe
+    });
+  }, []);
+
+  const resultatSuppressionAlerte = useDeleteAlerteActeApiHook(deleteAlerteActeApiHookParameters);
+
+  useEffect(() => {
+    if (alerte || resultatSuppressionAlerte) {
+      setActualisationInfosFiche(!actualisationInfosFiche);
+    }
+  }, [alerte, resultatSuppressionAlerte]);
 
   return (
-    <>
-      <Bouton
-        type="button"
-        title="Terminer et signer"
-        disabled={!peutSigner}
-        onClick={() => setModaleOuverte(true)}
-      >
-        {"Terminer et signer"}
-      </Bouton>
+    <div className="FichePage">
+      {bandeauFiche && panelsFiche && fiche && ficheCourante ? (
+        <>
+          <BandeauFiche
+            dataBandeau={bandeauFiche}
+            elementNumeroLigne={
+              ficheCourante.categorie === ETypeFiche.ACTE ? (
+                <BandeauFicheActeNumero dataBandeau={bandeauFiche} />
+              ) : (
+                <BandeauFicheRcRcaPacsNumero dataBandeau={bandeauFiche} />
+              )
+            }
+          />
 
-      {modaleOuverte && (
-        <ConteneurModale>
-          <div className="border-3 w-[34rem] max-w-full rounded-xl border-solid border-bleu-sombre bg-blanc p-5">
-            <h2 className="m-0 mb-4 text-center font-medium text-bleu-sombre">{"Signature des mentions"}</h2>
-            <SignatureDocument
-              typeSignature={typeSignature}
-              idActe={idActe}
-              idRequete={idRequete}
-              apresSignature={(succes: boolean) => {
-                setModaleOuverte(false);
-                if (!succes) return;
+          {datasFiches.length > UN && (
+            <div className="barreNavigationSuivPrec">
+              <BarreNavigationSuivPrec
+                index={indexCourant}
+                max={nbLignesTotales}
+                setIndex={setIndexFiche}
+              />
+            </div>
+          )}
 
-                changerOnglet(ECleOngletsMiseAJour.ACTE, null);
-                setEstActeSigne(true);
-                AfficherMessage.succes("L'acte a été mis à jour avec succès.", { fermetureAuto: true });
-                desactiverBlocker();
-              }}
+          {fiche instanceof FicheActe && ficheCourante.categorie === ETypeFiche.ACTE && (
+            <div className="headerFichePage">
+              <BandeauAlertesActe
+                alertes={alertes}
+                idTypeRegistre={fiche?.registre?.type?.id}
+                ajouterAlerteCallBack={ajouterAlerteCallBack}
+                supprimerAlerteCallBack={supprimerAlerteCallBack}
+                afficherBouton={visuBoutonAlertes}
+                disableScrollLock={true}
+              />
+              {droitsMiseAJour.autorise && (
+                <BoutonMenu
+                  boutonLibelle="Mettre à jour"
+                  className="menuMettreAJour"
+                  options={OptionMiseAJourActe.commeOptions({
+                    mentions: droitsMiseAJour.mentions,
+                    analyseMarginale: droitsMiseAJour.AnalyseMarginale
+                  })}
+                  onClickOption={option => setOptionMiseAJour(option as EOptionMiseAJourActe)}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                  transformOrigin={{ vertical: "top", horizontal: "right" }}
+                  disableScrollLock={true}
+                />
+              )}
+              {fiche &&
+                !(
+                  utilisateurConnecte.estHabilitePour({
+                    leDroit: Droit.CONSULTER,
+                    pourIdTypeRegistre: fiche.registre?.type?.id
+                  }) || utilisateurConnecte.estHabilitePour({ leDroit: Droit.CONSULTER, surLePerimetre: Perimetre.TOUS_REGISTRES })
+                ) &&
+                gestionnaireFeatureFlag.estActif(FeatureFlag.FF_DELIVRANCE_CIBLE_EXTRAITS_COPIES) && (
+                  <BoutonCreationRDD
+                    label="Demander la délivrance"
+                    labelPopin={`Vous allez demander la délivrance de cet acte. Souhaitez-vous continuer ?`}
+                    acte={fiche}
+                    numeroFonctionnel={numeroRequete}
+                  />
+                )}
+            </div>
+          )}
+
+          {panelsFiche?.panels.map((panel: SectionPanelProps, idx: number) => (
+            <AccordionRece
+              key={`accordion-rece-${idx}`}
+              panel={panel}
+              index={idx}
+              expanded={panelsFiche.panelParDefaut ? idx === panelsFiche.panelParDefaut : idx === 0}
+              titre={panel?.title}
+              disabled={panel?.panelAreas.every((pa: SectionPanelAreaProps) => !pa.value && !pa.parts)}
             />
-          </div>
-        </ConteneurModale>
+          ))}
+        </>
+      ) : (
+        <OperationLocaleEnCours visible={true} />
       )}
-    </>
+    </div>
   );
 };
 
-export default BoutonTerminerEtSigner;
+/**
+ * Retourne l'index local à la "plage" courante (ie "datasFiches").
+ * En effet, "indexCourant" est l'index sur la totalité des données mais dépasse peut être la taille de datasFiches
+ */
+function getIndexLocal(index: number, nbLignesParAppel: number) {
+  return index % nbLignesParAppel;
+}
